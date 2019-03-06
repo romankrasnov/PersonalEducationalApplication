@@ -1,4 +1,4 @@
-package com.smallredtracktor.yourpersonaleducationalapplication;
+package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,12 +13,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.smallredtracktor.yourpersonaleducationalapplication.R;
+import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ((App) getApplication()).getComponent().inject(this);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
