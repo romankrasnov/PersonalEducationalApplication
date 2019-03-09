@@ -15,4 +15,19 @@ public class CreateTestFragmentPresenter implements ICreateTestFragmentMVPprovid
     public void onCreateTestFragmentInteraction() {
 
     }
+
+    @Override
+    public void onSwipe() {
+
+    }
+
+    @Override
+    public void onAddQuestion() {
+
+    }
+
+    @Override
+    public void onAddAnswer() {
+
+    }
 }

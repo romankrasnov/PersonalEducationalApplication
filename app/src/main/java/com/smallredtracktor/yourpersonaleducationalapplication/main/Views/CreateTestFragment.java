@@ -1,41 +1,60 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.SwipeUtils.OnSwipeTouchListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link CreateTestFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link CreateTestFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 public class CreateTestFragment extends Fragment implements
-        View.OnTouchListener,
-        ICreateTestFragmentMVPprovider.IFragment
+        ICreateTestFragmentMVPprovider.IFragment {
 
-    {  //for swipe impl + MUST IMPLEMENT IFragment!!! methods to subscribe
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    @BindView(R.id.counterTicketsTextView)
+    TextView counterTicketsTextView;
+    @BindView(R.id.questionStackLayout)
+    LinearLayout questionStackLayout;
+    @BindView(R.id.answerStackLayout)
+    LinearLayout answerStackLayout;
+    @BindView(R.id.addQuestionButton)
+    Button addQuestionButton;
+    @BindView(R.id.addAnswersButton)
+    Button addAnswersButton;
+    @BindView(R.id.cleanButton)
+    Button cleanButton;
+    @BindView(R.id.doneFillTicketsButton)
+    Button doneFillTicketsButton;
+    @BindView(R.id.questionScrollView)
+    ScrollView questionScrollView;
+    @BindView(R.id.answerScrollView)
+    ScrollView answerScrollView;
+
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private int ticketCounter = 0;
 
     private OnFragmentInteractionListener mListener;
 
@@ -70,11 +89,44 @@ public class CreateTestFragment extends Fragment implements
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_test, container, false);
+        View view = inflater.inflate(R.layout.fragment_create_test, container, false);
+        ButterKnife.bind(this, view);
+
+        questionStackLayout.addView(new Button(getContext()));
+        questionStackLayout.addView(new Button(getContext()));
+        questionStackLayout.addView(new Button(getContext()));
+        questionStackLayout.addView(new Button(getContext()));
+
+        answerStackLayout.addView(new Button(getContext()));
+        answerStackLayout.addView(new Button(getContext()));
+        answerStackLayout.addView(new Button(getContext()));
+        answerStackLayout.addView(new Button(getContext()));
+
+
+        view.setOnTouchListener(new OnSwipeTouchListener(this.getContext()) {
+            public void onSwipeTop() {
+                counterTicketsTextView.setText("Top");
+            }
+
+            public void onSwipeRight() {
+                counterTicketsTextView.setText("Right");
+            }
+
+            public void onSwipeLeft() {
+                counterTicketsTextView.setText("Left");
+            }
+
+            public void onSwipeBottom() {
+                counterTicketsTextView.setText("Bottom");
+            }
+
+        });
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -102,25 +154,11 @@ public class CreateTestFragment extends Fragment implements
     }
 
 
-    //TODO: expand this event
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
+    public void onDestroyView() {
+        super.onDestroyView();
+
     }
-
-
-
-
-        /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
 
 
     public interface OnFragmentInteractionListener {

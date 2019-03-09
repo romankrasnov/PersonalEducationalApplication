@@ -7,8 +7,10 @@ public interface ICreateTestFragmentMVPprovider {
 
     interface IPresenter
     {
-
         void onCreateTestFragmentInteraction();
+        void onSwipe();
+        void onAddQuestion();
+        void onAddAnswer();
     }
 
     interface IFragment
