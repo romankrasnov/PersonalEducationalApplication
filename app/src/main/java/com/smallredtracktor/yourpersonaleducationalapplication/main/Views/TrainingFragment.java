@@ -3,31 +3,22 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link CreateTestFragment.OnFragmentInteractionListener} interface
+ * {@link TrainingFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link CreateTestFragment#newInstance} factory method to
+ * Use the {@link TrainingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-
-
-public class CreateTestFragment extends Fragment implements
-        View.OnTouchListener,
-        ICreateTestFragmentMVPprovider.IFragment
-
-    {  //for swipe impl + MUST IMPLEMENT IFragment!!! methods to subscribe
+public class TrainingFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -39,7 +30,7 @@ public class CreateTestFragment extends Fragment implements
 
     private OnFragmentInteractionListener mListener;
 
-    public CreateTestFragment() {
+    public TrainingFragment() {
         // Required empty public constructor
     }
 
@@ -49,11 +40,11 @@ public class CreateTestFragment extends Fragment implements
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment CreateTestFragment.
+     * @return A new instance of fragment TrainingFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CreateTestFragment newInstance(String param1, String param2) {
-        CreateTestFragment fragment = new CreateTestFragment();
+    public static TrainingFragment newInstance(String param1, String param2) {
+        TrainingFragment fragment = new TrainingFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -71,16 +62,16 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_test, container, false);
+        return inflater.inflate(R.layout.fragment_training, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
-            mListener.onCreateTestFragmentInteraction(uri);
+            mListener.onTrainingFragmentInteraction(uri);
         }
     }
 
@@ -101,17 +92,7 @@ public class CreateTestFragment extends Fragment implements
         mListener = null;
     }
 
-
-    //TODO: expand this event
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
-    }
-
-
-
-
-        /**
+    /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
@@ -121,10 +102,8 @@ public class CreateTestFragment extends Fragment implements
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-
-
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onCreateTestFragmentInteraction(Uri uri);
+        void onTrainingFragmentInteraction(Uri uri);
     }
 }
