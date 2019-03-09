@@ -9,9 +9,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
@@ -34,20 +35,18 @@ public class CreateTestFragment extends Fragment implements
     TextView counterTicketsTextView;
     @BindView(R.id.questionStackLayout)
     LinearLayout questionStackLayout;
-    @BindView(R.id.answerStackLayout)
-    LinearLayout answerStackLayout;
     @BindView(R.id.addQuestionButton)
     Button addQuestionButton;
-    @BindView(R.id.addAnswersButton)
-    Button addAnswersButton;
-    @BindView(R.id.cleanButton)
-    Button cleanButton;
-    @BindView(R.id.doneFillTicketsButton)
-    Button doneFillTicketsButton;
-    @BindView(R.id.questionScrollView)
-    ScrollView questionScrollView;
-    @BindView(R.id.answerScrollView)
-    ScrollView answerScrollView;
+    @BindView(R.id.answerStackLayout)
+    LinearLayout answerStackLayout;
+    @BindView(R.id.addAnswerButton)
+    Button addAnswerButton;
+    @BindView(R.id.clearButton)
+    Button clearButton;
+    @BindView(R.id.doneButton)
+    Button doneButton;
+    @BindView(R.id.createTestLayout)
+    LinearLayout createTestLayout;
 
 
     // TODO: Rename and change types of parameters
@@ -62,15 +61,7 @@ public class CreateTestFragment extends Fragment implements
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CreateTestFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static CreateTestFragment newInstance(String param1, String param2) {
         CreateTestFragment fragment = new CreateTestFragment();
         Bundle args = new Bundle();
@@ -96,16 +87,6 @@ public class CreateTestFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_create_test, container, false);
         ButterKnife.bind(this, view);
 
-        questionStackLayout.addView(new Button(getContext()));
-        questionStackLayout.addView(new Button(getContext()));
-        questionStackLayout.addView(new Button(getContext()));
-        questionStackLayout.addView(new Button(getContext()));
-
-        answerStackLayout.addView(new Button(getContext()));
-        answerStackLayout.addView(new Button(getContext()));
-        answerStackLayout.addView(new Button(getContext()));
-        answerStackLayout.addView(new Button(getContext()));
-
 
         view.setOnTouchListener(new OnSwipeTouchListener(this.getContext()) {
             public void onSwipeTop() {
@@ -114,10 +95,15 @@ public class CreateTestFragment extends Fragment implements
 
             public void onSwipeRight() {
                 counterTicketsTextView.setText("Right");
+                //TODO добить анимацию, в этих методах презентер подпишется, также вью должен реализовать методы интерфейса
+                //завязаные на логике представления пользователю
+                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left);
+                createTestLayout.startAnimation(animation);
             }
 
             public void onSwipeLeft() {
                 counterTicketsTextView.setText("Left");
+
             }
 
             public void onSwipeBottom() {
@@ -157,7 +143,6 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
     }
 
 
