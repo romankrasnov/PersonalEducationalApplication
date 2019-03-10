@@ -13,6 +13,9 @@ public interface IMainActivityMVPprovider
         ///With view EVENTS
         void navigationItemSelected(int id);
         void optionsItemSelected(int id);
+
+        void onCreateTestFragmentInteraction();
+        void onTrainingFragmentInteraction();
     }
 
      interface IView extends NavigationView.OnNavigationItemSelectedListener

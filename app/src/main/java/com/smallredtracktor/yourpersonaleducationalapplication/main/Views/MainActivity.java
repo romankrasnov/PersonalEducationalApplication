@@ -16,9 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.IMainActivityMVPprovider;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ITrainingFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
 import javax.inject.Inject;
@@ -43,10 +41,7 @@ public class MainActivity extends AppCompatActivity
     @Inject
     IMainActivityMVPprovider.IPresenter presenter;
 
-    @Inject
-    ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
-    @Inject
-    ITrainingFragmentMVPprovider.IPresenter trainingFragmentPresenter;
+    FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,20 +104,28 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setMainFragment(Fragment fragment) {
-    FragmentManager fragmentManager = getSupportFragmentManager();
+    fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    fragmentTransaction.add(R.id.host, fragment);
-    fragmentTransaction.commit();
+    if(fragmentManager.getFragments().isEmpty()) {
+        fragmentTransaction.add(R.id.host, fragment);
+    }else
+        {
+            if (!fragmentManager.getFragments().contains(fragment))
+            {
+                fragmentTransaction.replace(R.id.host, fragment);
+            }
+        }
+        fragmentTransaction.commit();
     }
 
     @Override
     public void onCreateTestFragmentInteraction(Uri uri)
     {
-        createTestFragmentPresenter.onCreateTestFragmentInteraction();
+        presenter.onCreateTestFragmentInteraction();
     }
 
     @Override
     public void onTrainingFragmentInteraction(Uri uri) {
-        trainingFragmentPresenter.onTrainingFragmentInteraction();
+        presenter.onTrainingFragmentInteraction();
     }
 }

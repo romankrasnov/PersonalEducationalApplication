@@ -51,4 +51,14 @@ public class MainActivityPresenter implements IMainActivityMVPprovider.IPresente
         }
     }
 
+    @Override
+    public void onCreateTestFragmentInteraction() {
+
+    }
+
+    @Override
+    public void onTrainingFragmentInteraction() {
+
+    }
+
 }

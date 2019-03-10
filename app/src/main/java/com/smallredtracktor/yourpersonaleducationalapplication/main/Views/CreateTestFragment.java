@@ -9,8 +9,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,6 +16,8 @@ import android.widget.TextView;
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.SwipeUtils.OnSwipeTouchListener;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,7 +53,9 @@ public class CreateTestFragment extends Fragment implements
     private String mParam1;
     private String mParam2;
 
-    private int ticketCounter = 0;
+
+    @Inject
+    ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -90,37 +92,29 @@ public class CreateTestFragment extends Fragment implements
 
         view.setOnTouchListener(new OnSwipeTouchListener(this.getContext()) {
             public void onSwipeTop() {
-                counterTicketsTextView.setText("Top");
+                createTestFragmentPresenter.onSwipeTop();
             }
 
             public void onSwipeRight() {
-                counterTicketsTextView.setText("Right");
-                //TODO добить анимацию, в этих методах презентер подпишется, также вью должен реализовать методы интерфейса
-                //завязаные на логике представления пользователю
-                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left);
-                createTestLayout.startAnimation(animation);
+                createTestFragmentPresenter.onSwipeRight();
             }
 
             public void onSwipeLeft() {
-                counterTicketsTextView.setText("Left");
+                createTestFragmentPresenter.onSwipeLeft();
 
             }
 
             public void onSwipeBottom() {
-                counterTicketsTextView.setText("Bottom");
+                createTestFragmentPresenter.onSwipeBottom();
             }
 
         });
 
+
+
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onCreateTestFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -144,6 +138,8 @@ public class CreateTestFragment extends Fragment implements
     public void onDestroyView() {
         super.onDestroyView();
     }
+
+
 
 
     public interface OnFragmentInteractionListener {
