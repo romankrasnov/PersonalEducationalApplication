@@ -1,6 +1,7 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.root;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreateTestComponent;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
@@ -10,7 +11,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.Main
 
 public class App extends Application {
 
-private static ApplicationComponent appComponent;
+private ApplicationComponent appComponent;
 private CreateTestComponent createTestComponent;
 
     @Override
@@ -22,9 +23,13 @@ private CreateTestComponent createTestComponent;
                 .build();
         }
 
-        public static ApplicationComponent getComponent() {
+        public ApplicationComponent getComponent() {
             return appComponent;
         }
+
+        public static App get(Context context) {
+        return (App) context.getApplicationContext();
+    }
 
 
         public CreateTestComponent plusCreateTestComponent() {

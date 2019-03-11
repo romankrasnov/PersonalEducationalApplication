@@ -4,7 +4,7 @@
     android:id="@+id/createTestLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ic_launcher_background"
+    tools:background="@drawable/imageBACK"
     tools:context=".main.Views.CreateTestFragment">
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:gravity="center"
-            android:text="566"
+            android:text="NUM"
             android:textSize="30sp"
             tools:textSize="30sp" />
 

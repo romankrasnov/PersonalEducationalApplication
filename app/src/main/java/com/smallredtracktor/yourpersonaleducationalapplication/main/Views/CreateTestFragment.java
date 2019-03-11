@@ -15,8 +15,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,7 +25,6 @@ import com.github.florent37.camerafragment.listeners.CameraFragmentResultListene
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.SwipeUtils.OnSwipeTouchListener;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
@@ -107,8 +104,8 @@ public class CreateTestFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_create_test, container, false);
         ButterKnife.bind(this, view);
 
-        App.getComponent()
-                .plusCreateTestComponent(new CreateTestModule())
+        App.get(getContext())
+                .plusCreateTestComponent()
                 .inject(this);
 
         view.setOnTouchListener(new OnSwipeTouchListener(this.getContext()) {
@@ -223,14 +220,10 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showLeftSwipeAnimation() {
-        Animation leftSwipeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left);
-        createTestLayout.startAnimation(leftSwipeAnimation);
     }
 
     @Override
     public void showRightSwipeAnimation() {
-        Animation rightSwipeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_right);
-        createTestLayout.startAnimation(rightSwipeAnimation);
     }
 
     @Override
@@ -243,7 +236,6 @@ public class CreateTestFragment extends Fragment implements
         @SuppressLint("MissingPermission")
 
                 //<--- TODO replace with native camera, CameraFragment not supported
-                // TODO resolve bug which provide only ONCE application instance (m.b. AppModule bug --->
 
         CameraFragment cameraFragment = CameraFragment.newInstance(new Configuration.Builder()
                 .setCamera(Configuration.CAMERA_FACE_FRONT)
