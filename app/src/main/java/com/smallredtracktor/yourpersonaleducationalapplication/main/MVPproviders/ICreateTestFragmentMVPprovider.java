@@ -1,7 +1,10 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders;
 
 
+import android.view.View;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
 import java.util.List;
 
@@ -10,6 +13,7 @@ public interface ICreateTestFragmentMVPprovider {
 
     interface IPresenter
     {
+        void setView(IFragment view);
         void onSwipeTop();
         void onSwipeRight();
         void onSwipeLeft();
@@ -27,23 +31,26 @@ public interface ICreateTestFragmentMVPprovider {
         void onGallerySourceChoosed();
         void onSubjectConfrimed();
         void onSubjectEdited();
+        void onVideoRecorded();
+        void onPhotoTaken(byte[] bytes, String filePath);
+        boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
     }
 
     interface IFragment
     {
         void setCounterTextView(String s);
-        void addSubjectToQuestionStack(Object o);
-        void addSubjectToAnswerStack(Object o);
-        void removeSubjectFromQuestionStack(Object o);
-        void removeSubjectFromAnswerStack(Object o);
-        void showPhotoFragment(Object o);
-        void showTextFragment(Object o);
+        void addSubjectToQuestionStack(View v);
+        void addSubjectToAnswerStack(View v);
+        void removeSubjectFromQuestionStack(int position);
+        void removeSubjectFromAnswerStack(int position);
+        void showPhotoFragment(ApplicationPhoto o);
+        void showTextFragment(String text);
         void destroyPhotoFragment();
         void destroyTextFragment();
         void destroyFragment();
         void showLeftSwipeAnimation();
         void showRightSwipeAnimation();
-        void setObjectColour();
+        void setObjectColour(View v);
         void showCameraFragment();
         void showGallery();
         void showErrorWhileNetworkingMessage();
@@ -51,6 +58,7 @@ public interface ICreateTestFragmentMVPprovider {
         void showDeleteAlertDialog();
         void showWhatsSubjectDialog();
         void showChooseSourceDialog();
+        void resolveCameraPermission();
     }
 
     interface IModel
@@ -59,7 +67,7 @@ public interface ICreateTestFragmentMVPprovider {
         void writeQuestion(Question question);
         void writeAllQueAns(List<Question> questions, List<Answer> answers);
         Answer getAnswer(String subj,String numberByTicket, String ticket);
-        void delesteAnswer(String subj,String numberByTicket, String ticket);
+        void deleteAnswer(String subj,String numberByTicket, String ticket);
         Question getQuestion(String subj,String numberByTicket, String ticket);
         void deleteQuestion(String subj,String numberByTicket, String ticket);
         List<Answer> getAllAnswersForTicket(String subj, String ticket);

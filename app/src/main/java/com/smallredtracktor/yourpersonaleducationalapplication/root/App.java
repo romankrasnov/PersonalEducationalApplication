@@ -2,30 +2,43 @@ package com.smallredtracktor.yourpersonaleducationalapplication.root;
 
 import android.app.Application;
 
-
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreateTestComponent;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.MainActivityModule;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.TrainingModule;
+
 
 
 public class App extends Application {
 
-private ApplicationComponent component;
+private static ApplicationComponent appComponent;
+private CreateTestComponent createTestComponent;
 
-@Override
-public void onCreate() {
+    @Override
+    public void onCreate() {
         super.onCreate();
-
-        component = DaggerApplicationComponent.builder()
-        .applicationModule(new ApplicationModule(this))
-        .mainActivityModule(new MainActivityModule())
-        .createTestModule(new CreateTestModule())
-        .trainingModule(new TrainingModule())
-        .build();
+        appComponent = DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule(this))
+                .mainActivityModule(new MainActivityModule())
+                .build();
         }
 
-public ApplicationComponent getComponent() {
-        return component;
+        public static ApplicationComponent getComponent() {
+            return appComponent;
+        }
+
+
+        public CreateTestComponent plusCreateTestComponent() {
+                // always get only one instance
+                if (createTestComponent == null) {
+                        // start lifecycle of chatComponent
+                        createTestComponent = appComponent.plusCreateTestComponent(new CreateTestModule());
+                }
+                return createTestComponent;
+        }
+
+        public void clearCreateTestComponent() {
+                // end lifecycle of chatComponent
+                createTestComponent = null;
         }
 
 }
