@@ -30,14 +30,14 @@ public class CreateTestFragmentPresenter implements ICreateTestFragmentMVPprovid
     @Override
     public void onSwipeRight() {
         if (view != null) {
-            view.showRightSwipeAnimation();
+            view.setCounterTextView("right");
         }
     }
 
     @Override
     public void onSwipeLeft() {
         if (view != null) {
-            view.showLeftSwipeAnimation();
+            view.setCounterTextView("left");
         }
     }
 
@@ -49,13 +49,15 @@ public class CreateTestFragmentPresenter implements ICreateTestFragmentMVPprovid
     @Override
     public void onAddQuestionClick() {
         if (view != null) {
-            view.showCameraFragment();
+            view.showChooseSourceDialog();
         }
     }
 
     @Override
     public void onAddAnswerClick() {
-
+        if (view != null) {
+            view.showChooseSourceDialog();
+        }
     }
 
     @Override

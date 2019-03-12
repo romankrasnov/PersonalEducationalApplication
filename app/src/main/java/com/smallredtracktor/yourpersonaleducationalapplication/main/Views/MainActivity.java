@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity
         IMainActivityMVPprovider.IView,
         CreateTestFragment.OnFragmentInteractionListener,
         TrainingFragment.OnFragmentInteractionListener
-
 {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -120,6 +119,7 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.replace(R.id.host, fragment);
             }
         }
+        fragmentTransaction.addToBackStack("first");
         fragmentTransaction.commit();
     }
 

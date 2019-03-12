@@ -9,4 +9,12 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <string-array name="chooseSourceItems">
+        <item>Text</item>
+        <item>Photo</item>
+        <item>Gallery</item>
+        <item>OCR</item>
+    </string-array>
 </resources>

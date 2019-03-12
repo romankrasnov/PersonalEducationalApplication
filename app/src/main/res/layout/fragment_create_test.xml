@@ -4,7 +4,7 @@
     android:id="@+id/createTestLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="@drawable/imageBACK"
+    tools:background="@drawable/image_create_test_background"
     tools:context=".main.Views.CreateTestFragment">
 
     <LinearLayout

@@ -11,7 +11,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +22,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.florent37.camerafragment.CameraFragment;
-import com.github.florent37.camerafragment.configuration.Configuration;
-import com.github.florent37.camerafragment.listeners.CameraFragmentResultListener;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.SwipeUtils.OnSwipeTouchListener;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
@@ -37,12 +39,15 @@ import butterknife.ButterKnife;
 
 public class CreateTestFragment extends Fragment implements
         ICreateTestFragmentMVPprovider.IFragment,
-        ActivityCompat.PermissionCompatDelegate {
+        ActivityCompat.PermissionCompatDelegate,
+        ChooseSourceDialog.ChooseSourceDialogListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private int globalTicketCouter = 1;
 
     @BindView(R.id.counterTicketsTextView)
     TextView counterTicketsTextView;
@@ -117,10 +122,7 @@ public class CreateTestFragment extends Fragment implements
                 createTestFragmentPresenter.onSwipeRight();
             }
 
-            public void onSwipeLeft() {
-                createTestFragmentPresenter.onSwipeLeft();
-
-            }
+            public void onSwipeLeft() { createTestFragmentPresenter.onSwipeLeft(); }
 
             public void onSwipeBottom() {
                 createTestFragmentPresenter.onSwipeBottom();
@@ -233,28 +235,7 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showCameraFragment() {
-        @SuppressLint("MissingPermission")
 
-                //<--- TODO replace with native camera, CameraFragment not supported
-
-        CameraFragment cameraFragment = CameraFragment.newInstance(new Configuration.Builder()
-                .setCamera(Configuration.CAMERA_FACE_FRONT)
-                .build());
-        getChildFragmentManager().beginTransaction()
-                .replace(R.id.createTestLayout, cameraFragment)
-                .commit();
-
-        cameraFragment.setResultListener(new CameraFragmentResultListener() {
-            @Override
-            public void onVideoRecorded(String filePath) {
-                createTestFragmentPresenter.onVideoRecorded();
-            }
-
-            @Override
-            public void onPhotoTaken(byte[] bytes, String filePath) {
-                createTestFragmentPresenter.onPhotoTaken(bytes,filePath);
-            }
-        });
     }
 
     @Override
@@ -284,7 +265,19 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showChooseSourceDialog() {
+        DialogFragment dialog = new ChooseSourceDialog();
+        dialog.setTargetFragment(CreateTestFragment.this, 1);
 
+        FragmentManager fragmentManager = getActivity()
+                .getSupportFragmentManager()
+                .getFragments()
+                .get(0)
+                .getChildFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.add(android.R.id.content, dialog)
+                .addToBackStack("second")
+                .commit();
     }
 
     @Override
@@ -304,6 +297,24 @@ public class CreateTestFragment extends Fragment implements
     public boolean onActivityResult(@NonNull Activity activity, int reqCode, int resCode, @Nullable Intent intent) {
         createTestFragmentPresenter.onPhotoPermissionCompatResult(reqCode, resCode);
         return false;
+    }
+
+    @Override
+    public void onDialogTextSourceClick() {
+        createTestFragmentPresenter.onTextSourceChoosed();
+    }
+
+    @Override
+    public void onDialogPhotoSourceClick() {
+        createTestFragmentPresenter.onPhotoSourceChoosed();
+    }
+
+    @Override
+    public void onDialogGallerySourceClick() { createTestFragmentPresenter.onGallerySourceChoosed(); }
+
+    @Override
+    public void onDialogOcrSourceClick() {
+        createTestFragmentPresenter.onOcrSourceChoosed();
     }
 
 
