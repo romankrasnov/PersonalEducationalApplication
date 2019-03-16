@@ -26,6 +26,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntent;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.SwipeUtils.OnSwipeTouchListener;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
@@ -39,12 +40,16 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+
 
 public class CreateTestFragment extends Fragment implements
         ICreateTestFragmentMVPprovider.IFragment
    {
 
        private static final int REQUEST_TAKE_PHOTO = 1;
+       private Uri mPath;
        private int globalTicketCouter = 1;
 
     @BindView(R.id.counterTicketsTextView)
@@ -77,8 +82,7 @@ public class CreateTestFragment extends Fragment implements
         // Required empty public constructor
     }
 
-
-    public static CreateTestFragment newInstance(String param1, String param2) {
+       public static CreateTestFragment newInstance(String param1, String param2) {
         CreateTestFragment fragment = new CreateTestFragment();
         return fragment;
     }
@@ -214,35 +218,17 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void setObjectColour(View v) {
-
     }
 
     @Override
     public void showCameraFragment() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                File storageDir = (getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES));
-                photoFile = File.createTempFile(
-                        UniqueDigit.getUnique(),  /* prefix */
-                        ".jpg",         /* suffix */
-                        storageDir      /* directory */
-                );
-
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(getContext(),
-                        "com.smallredtracktor.yourpersonaleducationalapplication.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
-        }
+        Intent takePictureIntent =  PhotoIntent.getInstance(getContext());
+        mPath = PhotoIntent.photoURI;
+        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
     }
+
+
+
 
     @Override
     public void showGallery() {
@@ -281,6 +267,23 @@ public class CreateTestFragment extends Fragment implements
             requestPermissions(new String[] {Manifest.permission.CAMERA},requestCode);
         }
     }
+
+
+       @Override
+       public void onActivityResult(int requestCode, int resultCode, Intent data) {
+           super.onActivityResult(requestCode, resultCode, data);
+           if (resultCode == RESULT_OK) {
+               if (requestCode == REQUEST_TAKE_PHOTO) {
+                   createTestFragmentPresenter.onPhotoTaken(mPath);
+               }
+           }
+           if (resultCode == RESULT_CANCELED) {
+               if (requestCode == REQUEST_TAKE_PHOTO) {
+                   createTestFragmentPresenter.onPhotoTakingCancelled();
+               }
+           }
+    }
+
 
 
     public interface OnFragmentInteractionListener {

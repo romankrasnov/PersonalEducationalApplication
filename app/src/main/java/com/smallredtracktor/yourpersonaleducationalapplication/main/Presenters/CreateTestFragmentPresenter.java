@@ -1,6 +1,8 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
 
+import android.net.Uri;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 
@@ -105,7 +107,7 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onPhotoTaken(byte[] bytes, String filePath) {
+    public void onPhotoTaken(Uri mPath) {
 
     }
 
@@ -118,6 +120,11 @@ public class CreateTestFragmentPresenter implements
                 }
         }
         return false;
+    }
+
+    @Override
+    public void onPhotoTakingCancelled() {
+
     }
 
     @Override

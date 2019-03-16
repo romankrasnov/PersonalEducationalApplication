@@ -1,13 +1,13 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders;
 
 
+import android.net.Uri;
 import android.view.View;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
 
-import java.io.File;
 import java.util.List;
 
 
@@ -30,9 +30,10 @@ public interface ICreateTestFragmentMVPprovider {
         void onSubjectConfrimed();
         void onSubjectEdited();
         void onVideoRecorded();
-        void onPhotoTaken(byte[] bytes, String filePath);
+        void onPhotoTaken(Uri mPath);
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
 
+        void onPhotoTakingCancelled();
     }
 
     interface IFragment
