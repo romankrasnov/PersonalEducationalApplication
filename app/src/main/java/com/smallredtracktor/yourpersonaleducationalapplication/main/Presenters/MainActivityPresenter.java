@@ -18,7 +18,6 @@ public class MainActivityPresenter implements IMainActivityMVPprovider.IPresente
 
     @Nullable
     private IMainActivityMVPprovider.IView view;
-
     private IMainActivityMVPprovider.IModel model;
 
 

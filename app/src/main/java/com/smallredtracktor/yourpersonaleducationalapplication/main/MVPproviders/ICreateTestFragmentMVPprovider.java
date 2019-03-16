@@ -6,6 +6,8 @@ import android.view.View;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
+
+import java.io.File;
 import java.util.List;
 
 
@@ -25,15 +27,12 @@ public interface ICreateTestFragmentMVPprovider {
         void onObjectLongPressed();
         void onCameraResult();
         void onGalleryResult();
-        void onTextSourceChoosed();
-        void onPhotoSourceChoosed();
-        void onOcrSourceChoosed();
-        void onGallerySourceChoosed();
         void onSubjectConfrimed();
         void onSubjectEdited();
         void onVideoRecorded();
         void onPhotoTaken(byte[] bytes, String filePath);
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
+
     }
 
     interface IFragment

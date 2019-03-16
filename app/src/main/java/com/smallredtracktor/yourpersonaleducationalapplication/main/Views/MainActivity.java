@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity
         IMainActivityMVPprovider.IView,
         CreateTestFragment.OnFragmentInteractionListener,
         TrainingFragment.OnFragmentInteractionListener
+
 {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -45,11 +46,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
                App.get(this)
                 .getComponent()
                 .inject(this);
-               
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
@@ -98,7 +97,6 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
         presenter.navigationItemSelected(id);
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -133,4 +131,7 @@ public class MainActivity extends AppCompatActivity
     public void onTrainingFragmentInteraction(Uri uri) {
         presenter.onTrainingFragmentInteraction();
     }
+
+
+
 }

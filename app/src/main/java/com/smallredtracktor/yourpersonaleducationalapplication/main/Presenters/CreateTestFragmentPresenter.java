@@ -1,14 +1,17 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
 
-
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
+
 
 import javax.annotation.Nullable;
 
 import static android.app.Activity.RESULT_OK;
 
-public class CreateTestFragmentPresenter implements ICreateTestFragmentMVPprovider.IPresenter {
+public class CreateTestFragmentPresenter implements
+        ICreateTestFragmentMVPprovider.IPresenter,
+        ChooseSourceDialog.ChooseSourceDialogListener {
 
     @Nullable
     private ICreateTestFragmentMVPprovider.IFragment view;
@@ -85,25 +88,6 @@ public class CreateTestFragmentPresenter implements ICreateTestFragmentMVPprovid
 
     }
 
-    @Override
-    public void onTextSourceChoosed() {
-
-    }
-
-    @Override
-    public void onPhotoSourceChoosed() {
-
-    }
-
-    @Override
-    public void onOcrSourceChoosed() {
-
-    }
-
-    @Override
-    public void onGallerySourceChoosed() {
-
-    }
 
     @Override
     public void onSubjectConfrimed() {
@@ -134,5 +118,28 @@ public class CreateTestFragmentPresenter implements ICreateTestFragmentMVPprovid
                 }
         }
         return false;
+    }
+
+    @Override
+    public void onDialogTextSourceClick() {
+
+    }
+
+    @Override
+    public void onDialogPhotoSourceClick() {
+        if (view != null) {
+            view.resolveCameraPermission();
+            view.showCameraFragment();
+        }
+    }
+
+    @Override
+    public void onDialogGallerySourceClick() {
+
+    }
+
+    @Override
+    public void onDialogOcrSourceClick() {
+
     }
 }

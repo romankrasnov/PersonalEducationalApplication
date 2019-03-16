@@ -6,13 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
 import android.support.v4.app.DialogFragment;
-import android.widget.ArrayAdapter;
 
+import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
+import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
-import com.smallredtracktor.yourpersonaleducationalapplication.R;
-
+import javax.inject.Inject;
 
 
 public class ChooseSourceDialog extends DialogFragment {
@@ -25,19 +25,23 @@ public class ChooseSourceDialog extends DialogFragment {
         void onDialogOcrSourceClick();
     }
 
-    // Use this instance of the interface to deliver action events
+
     ChooseSourceDialogListener listener;
 
-    // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
+    @Inject
+    ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
+
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        // Verify that the host activity implements the callback interface
+
+        App.get(context)
+                .plusCreateTestComponent()
+                .inject(this);
         try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
-            listener = (ChooseSourceDialogListener) context;
+            listener = (ChooseSourceDialogListener) createTestFragmentPresenter;
         } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(getActivity().toString()
                     + " must implement NoticeDialogListener");
         }
@@ -45,14 +49,11 @@ public class ChooseSourceDialog extends DialogFragment {
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        // Build the dialog and set up the button click handlers
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        String[] chooseSourceItems = getResources().getStringArray(R.array.chooseSourceItems);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        ArrayAdapter adapter = new ArrayAdapter(getContext(), R.layout.dialog_list_view, chooseSourceItems);
-        builder.setMessage("Choose source")
-                .setAdapter(adapter, new DialogInterface.OnClickListener() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Choose source")
+                .setItems(new String[] {"Text","Photo","Gallery", "OCR"}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which)

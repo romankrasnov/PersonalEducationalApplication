@@ -1,5 +1,7 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Modules;
 
+
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreatingScope;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Models.CreateTestFragmentModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters.CreateTestFragmentPresenter;
@@ -13,6 +15,7 @@ import dagger.Provides;
 @Module
 public class CreateTestModule {
     @Provides
+    @CreatingScope
     ICreateTestFragmentMVPprovider.IPresenter provideCreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model)
     {
         return new CreateTestFragmentPresenter(model);

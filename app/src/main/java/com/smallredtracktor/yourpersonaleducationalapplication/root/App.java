@@ -12,7 +12,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.Main
 public class App extends Application {
 
 private ApplicationComponent appComponent;
-private CreateTestComponent createTestComponent;
+private static CreateTestComponent createTestComponent;
 
     @Override
     public void onCreate() {
@@ -35,7 +35,7 @@ private CreateTestComponent createTestComponent;
         public CreateTestComponent plusCreateTestComponent() {
                 // always get only one instance
                 if (createTestComponent == null) {
-                        // start lifecycle of chatComponent
+                        // start lifecycle
                         createTestComponent = appComponent.plusCreateTestComponent(new CreateTestModule());
                 }
                 return createTestComponent;

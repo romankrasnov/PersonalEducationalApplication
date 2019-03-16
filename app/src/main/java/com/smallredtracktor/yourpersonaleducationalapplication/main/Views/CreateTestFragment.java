@@ -2,19 +2,18 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,9 +26,13 @@ import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.SwipeUtils.OnSwipeTouchListener;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.SwipeUtils.OnSwipeTouchListener;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
+
+import java.io.File;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -38,16 +41,11 @@ import butterknife.ButterKnife;
 
 
 public class CreateTestFragment extends Fragment implements
-        ICreateTestFragmentMVPprovider.IFragment,
-        ActivityCompat.PermissionCompatDelegate,
-        ChooseSourceDialog.ChooseSourceDialogListener {
+        ICreateTestFragmentMVPprovider.IFragment
+   {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private int globalTicketCouter = 1;
+       private static final int REQUEST_TAKE_PHOTO = 1;
+       private int globalTicketCouter = 1;
 
     @BindView(R.id.counterTicketsTextView)
     TextView counterTicketsTextView;
@@ -67,17 +65,13 @@ public class CreateTestFragment extends Fragment implements
     LinearLayout createTestLayout;
 
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-
     @Inject
     ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
 
-
     private OnFragmentInteractionListener mListener;
+
     private final int requestCode = 200;
+
 
     public CreateTestFragment() {
         // Required empty public constructor
@@ -86,20 +80,13 @@ public class CreateTestFragment extends Fragment implements
 
     public static CreateTestFragment newInstance(String param1, String param2) {
         CreateTestFragment fragment = new CreateTestFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
-    @Override
+             @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -207,17 +194,14 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void destroyPhotoFragment() {
-
     }
 
     @Override
     public void destroyTextFragment() {
-
     }
 
     @Override
     public void destroyFragment() {
-
     }
 
     @Override
@@ -235,7 +219,29 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showCameraFragment() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                File storageDir = (getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+                photoFile = File.createTempFile(
+                        UniqueDigit.getUnique(),  /* prefix */
+                        ".jpg",         /* suffix */
+                        storageDir      /* directory */
+                );
 
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(getContext(),
+                        "com.smallredtracktor.yourpersonaleducationalapplication.android.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
     }
 
     @Override
@@ -266,55 +272,14 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void showChooseSourceDialog() {
         DialogFragment dialog = new ChooseSourceDialog();
-        dialog.setTargetFragment(CreateTestFragment.this, 1);
-
-        FragmentManager fragmentManager = getActivity()
-                .getSupportFragmentManager()
-                .getFragments()
-                .get(0)
-                .getChildFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.add(android.R.id.content, dialog)
-                .addToBackStack("second")
-                .commit();
+        dialog.show(getChildFragmentManager(), null);
     }
 
     @Override
     public void resolveCameraPermission() {
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.setPermissionCompatDelegate(this);
-            requestPermissions(getActivity(), new String[] {Manifest.permission.CAMERA}, requestCode);
+            requestPermissions(new String[] {Manifest.permission.CAMERA},requestCode);
         }
-    }
-
-    @Override
-    public boolean requestPermissions(@NonNull Activity activity, @NonNull String[] strings, int i) {
-        return true;
-    }
-
-    @Override
-    public boolean onActivityResult(@NonNull Activity activity, int reqCode, int resCode, @Nullable Intent intent) {
-        createTestFragmentPresenter.onPhotoPermissionCompatResult(reqCode, resCode);
-        return false;
-    }
-
-    @Override
-    public void onDialogTextSourceClick() {
-        createTestFragmentPresenter.onTextSourceChoosed();
-    }
-
-    @Override
-    public void onDialogPhotoSourceClick() {
-        createTestFragmentPresenter.onPhotoSourceChoosed();
-    }
-
-    @Override
-    public void onDialogGallerySourceClick() { createTestFragmentPresenter.onGallerySourceChoosed(); }
-
-    @Override
-    public void onDialogOcrSourceClick() {
-        createTestFragmentPresenter.onOcrSourceChoosed();
     }
 
 
