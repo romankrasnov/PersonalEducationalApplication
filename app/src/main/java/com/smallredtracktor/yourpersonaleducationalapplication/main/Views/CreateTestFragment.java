@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -51,8 +52,6 @@ public class CreateTestFragment extends Fragment implements
        private static final int REQUEST_TAKE_PHOTO = 1;
        private String mPath;
 
-       private int globalTicketCouter = 1;
-
     @BindView(R.id.counterTicketsTextView)
     TextView counterTicketsTextView;
     @BindView(R.id.questionStackLayout)
@@ -76,10 +75,8 @@ public class CreateTestFragment extends Fragment implements
 
     private OnFragmentInteractionListener mListener;
 
-    private final int requestCode = 200;
 
-
-    public CreateTestFragment() {
+       public CreateTestFragment() {
         // Required empty public constructor
     }
 
@@ -188,9 +185,11 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void showPhotoFragment(ApplicationPhoto photo) {
+    public void showPhotoFragment(Bitmap bitmap) {
 
     }
+
+
 
     @Override
     public void showTextFragment(String text) {
@@ -262,7 +261,8 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void resolveCameraPermission() {
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[] {Manifest.permission.CAMERA},requestCode);
+            int requestCode = 200;
+            requestPermissions(new String[] {Manifest.permission.CAMERA}, requestCode);
         }
     }
 

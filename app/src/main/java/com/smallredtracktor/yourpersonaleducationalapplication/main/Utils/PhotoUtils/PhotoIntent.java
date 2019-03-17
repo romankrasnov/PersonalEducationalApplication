@@ -32,8 +32,9 @@ public class PhotoIntent {
                 } catch (IOException ex) {
                     // Error occurred while creating the File
                 }
-                mPath = photoFile.getAbsolutePath();
+
                 if (photoFile != null) {
+                    mPath = photoFile.getAbsolutePath();
                     Uri photoURI = FileProvider.getUriForFile(context,
                             "com.smallredtracktor.yourpersonaleducationalapplication.android.fileprovider",
                             photoFile);

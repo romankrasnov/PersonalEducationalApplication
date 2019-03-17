@@ -1,6 +1,7 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders;
 
 
+import android.graphics.Bitmap;
 import android.view.View;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
@@ -21,18 +22,17 @@ public interface ICreateTestFragmentMVPprovider {
         void onSwipeBottom();
         void onAddQuestionClick();
         void onAddAnswerClick();
-        void onClearCLick();
+        void onClearClick();
         void onDoneClick();
         void onObjectLongPressed();
-        void onCameraResult();
         void onGalleryResult();
+        void onBackPressed();
+        void onPhotoTaken(String mPath);
+        void onPhotoTakingCancelled();
         void onSubjectConfrimed();
         void onSubjectEdited();
         void onVideoRecorded();
-        void onPhotoTaken(String mPath);
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
-
-        void onPhotoTakingCancelled();
     }
 
     interface IFragment
@@ -42,7 +42,7 @@ public interface ICreateTestFragmentMVPprovider {
         void addSubjectToAnswerStack(View v);
         void removeSubjectFromQuestionStack(int position);
         void removeSubjectFromAnswerStack(int position);
-        void showPhotoFragment(ApplicationPhoto o);
+        void showPhotoFragment(Bitmap bitmap);
         void showTextFragment(String text);
         void destroyPhotoFragment();
         void destroyTextFragment();

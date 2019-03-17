@@ -1,17 +1,13 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise.OcrHelper;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
 
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 
 import javax.annotation.Nullable;
 
@@ -23,8 +19,16 @@ public class CreateTestFragmentPresenter implements
 
     @Nullable
     private ICreateTestFragmentMVPprovider.IFragment view;
+    @Nullable
+    private ICreateTestFragmentMVPprovider.IModel model;
+
+
+    private boolean isQuestion;
+    private boolean isOcr;
+    private int currentTicket = 0;
 
     public CreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model) {
+        this.model = model;
     }
 
 
@@ -42,14 +46,16 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onSwipeRight() {
         if (view != null) {
-            view.setCounterTextView("right");
+            currentTicket++;
+            view.setCounterTextView(String.valueOf(currentTicket));
         }
     }
 
     @Override
     public void onSwipeLeft() {
         if (view != null) {
-            view.setCounterTextView("left");
+            currentTicket--;
+            view.setCounterTextView(String.valueOf(currentTicket));
         }
     }
 
@@ -61,6 +67,7 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onAddQuestionClick() {
         if (view != null) {
+            isQuestion = true;
             view.showChooseSourceDialog();
         }
     }
@@ -68,12 +75,13 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onAddAnswerClick() {
         if (view != null) {
+            isQuestion = false;
             view.showChooseSourceDialog();
         }
     }
 
     @Override
-    public void onClearCLick() {
+    public void onClearClick() {
 
     }
 
@@ -87,13 +95,14 @@ public class CreateTestFragmentPresenter implements
 
     }
 
+
     @Override
-    public void onCameraResult() {
+    public void onGalleryResult() {
 
     }
 
     @Override
-    public void onGalleryResult() {
+    public void onBackPressed() {
 
     }
 
@@ -115,16 +124,28 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void onPhotoTaken(String mPath) {
-        //Refactor this
-        File imgFile = new  File(mPath);
-        Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        String base64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
-        if (view != null) {
-            //Blocking call
-            view.setCounterTextView(OcrHelper.getIntance().getParsedText(base64, "rus"));
+        if (view != null && model != null) {
+            if(isOcr)
+            {
+                String parsed = ParseTextUtil.getParsedResult(mPath);
+                if (isQuestion)
+                {
+                model.writeQuestion(new Question());
+                }
+            else {
+                model.writeAnswer(new Answer());
+                 }
+            }
+            else {
+                if (isQuestion)
+                {
+                model.writeQuestion(new Question());
+                }
+                    else
+                        {
+                    model.writeAnswer(new Answer());
+                        }
+                 }
         }
     }
 
@@ -152,6 +173,7 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onDialogPhotoSourceClick() {
         if (view != null) {
+            isOcr = false;
             view.resolveCameraPermission();
             view.showCameraFragment();
         }
@@ -164,5 +186,10 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void onDialogOcrSourceClick() {
+        if (view != null) {
+            isOcr = true;
+            view.resolveCameraPermission();
+            view.showCameraFragment();
+        }
     }
 }

@@ -22,12 +22,14 @@ public class CreateTestModule {
     }
 
     @Provides
+    @CreatingScope
     ICreateTestFragmentMVPprovider.IModel provideCreateTestFragmentModel(ICreateTestRepository repository)
     {
         return new CreateTestFragmentModel(repository);
     }
 
     @Provides
+    @CreatingScope
     ICreateTestRepository provideMemoryRepository()
     {
         return new CreateTestMemoryRepository();
