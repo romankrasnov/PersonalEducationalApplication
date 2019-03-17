@@ -1,11 +1,17 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
 
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise.OcrHelper;
 
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import javax.annotation.Nullable;
 
@@ -26,6 +32,7 @@ public class CreateTestFragmentPresenter implements
     public void setView(ICreateTestFragmentMVPprovider.IFragment view) {
         this.view = view;
     }
+
 
     @Override
     public void onSwipeTop() {
@@ -107,8 +114,18 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onPhotoTaken(Uri mPath) {
-
+    public void onPhotoTaken(String mPath) {
+        //Refactor this
+        File imgFile = new  File(mPath);
+        Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        String base64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        if (view != null) {
+            //Blocking call
+            view.setCounterTextView(OcrHelper.getIntance().getParsedText(base64, "rus"));
+        }
     }
 
     @Override
@@ -147,6 +164,5 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void onDialogOcrSourceClick() {
-
     }
 }

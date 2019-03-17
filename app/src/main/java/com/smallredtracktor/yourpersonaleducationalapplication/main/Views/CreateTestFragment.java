@@ -49,7 +49,8 @@ public class CreateTestFragment extends Fragment implements
    {
 
        private static final int REQUEST_TAKE_PHOTO = 1;
-       private Uri mPath;
+       private String mPath;
+
        private int globalTicketCouter = 1;
 
     @BindView(R.id.counterTicketsTextView)
@@ -223,12 +224,9 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void showCameraFragment() {
         Intent takePictureIntent =  PhotoIntent.getInstance(getContext());
-        mPath = PhotoIntent.photoURI;
+        mPath = PhotoIntent.mPath;
         startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
     }
-
-
-
 
     @Override
     public void showGallery() {

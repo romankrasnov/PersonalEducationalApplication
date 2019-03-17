@@ -2,7 +2,6 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.Photo
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -15,12 +14,10 @@ import java.io.IOException;
 
 public class PhotoIntent {
 
-    private static Intent intent;
-    public static Uri photoURI;
+    public static String mPath;
 
     public static Intent getInstance(Context context) {
-        if (intent == null) {
-             intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
             if (intent.resolveActivity(context.getPackageManager()) != null) {
                 File photoFile = null;
@@ -35,16 +32,14 @@ public class PhotoIntent {
                 } catch (IOException ex) {
                     // Error occurred while creating the File
                 }
-                // Continue only if the File was successfully created
+                mPath = photoFile.getAbsolutePath();
                 if (photoFile != null) {
-                     photoURI = FileProvider.getUriForFile(context,
+                    Uri photoURI = FileProvider.getUriForFile(context,
                             "com.smallredtracktor.yourpersonaleducationalapplication.android.fileprovider",
                             photoFile);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 }
-                return intent;
             }
-        }
         return intent;
     }
 }

@@ -1,7 +1,6 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders;
 
 
-import android.net.Uri;
 import android.view.View;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
@@ -30,7 +29,7 @@ public interface ICreateTestFragmentMVPprovider {
         void onSubjectConfrimed();
         void onSubjectEdited();
         void onVideoRecorded();
-        void onPhotoTaken(Uri mPath);
+        void onPhotoTaken(String mPath);
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
 
         void onPhotoTakingCancelled();
