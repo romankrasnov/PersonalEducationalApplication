@@ -4,11 +4,10 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPprovider
 import android.graphics.Bitmap;
 import android.view.View;
 
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
 
-import java.util.List;
+import io.reactivex.Observable;
 
 
 public interface ICreateTestFragmentMVPprovider {
@@ -33,13 +32,14 @@ public interface ICreateTestFragmentMVPprovider {
         void onSubjectEdited();
         void onVideoRecorded();
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
+        void rxUnsubscribe();
     }
 
     interface IFragment
     {
         void setCounterTextView(String s);
-        void addSubjectToQuestionStack(View v);
-        void addSubjectToAnswerStack(View v);
+        int addSubjectToQuestionStack();
+        int addSubjectToAnswerStack();
         void removeSubjectFromQuestionStack(int position);
         void removeSubjectFromAnswerStack(int position);
         void showPhotoFragment(Bitmap bitmap);
@@ -58,20 +58,12 @@ public interface ICreateTestFragmentMVPprovider {
         void showWhatsSubjectDialog();
         void showChooseSourceDialog();
         void resolveCameraPermission();
+
     }
 
     interface IModel
     {
-        void writeAnswer(Answer answer);
-        void writeQuestion(Question question);
-        void writeAllQueAns(List<Question> questions, List<Answer> answers);
-        Answer getAnswer(String subj,String numberByTicket, String ticket);
-        void deleteAnswer(String subj,String numberByTicket, String ticket);
-        Question getQuestion(String subj,String numberByTicket, String ticket);
-        void deleteQuestion(String subj,String numberByTicket, String ticket);
-        List<Answer> getAllAnswersForTicket(String subj, String ticket);
-        void deleteAllAnswersForTicket(String subj, String ticket);
-        List<Question> getAllQuestionsForTicket(String subj, String ticket);
-        void deleteAllQuestionsForTicket(String subj, String ticket);
+        Observable<Question> getWriteQuestionResult(Question question);
+        Observable<OcrResponseModel> getParsedTextResult(String mPath);
     }
 }

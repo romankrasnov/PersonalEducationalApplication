@@ -1,15 +1,16 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
-
-
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
 
 
 import javax.annotation.Nullable;
+import io.reactivex.Observable;
+import io.reactivex.observers.DisposableObserver;
+
 
 import static android.app.Activity.RESULT_OK;
 
@@ -22,6 +23,7 @@ public class CreateTestFragmentPresenter implements
     @Nullable
     private ICreateTestFragmentMVPprovider.IModel model;
 
+    DisposableObserver<OcrResponseModel> ocrObserver;
 
     private boolean isQuestion;
     private boolean isOcr;
@@ -61,7 +63,6 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void onSwipeBottom() {
-
     }
 
     @Override
@@ -127,23 +128,51 @@ public class CreateTestFragmentPresenter implements
         if (view != null && model != null) {
             if(isOcr)
             {
-                String parsed = ParseTextUtil.getParsedResult(mPath);
-                if (isQuestion)
-                {
-                model.writeQuestion(new Question());
-                }
-            else {
-                model.writeAnswer(new Answer());
-                 }
+                Observable<OcrResponseModel> observable = model.getParsedTextResult(mPath);
+                ocrObserver = new DisposableObserver<OcrResponseModel>() {
+                    @Override
+                    public void onNext(OcrResponseModel ocrResponseModel) {
+                        String s = ocrResponseModel.getText();
+                        if (isQuestion)
+                        {
+                            int position = view.addSubjectToQuestionStack();
+                            Question question = new Question();
+                            question.setValue(s);
+                            question.setType(3);
+                            question.setUserStackNumber(position + 1);
+                            question.setTicketId(currentTicket);
+                            model.getWriteQuestionResult(question);
+                        }
+                        else {
+                            int position = view.addSubjectToAnswerStack();
+                            Answer answer = new Answer();
+                            answer.setValue(s);
+                            answer.setQuestionId(1);    //ебота, пересмотреть, вопрос от ответа
+                                                        // в предметной области не отличается,
+                                                        // всё нахуй в одну сущность ёбана
+                            answer.setUserStackNumber(position + 1);
+                            answer.setType(3);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) { }
+
+                    @Override
+                    public void onComplete() { }
+                };
+
+
+                observable.subscribe(ocrObserver);
             }
             else {
                 if (isQuestion)
                 {
-                model.writeQuestion(new Question());
+ //               model.writeQuestion(new Question());
                 }
                     else
                         {
-                    model.writeAnswer(new Answer());
+    //                model.writeAnswer(new Answer());
                         }
                  }
         }
@@ -159,6 +188,15 @@ public class CreateTestFragmentPresenter implements
         }
         return false;
     }
+
+    @Override
+    public void rxUnsubscribe()
+    {   if (ocrObserver != null) {
+        if (!ocrObserver.isDisposed()) {
+            ocrObserver.dispose();
+        }
+    }
+}
 
     @Override
     public void onPhotoTakingCancelled() {
@@ -192,4 +230,5 @@ public class CreateTestFragmentPresenter implements
             view.showCameraFragment();
         }
     }
+
 }

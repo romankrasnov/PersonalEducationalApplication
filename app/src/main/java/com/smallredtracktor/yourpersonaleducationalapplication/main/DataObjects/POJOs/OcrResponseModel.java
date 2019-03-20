@@ -85,6 +85,10 @@ public class OcrResponseModel {
         this.processingTimeInMilliseconds = processingTimeInMilliseconds;
     }
 
+    public String getText()
+    {
+        return this.getParsedResults().get(0).getParsedText().toString();
+    }
 }
 
 

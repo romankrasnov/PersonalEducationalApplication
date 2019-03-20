@@ -1,6 +1,8 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects;
 
-public class Question {
+import io.realm.RealmObject;
+
+public class Question extends RealmObject {
 
 
     private int id;

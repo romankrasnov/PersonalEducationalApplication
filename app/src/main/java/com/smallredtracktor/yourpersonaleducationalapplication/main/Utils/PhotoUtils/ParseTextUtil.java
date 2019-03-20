@@ -1,17 +1,21 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils;
 
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise.OcrHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
+import io.reactivex.Observable;
+
 public class ParseTextUtil {
 
-    public static String getParsedResult(String mPath)
+    public static Observable<OcrResponseModel> getParsedResult(String mPath)
     {
         File imgFile = new  File(mPath);
         Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());

@@ -8,13 +8,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.FileProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +21,6 @@ import android.widget.TextView;
 
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.ApplicationPhoto;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntent;
@@ -32,9 +28,6 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.SwipeU
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
-
-import java.io.File;
-import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -119,12 +112,7 @@ public class CreateTestFragment extends Fragment implements
 
         });
 
-        addQuestionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createTestFragmentPresenter.onAddQuestionClick();
-            }
-        });
+        addQuestionButton.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
 
         return view;
     }
@@ -165,13 +153,24 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void addSubjectToQuestionStack(View v) {
-        questionStackLayout.addView(v);
+        public int addSubjectToQuestionStack() {
+        Button newbtn = getNewItem();
+        questionStackLayout.addView(newbtn);
+        return questionStackLayout.getChildCount();
     }
 
-    @Override
-    public void addSubjectToAnswerStack(View v) {
-        answerStackLayout.addView(v);
+
+       private Button getNewItem() {
+           Button newbtn = new Button(getContext());
+           newbtn.setBackgroundColor(R.drawable.button_view_background);
+           return  newbtn;
+       }
+
+       @Override
+       public int addSubjectToAnswerStack() {
+        Button newbtn = getNewItem();
+        answerStackLayout.addView(newbtn);
+        return answerStackLayout.getChildCount();
     }
 
     @Override
@@ -188,8 +187,6 @@ public class CreateTestFragment extends Fragment implements
     public void showPhotoFragment(Bitmap bitmap) {
 
     }
-
-
 
     @Override
     public void showTextFragment(String text) {
