@@ -1,38 +1,29 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces;
 
 
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
 
 import java.util.List;
 
 import io.reactivex.Observable;
 
 public interface ICreateTestRepository  {
-    Observable<Answer> writeAnswer(Answer answer);
 
-    Observable<Question> writeQuestion(Question question);
+    Observable<TestItem> writeTestItem(TestItem testItem);
 
-    Observable<List<Question>> writeAllQuestions(List<Question> questions);
+    Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems);
 
-    Observable<List<Answer>> writeAllAnswers(List<Answer> answers);
+    Observable<TestItem> getTestItem(String subj, String id, String ticket);
 
-    Observable<Answer> getAnswer(String subj, String numberByTicket, String ticket);
+    Observable<TestItem> deleteTestItem(String subj, String id, String ticket);
 
-    Observable<Answer> deleteAnswer(String subj, String numberByTicket, String ticket);
+    Observable<List<TestItem>> getAllTestItemsForTicket(String subj, String ticket);
 
-    Observable<Question> getQuestion(String subj, String numberByTicket, String ticket);
-
-    Observable<Answer> deleteQuestion(String subj, String numberByTicket, String ticket);
-
-    Observable<List<Answer>> getAllAnswersForTicket(String subj, String ticket);
-
-    Observable<List<Answer>> deleteAllAnswersForTicket(String subj, String ticket);
-
-    Observable<List<Question>> getAllQuestionsForTicket(String subj, String ticket);
-
-    Observable<List<Question>> deleteAllQuestionsForTicket(String subj, String ticket);
+    Observable<List<TestItem>> deleteAllTestItemsForTicket(String subj, String ticket);
 
     Observable<OcrResponseModel> getParsedTextFromFile(String mPath);
+
+    Observable<TicketDataSet> getTicketDataSet(int ticket);
 }

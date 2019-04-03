@@ -1,5 +1,6 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Components;
 
+import android.content.Context;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
@@ -14,10 +15,9 @@ import dagger.Subcomponent;
 
 public interface CreateTestComponent {
 
+    Context context();
     void inject(CreateTestFragment target);
-
     void inject(ChooseSourceDialog target);
-
 }
 
 

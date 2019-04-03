@@ -1,15 +1,23 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects;
 
+
 import io.realm.RealmObject;
 
-public class Question extends RealmObject {
+public class TestItem extends RealmObject {
 
-
-    private int id;
+    private String id;
     private int ticketId;
+    private boolean isQuestion;
     private int type;
     private String value;
-    private int userStackNumber;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public int getTicketId() {
         return ticketId;
@@ -35,19 +43,11 @@ public class Question extends RealmObject {
         this.value = value;
     }
 
-    public int getUserStackNumber() {
-        return userStackNumber;
+    public boolean isQuestion() {
+        return isQuestion;
     }
 
-    public void setUserStackNumber(int userStackNumber) {
-        this.userStackNumber = userStackNumber;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    public void setQuestion(boolean question) {
+        isQuestion = question;
     }
 }

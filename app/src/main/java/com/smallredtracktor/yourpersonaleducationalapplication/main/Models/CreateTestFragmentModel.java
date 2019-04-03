@@ -2,7 +2,8 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Models;
 
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces.ICreateTestRepository;
 
@@ -18,14 +19,20 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
         this.repository = repository;
     }
 
+
     @Override
-        public Observable<Question> getWriteQuestionResult(Question question) {
-        return repository.writeQuestion(question);
+    public Observable<TicketDataSet> getTicketDataSet(int ticket) {
+       return repository.getTicketDataSet(ticket);
     }
 
     @Override
-        public Observable<OcrResponseModel> getParsedTextResult(String path) {
+    public Observable<OcrResponseModel> getParsedTextResult(String path) {
         return repository.getParsedTextFromFile(path);
+    }
+
+    @Override
+    public Observable<TestItem> writeTestItem(TestItem item) {
+        return repository.writeTestItem(item);
     }
 
 

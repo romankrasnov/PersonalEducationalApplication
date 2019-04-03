@@ -1,10 +1,10 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Answer;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
 
 import javax.annotation.Nullable;
@@ -16,18 +16,19 @@ import static android.app.Activity.RESULT_OK;
 
 public class CreateTestFragmentPresenter implements
         ICreateTestFragmentMVPprovider.IPresenter,
-        ChooseSourceDialog.ChooseSourceDialogListener {
+      ChooseSourceDialog.ChooseSourceDialogListener{
 
     @Nullable
     private ICreateTestFragmentMVPprovider.IFragment view;
     @Nullable
     private ICreateTestFragmentMVPprovider.IModel model;
 
-    DisposableObserver<OcrResponseModel> ocrObserver;
+    private DisposableObserver<OcrResponseModel> ocrObserver;
 
     private boolean isQuestion;
     private boolean isOcr;
-    private int currentTicket = 0;
+    private int currentTicket = 1;
+    private DisposableObserver<TestItem> itemWriteObserver;
 
     public CreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model) {
         this.model = model;
@@ -48,15 +49,17 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onSwipeRight() {
         if (view != null) {
-            currentTicket++;
-            view.setCounterTextView(String.valueOf(currentTicket));
+            if (currentTicket > 1) {
+                currentTicket--;
+                view.setCounterTextView(String.valueOf(currentTicket));
+            }
         }
     }
 
     @Override
     public void onSwipeLeft() {
         if (view != null) {
-            currentTicket--;
+            currentTicket++;
             view.setCounterTextView(String.valueOf(currentTicket));
         }
     }
@@ -92,7 +95,7 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onObjectLongPressed() {
+    public void onObjectLongPressed(String id) {
 
     }
 
@@ -128,31 +131,42 @@ public class CreateTestFragmentPresenter implements
         if (view != null && model != null) {
             if(isOcr)
             {
-                Observable<OcrResponseModel> observable = model.getParsedTextResult(mPath);
+                String id = UniqueDigit.getUnique();
+                if(isQuestion) {
+                    view.addSubjectToQuestionStack(id);
+                }else
+                {
+                    view.addSubjectToAnswerStack(id);
+                }
+                Observable<OcrResponseModel> ocrObservable = model.getParsedTextResult(mPath);
                 ocrObserver = new DisposableObserver<OcrResponseModel>() {
                     @Override
                     public void onNext(OcrResponseModel ocrResponseModel) {
                         String s = ocrResponseModel.getText();
-                        if (isQuestion)
-                        {
-                            int position = view.addSubjectToQuestionStack();
-                            Question question = new Question();
-                            question.setValue(s);
-                            question.setType(3);
-                            question.setUserStackNumber(position + 1);
-                            question.setTicketId(currentTicket);
-                            model.getWriteQuestionResult(question);
-                        }
-                        else {
-                            int position = view.addSubjectToAnswerStack();
-                            Answer answer = new Answer();
-                            answer.setValue(s);
-                            answer.setQuestionId(1);    //ебота, пересмотреть, вопрос от ответа
-                                                        // в предметной области не отличается,
-                                                        // всё нахуй в одну сущность ёбана
-                            answer.setUserStackNumber(position + 1);
-                            answer.setType(3);
-                        }
+                        TestItem item = new TestItem();
+                        item.setId(id);
+                        item.setQuestion(isQuestion);
+                        item.setTicketId(currentTicket);
+                        item.setType(3);
+                        item.setValue(s);
+                        Observable<TestItem> writeTestItemObservable = model.writeTestItem(item);
+                        itemWriteObserver = new DisposableObserver<TestItem>()
+                            {
+                                @Override
+                                public void onNext(TestItem testItem) {
+                                   view.showToast("Ready");
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                }
+                            };
+                        writeTestItemObservable.subscribe(itemWriteObserver);
                     }
 
                     @Override
@@ -163,17 +177,10 @@ public class CreateTestFragmentPresenter implements
                 };
 
 
-                observable.subscribe(ocrObserver);
+                ocrObservable.subscribe(ocrObserver);
             }
             else {
-                if (isQuestion)
-                {
- //               model.writeQuestion(new Question());
-                }
-                    else
-                        {
-    //                model.writeAnswer(new Answer());
-                        }
+
                  }
         }
     }
@@ -194,9 +201,15 @@ public class CreateTestFragmentPresenter implements
     {   if (ocrObserver != null) {
         if (!ocrObserver.isDisposed()) {
             ocrObserver.dispose();
+            itemWriteObserver.dispose();
         }
     }
 }
+
+    @Override
+    public void onObjectLongPressed(int id) {
+
+    }
 
     @Override
     public void onPhotoTakingCancelled() {
@@ -230,5 +243,4 @@ public class CreateTestFragmentPresenter implements
             view.showCameraFragment();
         }
     }
-
 }

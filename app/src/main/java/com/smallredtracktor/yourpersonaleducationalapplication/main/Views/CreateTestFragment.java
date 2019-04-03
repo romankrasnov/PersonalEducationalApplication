@@ -18,14 +18,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntent;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.SwipeUtils.OnSwipeTouchListener;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
 
@@ -92,7 +93,8 @@ public class CreateTestFragment extends Fragment implements
         ButterKnife.bind(this, view);
 
         App.get(getContext())
-                .plusCreateTestComponent()
+                .getComponent()
+                .plusCreateTestComponent(new CreateTestModule(getContext()))
                 .inject(this);
 
         view.setOnTouchListener(new OnSwipeTouchListener(this.getContext()) {
@@ -145,42 +147,44 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        createTestFragmentPresenter.rxUnsubscribe();
     }
 
-    @Override
+
+       @Override
     public void setCounterTextView(String s) {
         counterTicketsTextView.setText(s);
     }
 
     @Override
-        public int addSubjectToQuestionStack() {
-        Button newbtn = getNewItem();
+        public void addSubjectToQuestionStack(String id) {
+        Button newbtn = getNewItem(id);
         questionStackLayout.addView(newbtn);
-        return questionStackLayout.getChildCount();
     }
 
 
-       private Button getNewItem() {
+       private Button getNewItem(String id) {
            Button newbtn = new Button(getContext());
            newbtn.setBackgroundColor(R.drawable.button_view_background);
+           newbtn.setTag(id);
+           newbtn.setOnClickListener(v -> createTestFragmentPresenter.onObjectLongPressed(id));
            return  newbtn;
        }
 
        @Override
-       public int addSubjectToAnswerStack() {
-        Button newbtn = getNewItem();
+       public void addSubjectToAnswerStack(String id) {
+        Button newbtn = getNewItem(id);
         answerStackLayout.addView(newbtn);
-        return answerStackLayout.getChildCount();
     }
 
     @Override
-    public void removeSubjectFromQuestionStack(int position) {
-        questionStackLayout.removeViewAt(position);
+    public void removeSubjectFromQuestionStack(String position) {
+        //questionStackLayout.removeViewAt(position);
     }
 
     @Override
-    public void removeSubjectFromAnswerStack(int position) {
-        answerStackLayout.removeViewAt(position);
+    public void removeSubjectFromAnswerStack(String position) {
+        //answerStackLayout.removeViewAt(position);
     }
 
     @Override
@@ -251,7 +255,7 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showChooseSourceDialog() {
-        DialogFragment dialog = new ChooseSourceDialog();
+        DialogFragment dialog = new ChooseSourceDialog(createTestFragmentPresenter);
         dialog.show(getChildFragmentManager(), null);
     }
 
@@ -262,6 +266,11 @@ public class CreateTestFragment extends Fragment implements
             requestPermissions(new String[] {Manifest.permission.CAMERA}, requestCode);
         }
     }
+
+       @Override
+       public void showToast(String msg) {
+           Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+       }
 
 
        @Override
@@ -278,8 +287,6 @@ public class CreateTestFragment extends Fragment implements
                }
            }
     }
-
-
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name

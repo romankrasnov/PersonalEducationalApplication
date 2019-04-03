@@ -33,10 +33,8 @@ private static CreateTestComponent createTestComponent;
 
 
         public CreateTestComponent plusCreateTestComponent() {
-                // always get only one instance
                 if (createTestComponent == null) {
-                        // start lifecycle
-                        createTestComponent = appComponent.plusCreateTestComponent(new CreateTestModule());
+                        createTestComponent = appComponent.plusCreateTestComponent(new CreateTestModule(this));
                 }
                 return createTestComponent;
         }

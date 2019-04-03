@@ -5,7 +5,8 @@ import android.graphics.Bitmap;
 import android.view.View;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Question;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
 
 import io.reactivex.Observable;
 
@@ -23,7 +24,7 @@ public interface ICreateTestFragmentMVPprovider {
         void onAddAnswerClick();
         void onClearClick();
         void onDoneClick();
-        void onObjectLongPressed();
+        void onObjectLongPressed(String id);
         void onGalleryResult();
         void onBackPressed();
         void onPhotoTaken(String mPath);
@@ -33,15 +34,21 @@ public interface ICreateTestFragmentMVPprovider {
         void onVideoRecorded();
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
         void rxUnsubscribe();
+
+        void onObjectLongPressed(int id);
+
     }
 
     interface IFragment
     {
         void setCounterTextView(String s);
-        int addSubjectToQuestionStack();
-        int addSubjectToAnswerStack();
-        void removeSubjectFromQuestionStack(int position);
-        void removeSubjectFromAnswerStack(int position);
+
+
+        void addSubjectToQuestionStack(String id);
+        void addSubjectToAnswerStack(String id);
+
+        void removeSubjectFromQuestionStack(String position);
+        void removeSubjectFromAnswerStack(String position);
         void showPhotoFragment(Bitmap bitmap);
         void showTextFragment(String text);
         void destroyPhotoFragment();
@@ -58,12 +65,13 @@ public interface ICreateTestFragmentMVPprovider {
         void showWhatsSubjectDialog();
         void showChooseSourceDialog();
         void resolveCameraPermission();
-
+        void showToast(String msg);
     }
 
     interface IModel
     {
-        Observable<Question> getWriteQuestionResult(Question question);
+        Observable<TicketDataSet> getTicketDataSet(int ticket);
         Observable<OcrResponseModel> getParsedTextResult(String mPath);
+        Observable<TestItem> writeTestItem(TestItem item);
     }
 }

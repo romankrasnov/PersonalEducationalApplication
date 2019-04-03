@@ -36,7 +36,7 @@ public class PhotoIntent {
                 if (photoFile != null) {
                     mPath = photoFile.getAbsolutePath();
                     Uri photoURI = FileProvider.getUriForFile(context,
-                            "com.smallredtracktor.yourpersonaleducationalapplication.android.fileprovider",
+                            "com.smallredtracktor.youreducationalapplication.android.fileprovider",
                             photoFile);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 }

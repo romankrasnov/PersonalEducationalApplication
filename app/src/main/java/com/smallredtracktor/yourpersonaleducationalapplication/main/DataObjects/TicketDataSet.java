@@ -1,4 +1,4 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects;
 
-public class ParsedTextModel {
+public class TicketDataSet {
 }
