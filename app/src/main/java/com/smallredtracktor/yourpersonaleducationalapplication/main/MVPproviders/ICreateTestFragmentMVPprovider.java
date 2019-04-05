@@ -8,6 +8,9 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
 
+import java.util.List;
+
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 
@@ -34,9 +37,6 @@ public interface ICreateTestFragmentMVPprovider {
         void onVideoRecorded();
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
         void rxUnsubscribe();
-
-        void onObjectLongPressed(int id);
-
     }
 
     interface IFragment
@@ -46,7 +46,6 @@ public interface ICreateTestFragmentMVPprovider {
 
         void addSubjectToQuestionStack(String id);
         void addSubjectToAnswerStack(String id);
-
         void removeSubjectFromQuestionStack(String position);
         void removeSubjectFromAnswerStack(String position);
         void showPhotoFragment(Bitmap bitmap);
@@ -70,8 +69,14 @@ public interface ICreateTestFragmentMVPprovider {
 
     interface IModel
     {
+        Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems);
+
+        Observable<TestItem> getTestItem(String id);
+        Observable<TestItem> deleteTestItem(String id);
+        Observable<List<TestItem>> getAllTestItemsForTicket(String ticket);
+        Observable<List<TestItem>> deleteAllTestItemsForTicket(String ticket);
         Observable<TicketDataSet> getTicketDataSet(int ticket);
         Observable<OcrResponseModel> getParsedTextResult(String mPath);
-        Observable<TestItem> writeTestItem(TestItem item);
+        Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
     }
 }

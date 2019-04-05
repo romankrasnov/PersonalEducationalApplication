@@ -31,7 +31,7 @@ public class ChooseSourceDialog extends DialogFragment {
 
 
     ChooseSourceDialogListener listener;
-    
+
     ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
 
 

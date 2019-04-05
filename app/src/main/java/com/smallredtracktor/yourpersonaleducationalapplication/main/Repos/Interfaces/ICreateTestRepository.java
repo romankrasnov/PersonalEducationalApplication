@@ -7,11 +7,10 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.
 
 import java.util.List;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 public interface ICreateTestRepository  {
-
-    Observable<TestItem> writeTestItem(TestItem testItem);
 
     Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems);
 
@@ -26,4 +25,6 @@ public interface ICreateTestRepository  {
     Observable<OcrResponseModel> getParsedTextFromFile(String mPath);
 
     Observable<TicketDataSet> getTicketDataSet(int ticket);
+
+    Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
 }

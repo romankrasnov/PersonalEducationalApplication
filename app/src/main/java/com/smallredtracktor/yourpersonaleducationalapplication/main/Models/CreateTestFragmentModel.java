@@ -7,6 +7,9 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces.ICreateTestRepository;
 
+import java.util.List;
+
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 
@@ -19,6 +22,30 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
         this.repository = repository;
     }
 
+    @Override
+    public Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems) {
+        return null;
+    }
+
+    @Override
+    public Observable<TestItem> getTestItem(String id) {
+        return null;
+    }
+
+    @Override
+    public Observable<TestItem> deleteTestItem(String id) {
+        return null;
+    }
+
+    @Override
+    public Observable<List<TestItem>> getAllTestItemsForTicket(String ticket) {
+        return null;
+    }
+
+    @Override
+    public Observable<List<TestItem>> deleteAllTestItemsForTicket(String ticket) {
+        return null;
+    }
 
     @Override
     public Observable<TicketDataSet> getTicketDataSet(int ticket) {
@@ -31,8 +58,8 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
     }
 
     @Override
-    public Observable<TestItem> writeTestItem(TestItem item) {
-        return repository.writeTestItem(item);
+    public Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+        return repository.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
     }
 
 

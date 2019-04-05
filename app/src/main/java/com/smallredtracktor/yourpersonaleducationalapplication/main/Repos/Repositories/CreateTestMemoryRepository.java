@@ -11,24 +11,19 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoU
 import java.util.List;
 
 
-
-
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 public class CreateTestMemoryRepository implements ICreateTestRepository {
 
+    private ParseTextUtil util;
     private ICreateTestDbApi testDbApi;
 
-    public CreateTestMemoryRepository(ICreateTestDbApi testDbApi) {
+    public CreateTestMemoryRepository(ICreateTestDbApi testDbApi, ParseTextUtil util) {
         this.testDbApi = testDbApi;
+        this.util = util;
     }
 
-
-
-    @Override
-    public Observable<TestItem> writeTestItem(TestItem testItem) {
-        return testDbApi.writeTestItem(testItem);
-    }
 
     @Override
     public Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems) {
@@ -57,12 +52,17 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
 
     @Override
     public Observable<OcrResponseModel> getParsedTextFromFile(String mPath) {
-        return  ParseTextUtil.getParsedResult(mPath);
+        return  util.getResult(mPath);
     }
 
     @Override
     public Observable<TicketDataSet> getTicketDataSet(int ticket) {
         return testDbApi.getTicketDataSet(ticket);
+    }
+
+    @Override
+    public Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+        return testDbApi.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
     }
 
 }

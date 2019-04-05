@@ -7,8 +7,14 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
 
+import java.util.List;
+
 import javax.annotation.Nullable;
+
+
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 
 
@@ -23,12 +29,13 @@ public class CreateTestFragmentPresenter implements
     @Nullable
     private ICreateTestFragmentMVPprovider.IModel model;
 
-    private DisposableObserver<OcrResponseModel> ocrObserver;
+    private DisposableObserver<List<TestItem>> writeSubscriber;
 
     private boolean isQuestion;
     private boolean isOcr;
     private int currentTicket = 1;
-    private DisposableObserver<TestItem> itemWriteObserver;
+
+
 
     public CreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model) {
         this.model = model;
@@ -94,11 +101,6 @@ public class CreateTestFragmentPresenter implements
 
     }
 
-    @Override
-    public void onObjectLongPressed(String id) {
-
-    }
-
 
     @Override
     public void onGalleryResult() {
@@ -129,61 +131,50 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onPhotoTaken(String mPath) {
         if (view != null && model != null) {
-            if(isOcr)
-            {
-                String id = UniqueDigit.getUnique();
-                if(isQuestion) {
-                    view.addSubjectToQuestionStack(id);
-                }else
-                {
-                    view.addSubjectToAnswerStack(id);
+            String id = UniqueDigit.getUnique();
+            if(isQuestion) {
+                view.addSubjectToQuestionStack(id);
+            }else {
+                view.addSubjectToAnswerStack(id);
                 }
-                Observable<OcrResponseModel> ocrObservable = model.getParsedTextResult(mPath);
-                ocrObserver = new DisposableObserver<OcrResponseModel>() {
+                writeSubscriber = new DisposableObserver<List<TestItem>>() {
                     @Override
-                    public void onNext(OcrResponseModel ocrResponseModel) {
-                        String s = ocrResponseModel.getText();
-                        TestItem item = new TestItem();
-                        item.setId(id);
-                        item.setQuestion(isQuestion);
-                        item.setTicketId(currentTicket);
-                        item.setType(3);
-                        item.setValue(s);
-                        Observable<TestItem> writeTestItemObservable = model.writeTestItem(item);
-                        itemWriteObserver = new DisposableObserver<TestItem>()
-                            {
-                                @Override
-                                public void onNext(TestItem testItem) {
-                                   view.showToast("Ready");
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-
-                                }
-
-                                @Override
-                                public void onComplete() {
-                                }
-                            };
-                        writeTestItemObservable.subscribe(itemWriteObserver);
+                    public void onNext(List<TestItem> testItems) {
+                        view.setCounterTextView(testItems.get(0).getValue());
                     }
 
                     @Override
-                    public void onError(Throwable e) { }
+                    public void onError(Throwable e) {
+                        view.showToast("Error while networking");
+                    }
 
                     @Override
-                    public void onComplete() { }
+                    public void onComplete() {
+                    }
                 };
-
-
-                ocrObservable.subscribe(ocrObserver);
+            if(isOcr)
+            {
+                 // noinspection unchecked
+                Observable<List<TestItem>> writeTestItem = model
+                        .getParsedTextResult(mPath)
+                        .flatMap((Function<OcrResponseModel, ObservableSource<List<TestItem>>>)
+                                ocrResponseModel -> model
+                                        .writeTestItem(id,isQuestion,currentTicket,3, ocrResponseModel.getText())
+                                        .toObservable());
+                writeTestItem
+                        .subscribe(writeSubscriber);
             }
             else {
-
-                 }
+                // noinspection unchecked
+                Observable<List<TestItem>> writeTestItem = model
+                        .writeTestItem(id, isQuestion,currentTicket, 1, mPath)
+                        .toObservable();
+                writeTestItem
+                        .subscribe(writeSubscriber);
+            }
         }
     }
+
 
     @Override
     public boolean onPhotoPermissionCompatResult(int reqCode, int resCode) {
@@ -198,17 +189,18 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void rxUnsubscribe()
-    {   if (ocrObserver != null) {
-        if (!ocrObserver.isDisposed()) {
-            ocrObserver.dispose();
-            itemWriteObserver.dispose();
+    {   if (writeSubscriber != null) {
+        if (!writeSubscriber.isDisposed()) {
+            writeSubscriber.dispose();
         }
     }
 }
 
     @Override
-    public void onObjectLongPressed(int id) {
-
+    public void onObjectLongPressed(String id) {
+        if (view != null) {
+            view.setCounterTextView(id);
+        }
     }
 
     @Override

@@ -12,7 +12,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Models.Creat
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters.CreateTestFragmentPresenter;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Repositories.CreateTestMemoryRepository;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces.ICreateTestRepository;
-
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
 
 
 import dagger.Module;
@@ -51,9 +51,9 @@ public class CreateTestModule {
 
     @Provides
     @CreatingScope
-    ICreateTestRepository provideMemoryRepository(ICreateTestDbApi dbApi)
+    ICreateTestRepository provideMemoryRepository(ICreateTestDbApi dbApi, ParseTextUtil util)
     {
-        return new CreateTestMemoryRepository(dbApi);
+        return new CreateTestMemoryRepository(dbApi,util);
     }
 
     @Provides
@@ -63,5 +63,11 @@ public class CreateTestModule {
         return new CreateTestDbImpl(context);
     }
 
+    @Provides
+    @CreatingScope
+    ParseTextUtil provideParseTextUtil()
+    {
+        return new ParseTextUtil();
+    }
 
 }
