@@ -13,7 +13,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 
-
 public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.IModel {
 
     private ICreateTestRepository repository;
@@ -28,8 +27,8 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
     }
 
     @Override
-    public Observable<TestItem> getTestItem(String id) {
-        return null;
+    public Flowable<List<TestItem>> getTestItem(String id) {
+        return repository.getTestItem(id);
     }
 
     @Override
@@ -58,8 +57,8 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
     }
 
     @Override
-    public Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
-        return repository.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
+    public void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+        repository.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
     }
 
 

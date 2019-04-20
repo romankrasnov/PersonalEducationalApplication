@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TextDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntent;
@@ -42,7 +43,6 @@ import static android.app.Activity.RESULT_OK;
 public class CreateTestFragment extends Fragment implements
         ICreateTestFragmentMVPprovider.IFragment
    {
-
        private static final int REQUEST_TAKE_PHOTO = 1;
        private String mPath;
 
@@ -71,7 +71,6 @@ public class CreateTestFragment extends Fragment implements
 
 
        public CreateTestFragment() {
-        // Required empty public constructor
     }
 
        public static CreateTestFragment newInstance(String param1, String param2) {
@@ -115,7 +114,7 @@ public class CreateTestFragment extends Fragment implements
         });
 
         addQuestionButton.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
-
+        addAnswerButton.setOnClickListener(v -> createTestFragmentPresenter.onAddAnswerClick());
         return view;
     }
 
@@ -179,12 +178,14 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void removeSubjectFromQuestionStack(String position) {
-        //questionStackLayout.removeViewAt(position);
+          Button button = questionStackLayout.findViewWithTag(position);
+          questionStackLayout.removeView(button);
     }
 
     @Override
     public void removeSubjectFromAnswerStack(String position) {
-        //answerStackLayout.removeViewAt(position);
+        Button button = questionStackLayout.findViewWithTag(position);
+        answerStackLayout.removeView(button);
     }
 
     @Override
@@ -194,7 +195,9 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showTextFragment(String text) {
-
+        TextDialog dialog = new TextDialog(createTestFragmentPresenter);
+        dialog.setDialogText(text);
+        dialog.show(getChildFragmentManager(), null);
     }
 
     @Override

@@ -30,7 +30,6 @@ public class OcrHelper {
                 .getData(apikey, "data:image/png;base64," + base64, lang)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
-
         return s;
     }
 }

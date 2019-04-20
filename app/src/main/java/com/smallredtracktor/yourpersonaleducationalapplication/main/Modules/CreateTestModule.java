@@ -2,6 +2,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Modules;
 
 
 import android.content.Context;
+import android.os.HandlerThread;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreatingScope;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
@@ -15,8 +16,12 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interf
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
 
 
+
+
 import dagger.Module;
 import dagger.Provides;
+
+
 
 @Module
 public class CreateTestModule {
@@ -69,5 +74,4 @@ public class CreateTestModule {
     {
         return new ParseTextUtil();
     }
-
 }

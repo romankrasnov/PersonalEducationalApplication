@@ -31,8 +31,8 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
     }
 
     @Override
-    public Observable<TestItem> getTestItem(String subj, String id, String ticket) {
-        return null;
+    public Flowable<List<TestItem>> getTestItem(String id) {
+        return testDbApi.itemById(id);
     }
 
     @Override
@@ -61,8 +61,8 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
     }
 
     @Override
-    public Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
-        return testDbApi.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
+    public void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+        testDbApi.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
     }
 
 }

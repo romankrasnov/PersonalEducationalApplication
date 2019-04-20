@@ -1,15 +1,17 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
+import android.support.annotation.Nullable;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TextDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
 
-import java.util.List;
 
-import javax.annotation.Nullable;
+import java.util.List;
 
 
 import io.reactivex.Observable;
@@ -18,32 +20,33 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 
 
+
 import static android.app.Activity.RESULT_OK;
 
 public class CreateTestFragmentPresenter implements
         ICreateTestFragmentMVPprovider.IPresenter,
-      ChooseSourceDialog.ChooseSourceDialogListener{
+      ChooseSourceDialog.ChooseSourceDialogListener,
+        TextDialog.TextDialogListener {
 
     @Nullable
     private ICreateTestFragmentMVPprovider.IFragment view;
     @Nullable
     private ICreateTestFragmentMVPprovider.IModel model;
 
-    private DisposableObserver<List<TestItem>> writeSubscriber;
-
+    private DisposableObserver<List<TestItem>> readSubscriber;
     private boolean isQuestion;
     private boolean isOcr;
+    private int type;
     private int currentTicket = 1;
 
 
-
-    public CreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model) {
+    public CreateTestFragmentPresenter(@Nullable ICreateTestFragmentMVPprovider.IModel model) {
         this.model = model;
     }
 
 
     @Override
-    public void setView(ICreateTestFragmentMVPprovider.IFragment view) {
+    public void setView(@Nullable ICreateTestFragmentMVPprovider.IFragment view) {
         this.view = view;
     }
 
@@ -137,10 +140,17 @@ public class CreateTestFragmentPresenter implements
             }else {
                 view.addSubjectToAnswerStack(id);
                 }
-                writeSubscriber = new DisposableObserver<List<TestItem>>() {
+            readSubscriber = new DisposableObserver<List<TestItem>>() {
                     @Override
                     public void onNext(List<TestItem> testItems) {
-                        view.setCounterTextView(testItems.get(0).getValue());
+                        if (testItems.size() != 0) {
+                            try {
+                                view.showTextFragment(testItems.get(0).getValue());
+                            } catch (Exception e) {
+                                view.showToast(e.toString());
+                            }
+
+                        }
                     }
 
                     @Override
@@ -152,29 +162,28 @@ public class CreateTestFragmentPresenter implements
                     public void onComplete() {
                     }
                 };
+            Observable<List<TestItem>> readTestItem;
             if(isOcr)
-            {
+            {                                                                                                                                                                                                                                                                                                         
                  // noinspection unchecked
-                Observable<List<TestItem>> writeTestItem = model
+                readTestItem = model
                         .getParsedTextResult(mPath)
-                        .flatMap((Function<OcrResponseModel, ObservableSource<List<TestItem>>>)
-                                ocrResponseModel -> model
-                                        .writeTestItem(id,isQuestion,currentTicket,3, ocrResponseModel.getText())
-                                        .toObservable());
-                writeTestItem
-                        .subscribe(writeSubscriber);
+                        .flatMap((Function<OcrResponseModel, ObservableSource<List<TestItem>>>) ocrResponseModel -> {
+                            model.writeTestItem(id,isQuestion,currentTicket,type, ocrResponseModel.getText());
+                            return model.getTestItem(id).toObservable();
+                        });
             }
             else {
                 // noinspection unchecked
-                Observable<List<TestItem>> writeTestItem = model
-                        .writeTestItem(id, isQuestion,currentTicket, 1, mPath)
+                model.writeTestItem(id,isQuestion,currentTicket,type, mPath);
+                readTestItem = model
+                        .getTestItem(id)
                         .toObservable();
-                writeTestItem
-                        .subscribe(writeSubscriber);
             }
+                readTestItem
+                        .subscribe(readSubscriber);
         }
     }
-
 
     @Override
     public boolean onPhotoPermissionCompatResult(int reqCode, int resCode) {
@@ -189,9 +198,9 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void rxUnsubscribe()
-    {   if (writeSubscriber != null) {
-        if (!writeSubscriber.isDisposed()) {
-            writeSubscriber.dispose();
+    {   if (readSubscriber != null) {
+        if (!readSubscriber.isDisposed()) {
+            readSubscriber.dispose();
         }
     }
 }
@@ -210,13 +219,21 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void onDialogTextSourceClick() {
-
+        if (view != null) {
+            type = 0;
+            view.showTextFragment("Если в диалоговом окне необходим пользовательский макет, нужно создать макет и добавить его в AlertDialog путем вызова setView() в объекте AlertDialog.Builder.\n" +
+                    "\n" +
+                    "По умолчанию пользовательский мает заполняет окно диалога, при это все равно можно использовать методы AlertDialog.Builder для добавления кнопок и заголовка.\n" +
+                    "\n" +
+                    "В качестве примера на рисунке 5 приведен файл макета для диалогового окна.");
+        }
     }
 
     @Override
     public void onDialogPhotoSourceClick() {
         if (view != null) {
             isOcr = false;
+            type = 1;
             view.resolveCameraPermission();
             view.showCameraFragment();
         }
@@ -224,15 +241,29 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void onDialogGallerySourceClick() {
-
+        if (view != null) {
+            view.showGallery();
+            type = 2;
+        }
     }
 
     @Override
     public void onDialogOcrSourceClick() {
         if (view != null) {
             isOcr = true;
+            type = 3;
             view.resolveCameraPermission();
             view.showCameraFragment();
         }
+    }
+
+    @Override
+    public void onTextDialogOkClick(String string) {
+
+    }
+
+    @Override
+    public void onTextDialogCancelClick() {
+
     }
 }

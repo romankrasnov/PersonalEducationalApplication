@@ -14,7 +14,7 @@ public interface ICreateTestRepository  {
 
     Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems);
 
-    Observable<TestItem> getTestItem(String subj, String id, String ticket);
+    Flowable<List<TestItem>> getTestItem(String id);
 
     Observable<TestItem> deleteTestItem(String subj, String id, String ticket);
 
@@ -26,5 +26,5 @@ public interface ICreateTestRepository  {
 
     Observable<TicketDataSet> getTicketDataSet(int ticket);
 
-    Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
+    void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
 }

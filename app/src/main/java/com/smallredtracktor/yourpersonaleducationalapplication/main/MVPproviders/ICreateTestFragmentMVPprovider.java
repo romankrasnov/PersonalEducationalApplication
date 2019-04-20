@@ -12,6 +12,7 @@ import java.util.List;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 
 
 public interface ICreateTestFragmentMVPprovider {
@@ -71,12 +72,12 @@ public interface ICreateTestFragmentMVPprovider {
     {
         Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems);
 
-        Observable<TestItem> getTestItem(String id);
+        Flowable<List<TestItem>> getTestItem(String id);
         Observable<TestItem> deleteTestItem(String id);
         Observable<List<TestItem>> getAllTestItemsForTicket(String ticket);
         Observable<List<TestItem>> deleteAllTestItemsForTicket(String ticket);
         Observable<TicketDataSet> getTicketDataSet(int ticket);
         Observable<OcrResponseModel> getParsedTextResult(String mPath);
-        Flowable writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
+        void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
     }
 }
