@@ -34,25 +34,6 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
         return null;
     }
 
-    /*
-        @Override
-        public Observable<List<TestItem>> itemEntityList() {
-            return Observable.create(emitter -> {
-                List<TestItem> ticketItemList = get();
-                if (ticketItemList != null) {
-                    emitter.onNext(ticketItemList);
-                    emitter.onComplete();
-                } else {
-                    emitter.onError(
-                            new Throwable("Error getting main data list from the local db"));
-                }
-            });
-        }
-
-        private List<TestItem> get() {
-            return realm.where(TestItem.class).findAll();
-        }
-         */
     @Override
     public Flowable<List<TestItem>> itemById(String id) {
         Realm realm = Realm.getDefaultInstance();
@@ -74,18 +55,15 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
     @Override
     public void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
         new Thread(() -> {
-            try (Realm realm = Realm.getDefaultInstance()) { // I could use try-with-resources here
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        TestItem item = new TestItem();
-                        item.setId(id);
-                        item.setQuestion(isQuestion);
-                        item.setTicketId(currentTicket);
-                        item.setType(type);
-                        item.setValue(value);
-                        realm.insert(item);
-                    }
+            try (Realm realm = Realm.getDefaultInstance()) {
+                realm.executeTransaction(realm1 -> {
+                    TestItem item = new TestItem();
+                    item.setId(id);
+                    item.setQuestion(isQuestion);
+                    item.setTicketId(currentTicket);
+                    item.setType(type);
+                    item.setValue(value);
+                    realm1.insert(item);
                 });
             }
         }).start();

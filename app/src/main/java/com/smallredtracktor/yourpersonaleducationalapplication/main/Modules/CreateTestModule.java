@@ -2,10 +2,9 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Modules;
 
 
 import android.content.Context;
-import android.os.HandlerThread;
+
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreatingScope;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.CreateTestDbImpl;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.ICreateTestDbApi;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
@@ -14,7 +13,6 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters.C
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Repositories.CreateTestMemoryRepository;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces.ICreateTestRepository;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
-
 
 
 
@@ -33,12 +31,6 @@ public class CreateTestModule {
         this.context = context;
     }
 
-    @Provides
-    @CreatingScope
-    ChooseSourceDialog provideChooseSourceDialog(ICreateTestFragmentMVPprovider.IPresenter presenter)
-    {
-        return new ChooseSourceDialog(presenter);
-    }
 
     @Provides
     @CreatingScope

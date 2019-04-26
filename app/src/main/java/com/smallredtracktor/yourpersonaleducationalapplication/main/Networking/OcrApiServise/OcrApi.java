@@ -15,6 +15,7 @@ public interface OcrApi {
     Observable<OcrResponseModel> getData(
             @Field("apikey") String apikey,
             @Field("base64Image") String base64Image,
-            @Field("language") String language
+            @Field("language") String language,
+            @Field("detectOrientation") String detectOrientation
     );
 }

@@ -4,18 +4,18 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 public class OcrHelper {
 
     private static OcrHelper mInstance;
 
-
-    public static OcrHelper getIntance()
+    public static OcrHelper getInstance()
     {
         if (mInstance == null)
         {
-            return new OcrHelper();
+            mInstance = new OcrHelper();
         }
         return  mInstance;
     }
@@ -27,7 +27,7 @@ public class OcrHelper {
         Observable<OcrResponseModel> s = OcrService
                 .getInstance()
                 .getApi()
-                .getData(apikey, "data:image/png;base64," + base64, lang)
+                .getData(apikey, "data:image/png;base64," + base64, lang, "true")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
         return s;

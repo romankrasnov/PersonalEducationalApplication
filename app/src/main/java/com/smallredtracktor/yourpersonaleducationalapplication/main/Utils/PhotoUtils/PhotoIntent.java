@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class PhotoIntent {
 
-    public static String mPath;
+    private static String mPath;
 
     public static Intent getInstance(Context context) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -42,6 +42,11 @@ public class PhotoIntent {
                 }
             }
         return intent;
+    }
+
+    public static String getPath()
+    {
+        return mPath;
     }
 }
 

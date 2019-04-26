@@ -10,7 +10,6 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
 
-
 import java.util.List;
 
 
@@ -25,7 +24,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class CreateTestFragmentPresenter implements
         ICreateTestFragmentMVPprovider.IPresenter,
-      ChooseSourceDialog.ChooseSourceDialogListener,
+        ChooseSourceDialog.ChooseSourceDialogListener,
         TextDialog.TextDialogListener {
 
     @Nullable
@@ -33,11 +32,14 @@ public class CreateTestFragmentPresenter implements
     @Nullable
     private ICreateTestFragmentMVPprovider.IModel model;
 
-    private DisposableObserver<List<TestItem>> readSubscriber;
+    private DisposableObserver<List<TestItem>> readPhotoTakingSubscriber;
+    private DisposableObserver<List<TestItem>> readQuestionTextTypingSubscriber;
+    private DisposableObserver<List<TestItem>> readAnswerTextTypingSubscriber;
     private boolean isQuestion;
     private boolean isOcr;
     private int type;
-    private int currentTicket = 1;
+    private int currentTicket;
+
 
 
     public CreateTestFragmentPresenter(@Nullable ICreateTestFragmentMVPprovider.IModel model) {
@@ -50,34 +52,6 @@ public class CreateTestFragmentPresenter implements
         this.view = view;
     }
 
-
-    @Override
-    public void onSwipeTop() {
-
-    }
-
-    @Override
-    public void onSwipeRight() {
-        if (view != null) {
-            if (currentTicket > 1) {
-                currentTicket--;
-                view.setCounterTextView(String.valueOf(currentTicket));
-            }
-        }
-    }
-
-    @Override
-    public void onSwipeLeft() {
-        if (view != null) {
-            currentTicket++;
-            view.setCounterTextView(String.valueOf(currentTicket));
-        }
-    }
-
-    @Override
-    public void onSwipeBottom() {
-    }
-
     @Override
     public void onAddQuestionClick() {
         if (view != null) {
@@ -87,21 +61,34 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onAddAnswerClick() {
-        if (view != null) {
-            isQuestion = false;
-            view.showChooseSourceDialog();
+    public void onQuestionPressed(String id) {
+        if (view != null && model != null) {
+            Observable<List<TestItem>> readTestItem = model
+                    .getTestItem(id)
+                    .toObservable();
+            readQuestionTextTypingSubscriber = new DisposableObserver<List<TestItem>>() {
+                @Override
+                public void onNext(List<TestItem> testItems) {
+                    if (testItems.size() != 0) {
+                        try {
+                            view.showTextFragment(testItems.get(0).getValue());
+                        } catch (Exception e) {
+                            view.showToast(testItems.get(0).getValue());
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    view.showToast(e.getMessage());
+                }
+
+                @Override
+                public void onComplete() {
+                }
+            };
+            readTestItem.subscribe(readQuestionTextTypingSubscriber);
         }
-    }
-
-    @Override
-    public void onClearClick() {
-
-    }
-
-    @Override
-    public void onDoneClick() {
-
     }
 
 
@@ -121,41 +108,38 @@ public class CreateTestFragmentPresenter implements
 
     }
 
-    @Override
-    public void onSubjectEdited() {
-
-    }
-
-    @Override
-    public void onVideoRecorded() {
-
-    }
 
     @Override
     public void onPhotoTaken(String mPath) {
         if (view != null && model != null) {
             String id = UniqueDigit.getUnique();
             if(isQuestion) {
-                view.addSubjectToQuestionStack(id);
+                view.addQuestion(id);
+                view.setQuestion("loading");
             }else {
-                view.addSubjectToAnswerStack(id);
+                    view.setAnswer(null, "loading");
                 }
-            readSubscriber = new DisposableObserver<List<TestItem>>() {
+            readPhotoTakingSubscriber = new DisposableObserver<List<TestItem>>() {
                     @Override
                     public void onNext(List<TestItem> testItems) {
                         if (testItems.size() != 0) {
                             try {
-                                view.showTextFragment(testItems.get(0).getValue());
+                                if(isQuestion)
+                                {
+                                    view.setQuestion(testItems.get(0).getValue());
+                                } else
+                                    {
+                                        view.setAnswer(id, testItems.get(0).getValue());
+                                    }
                             } catch (Exception e) {
-                                view.showToast(e.toString());
+                                view.showToast(testItems.get(0).getValue());
                             }
-
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        view.showToast("Error while networking");
+                        view.showToast(e.getMessage());
                     }
 
                     @Override
@@ -181,7 +165,7 @@ public class CreateTestFragmentPresenter implements
                         .toObservable();
             }
                 readTestItem
-                        .subscribe(readSubscriber);
+                        .subscribe(readPhotoTakingSubscriber);
         }
     }
 
@@ -198,19 +182,31 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void rxUnsubscribe()
-    {   if (readSubscriber != null) {
-        if (!readSubscriber.isDisposed()) {
-            readSubscriber.dispose();
+    {   if (readPhotoTakingSubscriber != null) {
+        if (!readPhotoTakingSubscriber.isDisposed()) {
+            readPhotoTakingSubscriber.dispose();
         }
     }
+        if (readQuestionTextTypingSubscriber != null) {
+            if (!readQuestionTextTypingSubscriber.isDisposed()) {
+                readQuestionTextTypingSubscriber.dispose();
+            }
+        }
+        if (readAnswerTextTypingSubscriber != null) {
+            if (!readAnswerTextTypingSubscriber.isDisposed()) {
+                readAnswerTextTypingSubscriber.dispose();
+            }
+        }
 }
 
     @Override
-    public void onObjectLongPressed(String id) {
+    public void onViewResumed(String s) {
         if (view != null) {
-            view.setCounterTextView(id);
+            view.setCounterTextView(s);
+            currentTicket = Integer.parseInt(s);
         }
     }
+
 
     @Override
     public void onPhotoTakingCancelled() {
@@ -221,11 +217,7 @@ public class CreateTestFragmentPresenter implements
     public void onDialogTextSourceClick() {
         if (view != null) {
             type = 0;
-            view.showTextFragment("Если в диалоговом окне необходим пользовательский макет, нужно создать макет и добавить его в AlertDialog путем вызова setView() в объекте AlertDialog.Builder.\n" +
-                    "\n" +
-                    "По умолчанию пользовательский мает заполняет окно диалога, при это все равно можно использовать методы AlertDialog.Builder для добавления кнопок и заголовка.\n" +
-                    "\n" +
-                    "В качестве примера на рисунке 5 приведен файл макета для диалогового окна.");
+            view.showTextFragment("");
         }
     }
 
@@ -266,4 +258,41 @@ public class CreateTestFragmentPresenter implements
     public void onTextDialogCancelClick() {
 
     }
+
+    @Override
+    public void onItemInteraction(String id) {
+            if (view != null && model != null) {
+                isQuestion = false;
+                if (id == "first" || id == "new") {
+                    view.showChooseSourceDialog();
+                }else
+                {
+                    Observable<List<TestItem>> readTestItem = model
+                            .getTestItem(id)
+                            .toObservable();
+                    readAnswerTextTypingSubscriber = new DisposableObserver<List<TestItem>>() {
+                        @Override
+                        public void onNext(List<TestItem> testItems) {
+                            if (testItems.size() != 0) {
+                                try {
+                                    view.showTextFragment(testItems.get(0).getValue());
+                                } catch (Exception e) {
+                                    view.showToast(testItems.get(0).getValue());
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            view.showToast(e.getMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                        }
+                    };
+                    readTestItem.subscribe(readAnswerTextTypingSubscriber);
+                }
+            }
+        }
 }

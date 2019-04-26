@@ -6,20 +6,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
@@ -27,9 +27,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.Text
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntent;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.SwipeUtils.OnSwipeTouchListener;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
-
 
 import javax.inject.Inject;
 
@@ -40,106 +38,94 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 
+@SuppressLint("ValidFragment")
 public class CreateTestFragment extends Fragment implements
-        ICreateTestFragmentMVPprovider.IFragment
-   {
-       private static final int REQUEST_TAKE_PHOTO = 1;
-       private String mPath;
-
-    @BindView(R.id.counterTicketsTextView)
-    TextView counterTicketsTextView;
-    @BindView(R.id.questionStackLayout)
-    LinearLayout questionStackLayout;
+        ICreateTestFragmentMVPprovider.IFragment {
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    @BindView(R.id.ticketCounterTextView)
+    TextView ticketCounterTextView;
     @BindView(R.id.addQuestionButton)
     Button addQuestionButton;
-    @BindView(R.id.answerStackLayout)
-    LinearLayout answerStackLayout;
-    @BindView(R.id.addAnswerButton)
-    Button addAnswerButton;
-    @BindView(R.id.clearButton)
-    Button clearButton;
-    @BindView(R.id.doneButton)
-    Button doneButton;
-    @BindView(R.id.createTestLayout)
-    LinearLayout createTestLayout;
+    @BindView(R.id.answersViewPager)
+    ViewPager answersViewPager;
+    @BindView(R.id.frameContainer)
+    FrameLayout frameContainer;
+    private String mPath;
+
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    private String mParam1;
+    private String mParam2;
 
 
     @Inject
     ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
 
-    private OnFragmentInteractionListener mListener;
+    private ViewPager pager;
 
 
-       public CreateTestFragment() {
+
+    public CreateTestFragment() {
     }
 
-       public static CreateTestFragment newInstance(String param1, String param2) {
+    public static CreateTestFragment newInstance(String param1, String param2) {
         CreateTestFragment fragment = new CreateTestFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
         return fragment;
     }
 
-             @Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_test, container, false);
         ButterKnife.bind(this, view);
-
         App.get(getContext())
                 .getComponent()
                 .plusCreateTestComponent(new CreateTestModule(getContext()))
                 .inject(this);
-
-        view.setOnTouchListener(new OnSwipeTouchListener(this.getContext()) {
-            public void onSwipeTop() {
-                createTestFragmentPresenter.onSwipeTop();
-            }
-
-            public void onSwipeRight() {
-                createTestFragmentPresenter.onSwipeRight();
-            }
-
-            public void onSwipeLeft() { createTestFragmentPresenter.onSwipeLeft(); }
-
-            public void onSwipeBottom() {
-                createTestFragmentPresenter.onSwipeBottom();
-            }
-
-        });
-
         addQuestionButton.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
-        addAnswerButton.setOnClickListener(v -> createTestFragmentPresenter.onAddAnswerClick());
         return view;
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        pager = view.findViewById(R.id.answersViewPager);
+        pager.setOffscreenPageLimit(100);
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+
 
     @Override
     public void onResume() {
         createTestFragmentPresenter.setView(this);
         super.onResume();
+        createTestFragmentPresenter.onViewResumed(mParam1);
     }
-
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        createTestFragmentPresenter = null;
     }
 
 
@@ -149,44 +135,41 @@ public class CreateTestFragment extends Fragment implements
         createTestFragmentPresenter.rxUnsubscribe();
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 
-       @Override
+    @Override
     public void setCounterTextView(String s) {
-        counterTicketsTextView.setText(s);
+        ticketCounterTextView.setText(s);
     }
 
     @Override
-        public void addSubjectToQuestionStack(String id) {
-        Button newbtn = getNewItem(id);
-        questionStackLayout.addView(newbtn);
-    }
-
-
-       private Button getNewItem(String id) {
-           Button newbtn = new Button(getContext());
-           newbtn.setBackgroundColor(R.drawable.button_view_background);
-           newbtn.setTag(id);
-           newbtn.setOnClickListener(v -> createTestFragmentPresenter.onObjectLongPressed(id));
-           return  newbtn;
-       }
-
-       @Override
-       public void addSubjectToAnswerStack(String id) {
-        Button newbtn = getNewItem(id);
-        answerStackLayout.addView(newbtn);
+    public void addQuestion(String id) {
+        addQuestionButton.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
     }
 
     @Override
-    public void removeSubjectFromQuestionStack(String position) {
-          Button button = questionStackLayout.findViewWithTag(position);
-          questionStackLayout.removeView(button);
+    public void setQuestion(String value) {
+        addQuestionButton.setText(value);
     }
 
     @Override
-    public void removeSubjectFromAnswerStack(String position) {
-        Button button = questionStackLayout.findViewWithTag(position);
-        answerStackLayout.removeView(button);
+    public void setAnswer(String id, String param) {
+
     }
+
+
+    @Override
+    public void addAnswer() {
+    }
+
+    @Override
+    public void removeAnswer(String position) {
+
+    }
+
 
     @Override
     public void showPhotoFragment(Bitmap bitmap) {
@@ -200,34 +183,16 @@ public class CreateTestFragment extends Fragment implements
         dialog.show(getChildFragmentManager(), null);
     }
 
-    @Override
-    public void destroyPhotoFragment() {
-    }
-
-    @Override
-    public void destroyTextFragment() {
-    }
 
     @Override
     public void destroyFragment() {
     }
 
-    @Override
-    public void showLeftSwipeAnimation() {
-    }
-
-    @Override
-    public void showRightSwipeAnimation() {
-    }
-
-    @Override
-    public void setObjectColour(View v) {
-    }
 
     @Override
     public void showCameraFragment() {
-        Intent takePictureIntent =  PhotoIntent.getInstance(getContext());
-        mPath = PhotoIntent.mPath;
+        Intent takePictureIntent = PhotoIntent.getInstance(getContext());
+        mPath = PhotoIntent.getPath();
         startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
     }
 
@@ -236,15 +201,6 @@ public class CreateTestFragment extends Fragment implements
 
     }
 
-    @Override
-    public void showErrorWhileNetworkingMessage() {
-
-    }
-
-    @Override
-    public void showErrorWhileTakingPhotoMessage() {
-
-    }
 
     @Override
     public void showDeleteAlertDialog() {
@@ -264,35 +220,31 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void resolveCameraPermission() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
             int requestCode = 200;
-            requestPermissions(new String[] {Manifest.permission.CAMERA}, requestCode);
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, requestCode);
         }
     }
 
-       @Override
-       public void showToast(String msg) {
-           Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-       }
-
-
-       @Override
-       public void onActivityResult(int requestCode, int resultCode, Intent data) {
-           super.onActivityResult(requestCode, resultCode, data);
-           if (resultCode == RESULT_OK) {
-               if (requestCode == REQUEST_TAKE_PHOTO) {
-                   createTestFragmentPresenter.onPhotoTaken(mPath);
-               }
-           }
-           if (resultCode == RESULT_CANCELED) {
-               if (requestCode == REQUEST_TAKE_PHOTO) {
-                   createTestFragmentPresenter.onPhotoTakingCancelled();
-               }
-           }
+    @Override
+    public void showToast(String msg) {
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onCreateTestFragmentInteraction(Uri uri);
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_TAKE_PHOTO) {
+                createTestFragmentPresenter.onPhotoTaken(mPath);
+            }
+        }
+        if (resultCode == RESULT_CANCELED) {
+            if (requestCode == REQUEST_TAKE_PHOTO) {
+                createTestFragmentPresenter.onPhotoTakingCancelled();
+            }
+        }
     }
 }

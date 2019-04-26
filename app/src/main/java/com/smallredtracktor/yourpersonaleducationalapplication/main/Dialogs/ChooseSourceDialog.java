@@ -38,7 +38,6 @@ public class ChooseSourceDialog extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         try {
             listener = (ChooseSourceDialogListener) createTestFragmentPresenter;
         } catch (ClassCastException e) {

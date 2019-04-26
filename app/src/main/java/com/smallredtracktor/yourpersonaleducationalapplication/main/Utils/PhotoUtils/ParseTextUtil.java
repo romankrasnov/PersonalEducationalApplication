@@ -27,7 +27,7 @@ public class ParseTextUtil {
         return s.flatMap((Function<Bitmap, ObservableSource<String>>)
                 this::calculateBase64)
                 .flatMap((Function<String, ObservableSource<OcrResponseModel>>)
-                        value -> OcrHelper.getIntance().getParsedText(value, "rus"));
+                        value -> OcrHelper.getInstance().getParsedText(value, "rus"));
     }
 
     private Observable<String> calculateBase64(Bitmap bitmap)

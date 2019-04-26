@@ -1,6 +1,6 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
-import android.net.Uri;
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -26,11 +26,8 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
         implements
-        IMainActivityMVPprovider.IView,
-        CreateTestFragment.OnFragmentInteractionListener,
-        TrainingFragment.OnFragmentInteractionListener
-
-{
+        IMainActivityMVPprovider.IView
+    {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.nav_view)
@@ -82,7 +79,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -120,18 +116,4 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.addToBackStack("first");
         fragmentTransaction.commit();
     }
-
-    @Override
-    public void onCreateTestFragmentInteraction(Uri uri)
-    {
-        presenter.onCreateTestFragmentInteraction();
-    }
-
-    @Override
-    public void onTrainingFragmentInteraction(Uri uri) {
-        presenter.onTrainingFragmentInteraction();
-    }
-
-
-
 }
