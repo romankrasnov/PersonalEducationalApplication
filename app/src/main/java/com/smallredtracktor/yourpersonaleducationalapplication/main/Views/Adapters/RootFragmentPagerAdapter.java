@@ -8,9 +8,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RootFragmentPagerAdapter extends FragmentPagerAdapter {
+public class RootFragmentPagerAdapter<T extends Fragment> extends FragmentPagerAdapter {
 
-    private final List<Fragment> mFragmentList = new ArrayList<>();
+    private List<T> mFragmentList = new ArrayList<>();
 
     public RootFragmentPagerAdapter(FragmentManager manager) {
         super(manager);
@@ -26,7 +26,7 @@ public class RootFragmentPagerAdapter extends FragmentPagerAdapter {
         return mFragmentList.size();
     }
 
-    public void addFragment(Fragment fragment, int position) {
+    public void addFragment(T fragment, int position) {
         mFragmentList.add(position, fragment);
     }
 }

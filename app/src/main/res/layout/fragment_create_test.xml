@@ -30,13 +30,14 @@
         android:layout_marginBottom="68dp"
         android:background="@drawable/custom_backgroung"
         android:text="click to add answer"
-        app:layout_constraintBottom_toTopOf="@+id/frameContainer"
+        app:layout_constraintBottom_toTopOf="@+id/answersScrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ticketCounterTextView" />
 
-    <FrameLayout
-        android:id="@+id/frameContainer"
+
+    <HorizontalScrollView
+        android:id="@+id/answersScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="62dp"
@@ -45,15 +46,18 @@
         android:layout_marginRight="62dp"
         android:layout_marginBottom="56dp"
         android:background="@drawable/custom_backgroung"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addQuestionButton">
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/answersViewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </FrameLayout>
+        <LinearLayout
+            android:id="@+id/answersLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
+
+    </HorizontalScrollView>
 
 </android.support.constraint.ConstraintLayout>

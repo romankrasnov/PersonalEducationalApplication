@@ -12,12 +12,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +27,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.Text
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntent;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Adapters.AnswersContentHelper;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
 import javax.inject.Inject;
@@ -46,24 +47,23 @@ public class CreateTestFragment extends Fragment implements
     TextView ticketCounterTextView;
     @BindView(R.id.addQuestionButton)
     Button addQuestionButton;
-    @BindView(R.id.answersViewPager)
-    ViewPager answersViewPager;
-    @BindView(R.id.frameContainer)
-    FrameLayout frameContainer;
+    @BindView(R.id.answersLayout)
+    LinearLayout answersLayout;
+    @BindView(R.id.answersScrollView)
+    HorizontalScrollView answersScrollView;
+
     private String mPath;
 
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private String mParam1;
-    private String mParam2;
-
 
     @Inject
     ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
 
-    private ViewPager pager;
-
+    private int type;
+    private boolean isQuestion;
+    AnswersContentHelper adapter;
 
 
     public CreateTestFragment() {
@@ -73,7 +73,6 @@ public class CreateTestFragment extends Fragment implements
         CreateTestFragment fragment = new CreateTestFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -83,7 +82,6 @@ public class CreateTestFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -103,11 +101,10 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        pager = view.findViewById(R.id.answersViewPager);
-        pager.setOffscreenPageLimit(100);
         super.onViewCreated(view, savedInstanceState);
+        adapter = new AnswersContentHelper(getContext(), createTestFragmentPresenter, answersLayout);
+        adapter.addFirstItem();
     }
-
 
 
     @Override
@@ -147,7 +144,8 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void addQuestion(String id) {
-        addQuestionButton.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
+        addQuestionButton.setOnClickListener(v ->
+                createTestFragmentPresenter.onQuestionPressed(id));
     }
 
     @Override
@@ -156,18 +154,19 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void setAnswer(String id, String param) {
-
+    public void setCurrentAnswer(String id, int type, String param) {
+        adapter.setItem(id, type, param);
     }
 
 
     @Override
-    public void addAnswer() {
+    public void addNewAnswer() {
+        adapter.addItem("new", "new");
     }
 
     @Override
-    public void removeAnswer(String position) {
-
+    public void removeAnswer(String id) {
+        adapter.removeItem(id);
     }
 
 
@@ -177,8 +176,8 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void showTextFragment(String text) {
-        TextDialog dialog = new TextDialog(createTestFragmentPresenter);
+    public void showTextFragment(String text, int i, boolean isQuestion) {
+        TextDialog dialog = new TextDialog(createTestFragmentPresenter, i, isQuestion);
         dialog.setDialogText(text);
         dialog.show(getChildFragmentManager(), null);
     }
@@ -190,14 +189,16 @@ public class CreateTestFragment extends Fragment implements
 
 
     @Override
-    public void showCameraFragment() {
+    public void showCameraFragment(int type, boolean isQuestion) {
+        this.type = type;
+        this.isQuestion = isQuestion;
         Intent takePictureIntent = PhotoIntent.getInstance(getContext());
         mPath = PhotoIntent.getPath();
         startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
     }
 
     @Override
-    public void showGallery() {
+    public void showGallery(int i, boolean isQuestion) {
 
     }
 
@@ -213,8 +214,8 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void showChooseSourceDialog() {
-        DialogFragment dialog = new ChooseSourceDialog(createTestFragmentPresenter);
+    public void showChooseSourceDialog(boolean isQuestion) {
+        DialogFragment dialog = new ChooseSourceDialog(createTestFragmentPresenter, isQuestion);
         dialog.show(getChildFragmentManager(), null);
     }
 
@@ -232,13 +233,18 @@ public class CreateTestFragment extends Fragment implements
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void resolveGalleryPermission() {
+
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_TAKE_PHOTO) {
-                createTestFragmentPresenter.onPhotoTaken(mPath);
+                createTestFragmentPresenter.onPhotoTaken(mPath, type, isQuestion);
             }
         }
         if (resultCode == RESULT_CANCELED) {

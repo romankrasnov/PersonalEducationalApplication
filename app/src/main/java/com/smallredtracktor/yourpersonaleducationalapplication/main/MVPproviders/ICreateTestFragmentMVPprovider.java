@@ -2,7 +2,6 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPprovider
 
 
 import android.graphics.Bitmap;
-import android.view.View;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
@@ -12,7 +11,6 @@ import java.util.List;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 
 
 public interface ICreateTestFragmentMVPprovider {
@@ -24,35 +22,41 @@ public interface ICreateTestFragmentMVPprovider {
         void onQuestionPressed(String id);
         void onGalleryResult();
         void onBackPressed();
-        void onPhotoTaken(String mPath);
+        void onPhotoTaken(String mPath, int type, boolean isQuestion);
         void onPhotoTakingCancelled();
-        void onSubjectConfrimed();
+        void onAcceptSubject();
         boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
         void rxUnsubscribe();
         void onViewResumed(String s);
-
-        void onItemInteraction(String id);
+        void onAnswerTextItemInteraction(String id);
     }
 
     interface IFragment
     {
         void setCounterTextView(String s);
+
+        void showToast(String msg);
+
         void addQuestion(String id);
         void setQuestion(String value);
-        void addAnswer();
-        void setAnswer(String id, String param);
+
+        void setCurrentAnswer(String id, int type, String param);
+        void addNewAnswer();
 
         void removeAnswer(String position);
+
         void showPhotoFragment(Bitmap bitmap);
-        void showTextFragment(String text);
+        void showTextFragment(String text, int i, boolean isQuestion);
         void destroyFragment();
-        void showCameraFragment();
-        void showGallery();
+        void showCameraFragment(int i, boolean isQuestion);
+        void showGallery(int i, boolean isQuestion);
         void showDeleteAlertDialog();
         void showWhatsSubjectDialog();
-        void showChooseSourceDialog();
+        void showChooseSourceDialog(boolean b);
+
         void resolveCameraPermission();
-        void showToast(String msg);
+        void resolveGalleryPermission();
+
 
     }
 

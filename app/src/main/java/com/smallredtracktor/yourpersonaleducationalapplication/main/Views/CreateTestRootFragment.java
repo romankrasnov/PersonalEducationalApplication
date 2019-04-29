@@ -1,7 +1,6 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +12,12 @@ import android.view.ViewGroup;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Adapters.RootFragmentPagerAdapter;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class CreateTestRootFragment extends Fragment {
 
@@ -52,10 +57,12 @@ public class CreateTestRootFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         ViewPager pager = view.findViewById(R.id.viewPager);
-        RootFragmentPagerAdapter pagerAdapter = new RootFragmentPagerAdapter(getChildFragmentManager());
+        RootFragmentPagerAdapter<CreateTestFragment> pagerAdapter
+                = new RootFragmentPagerAdapter<>(getChildFragmentManager());
         pager.setOffscreenPageLimit(100);
+
         pagerAdapter.addFragment(CreateTestFragment.newInstance("1",""),  0);
-        pagerAdapter.addFragment(CreateTestFragment.newInstance("2",""),  1);
+        pagerAdapter.addFragment(CreateTestFragment.newInstance("2",""), 1);
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
@@ -64,10 +71,16 @@ public class CreateTestRootFragment extends Fragment {
 
             @Override
             public void onPageSelected(int i) {
-                if(i == pagerAdapter.getCount() - 1)
-                {
-                    pagerAdapter.addFragment(CreateTestFragment.newInstance(String.valueOf(i+2),""), i + 1);
-                    pagerAdapter.notifyDataSetChanged();
+                if(i == pagerAdapter.getCount() - 1) {
+                    Observable timer = Observable.just(new Object())
+                            .delay(300, TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnNext(o -> {
+                                pagerAdapter.addFragment(CreateTestFragment.newInstance(String.valueOf(i + 2), ""), i + 1);
+                                pagerAdapter.notifyDataSetChanged();
+                            });
+                    timer.subscribe();
                 }
             }
 

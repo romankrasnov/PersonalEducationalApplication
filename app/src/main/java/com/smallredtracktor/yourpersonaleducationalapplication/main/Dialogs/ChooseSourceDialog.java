@@ -17,16 +17,19 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders
 public class ChooseSourceDialog extends DialogFragment {
 
 
+    private final boolean isQuestion;
+
     @SuppressLint("ValidFragment")
-    public ChooseSourceDialog(ICreateTestFragmentMVPprovider.IPresenter presenter) {
+    public ChooseSourceDialog(ICreateTestFragmentMVPprovider.IPresenter presenter, boolean isQuestion) {
         this.createTestFragmentPresenter = presenter;
+        this.isQuestion = isQuestion;
     }
 
     public interface ChooseSourceDialogListener {
-        void onDialogTextSourceClick();
-        void onDialogPhotoSourceClick();
-        void onDialogGallerySourceClick();
-        void onDialogOcrSourceClick();
+        void onDialogTextSourceClick(boolean isQuestion);
+        void onDialogPhotoSourceClick(boolean isQuestion);
+        void onDialogGallerySourceClick(boolean isQuestion);
+        void onDialogOcrSourceClick(boolean isQuestion);
     }
 
 
@@ -57,22 +60,22 @@ public class ChooseSourceDialog extends DialogFragment {
                     {
                         case 0:
                         {
-                            listener.onDialogTextSourceClick();
+                            listener.onDialogTextSourceClick(isQuestion);
                             break;
                         }
                         case 1:
                         {
-                            listener.onDialogPhotoSourceClick();
+                            listener.onDialogPhotoSourceClick(isQuestion);
                             break;
                         }
                         case 2:
                         {
-                            listener.onDialogGallerySourceClick();
+                            listener.onDialogGallerySourceClick(isQuestion);
                             break;
                         }
                         case 3:
                         {
-                            listener.onDialogOcrSourceClick();
+                            listener.onDialogOcrSourceClick(isQuestion);
                             break;
                         }
                     }

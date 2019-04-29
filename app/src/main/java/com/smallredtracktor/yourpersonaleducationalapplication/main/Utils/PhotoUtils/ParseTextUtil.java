@@ -33,7 +33,6 @@ public class ParseTextUtil {
     private Observable<String> calculateBase64(Bitmap bitmap)
     {
         Observable<String> s = Observable.create(emitter -> {
-
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
             byte[] byteArray = byteArrayOutputStream .toByteArray();
