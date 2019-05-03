@@ -1,9 +1,7 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Repositories;
 
-
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.ICreateTestDbApi;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces.ICreateTestRepository;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
@@ -26,28 +24,13 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
 
 
     @Override
-    public Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems) {
-        return null;
-    }
-
-    @Override
     public Flowable<List<TestItem>> getTestItem(String id) {
         return testDbApi.itemById(id);
     }
 
     @Override
-    public Observable<TestItem> deleteTestItem(String subj, String id, String ticket) {
-        return null;
-    }
-
-    @Override
-    public Observable<List<TestItem>> getAllTestItemsForTicket(String subj, String ticket) {
-        return null;
-    }
-
-    @Override
-    public Observable<List<TestItem>> deleteAllTestItemsForTicket(String subj, String ticket) {
-        return null;
+    public void deleteTestItem(String id) {
+        testDbApi.deleteTestItem(id);
     }
 
     @Override
@@ -56,13 +39,7 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
     }
 
     @Override
-    public Observable<TicketDataSet> getTicketDataSet(int ticket) {
-        return testDbApi.getTicketDataSet(ticket);
-    }
-
-    @Override
     public void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
-        testDbApi.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
+        testDbApi.updateTestItem(id,  isQuestion,  currentTicket, type,  value);
     }
-
 }

@@ -17,19 +17,18 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders
 @SuppressLint("ValidFragment")
 public class TextDialog extends DialogFragment {
 
-    private final int type;
-    private final boolean isQuestion;
+    private int type;
+    private boolean isQuestion;
+    private String id;
     private String text;
 
     @SuppressLint("ValidFragment")
-    public TextDialog(ICreateTestFragmentMVPprovider.IPresenter presenter, int type, boolean isQuestion) {
+    public TextDialog(ICreateTestFragmentMVPprovider.IPresenter presenter) {
         this.createTestFragmentPresenter = presenter;
-        this.type = type;
-        this.isQuestion = isQuestion;
     }
 
     public interface TextDialogListener {
-        void onTextDialogOkClick(String string, int type, boolean isQuestion);
+        void onTextDialogOkClick(String id, String text, int type, boolean isQuestion);
         void onTextDialogCancelClick();
     }
 
@@ -59,14 +58,17 @@ public class TextDialog extends DialogFragment {
         ed.setText(text);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Edit")
-                .setPositiveButton("Ok", (dialog, which) -> listener.onTextDialogOkClick(ed.getText().toString(), type, isQuestion))
+                .setPositiveButton("Ok", (dialog, which) -> listener.onTextDialogOkClick(id, ed.getText().toString(), type, isQuestion))
                 .setNegativeButton("Cancel", (dialog, which) -> listener.onTextDialogCancelClick())
                 .setView(ed);
         return builder.create();
     }
 
-    public void setDialogText(String text)
+    public void setDialogParams(String text, String id, int type, boolean isQuestion)
     {
+        this.id = id;
+        this.type = type;
+        this.isQuestion = isQuestion;
         this.text = text;
     }
 }

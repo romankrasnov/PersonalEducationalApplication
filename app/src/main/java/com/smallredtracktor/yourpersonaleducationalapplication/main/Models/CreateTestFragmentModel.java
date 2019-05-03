@@ -3,7 +3,6 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Models;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces.ICreateTestRepository;
 
@@ -21,10 +20,6 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
         this.repository = repository;
     }
 
-    @Override
-    public Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems) {
-        return null;
-    }
 
     @Override
     public Flowable<List<TestItem>> getTestItem(String id) {
@@ -32,24 +27,10 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
     }
 
     @Override
-    public Observable<TestItem> deleteTestItem(String id) {
-        return null;
+    public void deleteTestItem(String id) {
+        repository.deleteTestItem(id);
     }
 
-    @Override
-    public Observable<List<TestItem>> getAllTestItemsForTicket(String ticket) {
-        return null;
-    }
-
-    @Override
-    public Observable<List<TestItem>> deleteAllTestItemsForTicket(String ticket) {
-        return null;
-    }
-
-    @Override
-    public Observable<TicketDataSet> getTicketDataSet(int ticket) {
-       return repository.getTicketDataSet(ticket);
-    }
 
     @Override
     public Observable<OcrResponseModel> getParsedTextResult(String path) {
@@ -57,9 +38,7 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
     }
 
     @Override
-    public void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+    public void updateTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
         repository.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
     }
-
-
 }

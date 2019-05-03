@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
@@ -14,9 +15,10 @@ import java.io.IOException;
 
 public class PhotoIntent {
 
-    private static String mPath;
+    private static final String FILE_PROVIDER = "com.smallredtracktor.youreducationalapplication.android.fileprovider";
+    private static String path;
 
-    public static Intent getInstance(Context context) {
+    public static Intent newInstance(Context context) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
             if (intent.resolveActivity(context.getPackageManager()) != null) {
@@ -34,9 +36,9 @@ public class PhotoIntent {
                 }
 
                 if (photoFile != null) {
-                    mPath = photoFile.getAbsolutePath();
+                    path = photoFile.getAbsolutePath();
                     Uri photoURI = FileProvider.getUriForFile(context,
-                            "com.smallredtracktor.youreducationalapplication.android.fileprovider",
+                            FILE_PROVIDER,
                             photoFile);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 }
@@ -44,10 +46,10 @@ public class PhotoIntent {
         return intent;
     }
 
-    public static String getPath()
-    {
-        return mPath;
+    public static String getPath() {
+        return path;
     }
+
 }
 
 

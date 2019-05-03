@@ -1,7 +1,5 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
-
-
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.IMainActivityMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CreateTestRootFragment;
@@ -10,11 +8,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Traini
 
 import javax.annotation.Nullable;
 
-
-
 public class MainActivityPresenter implements IMainActivityMVPprovider.IPresenter {
-
-
 
     @Nullable
     private IMainActivityMVPprovider.IView view;
@@ -36,7 +30,7 @@ public class MainActivityPresenter implements IMainActivityMVPprovider.IPresente
 
         if (view != null) {
             if (id == R.id.nav_training) { view.setMainFragment(TrainingFragment.newInstance("", "")); }
-            else if (id == R.id.nav_create) { view.setMainFragment(CreateTestRootFragment.newInstance("", "")); }
+            else if (id == R.id.nav_create) { view.setMainFragment(CreateTestRootFragment.newInstance()); }
             else if (id == R.id.nav_statistics) { }
             else if (id == R.id.nav_manage) {}
             else if (id == R.id.nav_share) {}

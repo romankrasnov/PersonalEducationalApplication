@@ -2,16 +2,16 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSo
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-
+import android.util.Log;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
+
 
 
 import java.util.List;
+import java.util.Objects;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -22,16 +22,6 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
 
     public CreateTestDbImpl(@NonNull Context context) {
         Realm.init(context);
-    }
-
-    @Override
-    public Observable<TicketDataSet> getTicketDataSet(int ticket) {
-        return null;
-    }
-
-    @Override
-    public Observable<List<TestItem>> itemEntityList() {
-        return null;
     }
 
     @Override
@@ -52,8 +42,9 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
             return (Flowable) flowable;
     }
 
+
     @Override
-    public void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+    public void updateTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
         new Thread(() -> {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(realm1 -> {
@@ -63,10 +54,23 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
                     item.setTicketId(currentTicket);
                     item.setType(type);
                     item.setValue(value);
-                    realm1.insert(item);
+                    realm1.insertOrUpdate(item);
                 });
             }
         }).start();
     }
 
+    @Override
+    public void deleteTestItem(String id) {
+        new Thread(() -> {
+            try (Realm realm = Realm.getDefaultInstance()) {
+                realm.executeTransaction(realm1 -> {
+                    RealmQuery<TestItem> query = realm
+                            .where(TestItem.class)
+                            .equalTo("id", id);
+                        Objects.requireNonNull(query.findAll()).deleteLastFromRealm();
+                });
+            }
+        }).start();
+    }
 }

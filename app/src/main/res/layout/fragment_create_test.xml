@@ -14,13 +14,14 @@
         android:layout_marginTop="54dp"
         android:layout_marginBottom="52dp"
         android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/addQuestionButton"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/addQuestionView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/addQuestionButton"
+    <TextView
+        android:id="@+id/addQuestionView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="59dp"
@@ -28,16 +29,18 @@
         android:layout_marginEnd="59dp"
         android:layout_marginRight="59dp"
         android:layout_marginBottom="68dp"
-        android:background="@drawable/custom_backgroung"
-        android:text="click to add answer"
-        app:layout_constraintBottom_toTopOf="@+id/answersScrollView"
+        android:background="?android:attr/panelBackground"
+        android:gravity="center"
+        android:text="CLICK TO ADD QUESTION"
+        app:layout_constraintBottom_toTopOf="@+id/viewPager"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ticketCounterTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/ticketCounterTextView"
+        tools:textSize="24sp" />
 
 
-    <HorizontalScrollView
-        android:id="@+id/answersScrollView"
+    <com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.MyViewPager
+        android:id="@+id/viewPager"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="62dp"
@@ -45,19 +48,11 @@
         android:layout_marginEnd="62dp"
         android:layout_marginRight="62dp"
         android:layout_marginBottom="56dp"
-        android:background="@drawable/custom_backgroung"
-        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addQuestionButton">
+        app:layout_constraintTop_toBottomOf="@+id/addQuestionView" />
 
-        <LinearLayout
-            android:id="@+id/answersLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" />
 
-    </HorizontalScrollView>
 
 </android.support.constraint.ConstraintLayout>

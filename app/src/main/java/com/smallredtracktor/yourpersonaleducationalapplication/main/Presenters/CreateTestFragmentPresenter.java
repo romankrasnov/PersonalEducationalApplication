@@ -1,7 +1,6 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
 import android.support.annotation.Nullable;
-
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
@@ -9,32 +8,27 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.Text
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
-
+import java.util.HashMap;
 import java.util.List;
-
-
+import java.util.Objects;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 
-
-
-import static android.app.Activity.RESULT_OK;
+import static com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CreateTestFragment.STUB_PARAM_ID;
 
 public class CreateTestFragmentPresenter implements
         ICreateTestFragmentMVPprovider.IPresenter,
         ChooseSourceDialog.ChooseSourceDialogListener,
         TextDialog.TextDialogListener {
 
+    public static final String STATUS_LOADING = "loading";
     @Nullable
     private ICreateTestFragmentMVPprovider.IFragment view;
     @Nullable
     private ICreateTestFragmentMVPprovider.IModel model;
-
-    private DisposableObserver<List<TestItem>> readPhotoTakingSubscriber;
-    private DisposableObserver<List<TestItem>> readQuestionTextTypingSubscriber;
-    private DisposableObserver<List<TestItem>> readAnswerTextTypingSubscriber;
+    private HashMap<String,DisposableObserver<List<TestItem>>> readSubscriberMap = new HashMap<>();
     private int currentTicket;
 
 
@@ -61,12 +55,24 @@ public class CreateTestFragmentPresenter implements
             Observable<List<TestItem>> readTestItem = model
                     .getTestItem(id)
                     .toObservable();
-            readQuestionTextTypingSubscriber = new DisposableObserver<List<TestItem>>() {
+            readSubscriberMap.put(id ,new DisposableObserver<List<TestItem>>() {
                 @Override
                 public void onNext(List<TestItem> testItems) {
                     if (testItems.size() != 0) {
                         try {
-                            view.showTextFragment(testItems.get(0).getValue(), 0, true);
+                            if(testItems.get(0).getType() == 0 || testItems.get(0).getType() ==3)
+                            {
+                                view.showTextFragment(testItems.get(0).getId(),
+                                        testItems.get(0).getValue(),
+                                        testItems.get(0).getType() ,
+                                        testItems.get(0).isQuestion());
+                            } else if(testItems.get(0).getType() == 1 || testItems.get(0).getType() ==2)
+                            {
+                                view.showPhotoFragment(testItems.get(0).getId(),
+                                        testItems.get(0).getValue(),
+                                        testItems.get(0).getType() ,
+                                        testItems.get(0).isQuestion());
+                            }
                         } catch (Exception e) {
                             view.showToast(testItems.get(0).getValue());
                         }
@@ -81,47 +87,33 @@ public class CreateTestFragmentPresenter implements
                 @Override
                 public void onComplete() {
                 }
-            };
-            readTestItem.subscribe(readQuestionTextTypingSubscriber);
+            });
+            readTestItem.subscribe(Objects.requireNonNull(readSubscriberMap.get(id)));
         }
     }
 
 
     @Override
-    public void onGalleryResult() {
-
-    }
-
-    @Override
-    public void onBackPressed() {
-
-    }
-
-
-    @Override
-    public void onAcceptSubject() {
-
-    }
-
-
-    @Override
-    public void onPhotoTaken(String mPath, int type, boolean isQuestion) {
+    public void onGalleryResult(String path, int type, boolean isQuestion) {
         if (view != null && model != null) {
             String id = UniqueDigit.getUnique();
             if (isQuestion) {
-                view.addQuestion(id);
-                    view.setQuestion("loading");
+                view.setTextQuestion(id, type, STATUS_LOADING);
             } else {
                 view.setCurrentAnswer(id, type, null);
-                    view.addNewAnswer();
+                view.addNewAnswer();
             }
-            readPhotoTakingSubscriber = new DisposableObserver<List<TestItem>>() {
+            readSubscriberMap.put(id, new DisposableObserver<List<TestItem>>() {
                 @Override
                 public void onNext(List<TestItem> testItems) {
                     if (testItems.size() != 0) {
                         try {
                             if (isQuestion) {
-                                view.setQuestion(testItems.get(0).getValue());
+                                if(testItems.get(0).getType() == 1 || testItems.get(0).getType() ==2)
+                                {
+                                    view.setPhotoQuestion(id, type, testItems.get(0).getValue());
+                                }
+
                             } else {
                                 view.setCurrentAnswer(id, type, testItems.get(0).getValue());
                             }
@@ -139,22 +131,97 @@ public class CreateTestFragmentPresenter implements
                 @Override
                 public void onComplete() {
                 }
-            };
+            });
+            Observable<List<TestItem>> readTestItem = null;
+
+            if(type == 2)
+            {
+                // noinspection unchecked
+                model.updateTestItem(id, isQuestion, currentTicket, type, path);
+                readTestItem = model
+                        .getTestItem(id)
+                        .toObservable();
+            }
+
+            assert readTestItem != null;
+            readTestItem
+                    .subscribe(Objects.requireNonNull(readSubscriberMap.get(id)));
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+    }
+
+
+    @Override
+    public void onAcceptSubject() {
+
+    }
+
+
+    @Override
+    public void onPhotoTaken(String path, int type, boolean isQuestion) {
+        if (view != null && model != null) {
+            String id = UniqueDigit.getUnique();
+            if (isQuestion) {
+                    view.setTextQuestion(id, type, STATUS_LOADING);
+            } else {
+                view.setCurrentAnswer(id, type, null);
+                    view.addNewAnswer();
+            }
+            readSubscriberMap.put(id ,new DisposableObserver<List<TestItem>>() {
+                @Override
+                public void onNext(List<TestItem> testItems) {
+                    if (testItems.size() != 0) {
+                        try {
+                            if (isQuestion) {
+                            if(testItems.get(0).getType() == 3) {
+                                    view.setTextQuestion(testItems.get(0).getId(),
+                                            testItems.get(0).getType(),
+                                            testItems.get(0).getValue());
+                                } else if(testItems.get(0).getType() != 0){
+                                    view.setPhotoQuestion(testItems.get(0).getId(),
+                                            testItems.get(0).getType(),
+                                            testItems.get(0).getValue());
+                            }
+
+                            } else {
+                                    view.setCurrentAnswer(testItems.get(0).getId(),
+                                            testItems.get(0).getType(),
+                                            testItems.get(0).getValue());
+                                }
+                        } catch (Exception e) {
+                            view.showToast(testItems.get(0).getValue());
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    view.showToast(e.getMessage());
+                }
+
+                @Override
+                public void onComplete() {
+                }
+            });
             Observable<List<TestItem>> readTestItem = null;
             switch (type) {
                 case 3: {
                     // noinspection unchecked
                     readTestItem = model
-                            .getParsedTextResult(mPath)
+                            .getParsedTextResult(path)
                             .flatMap((Function<OcrResponseModel, ObservableSource<List<TestItem>>>) ocrResponseModel -> {
-                                model.writeTestItem(id, isQuestion, currentTicket, type, ocrResponseModel.getText());
+                                model.updateTestItem(id, isQuestion, currentTicket, type, ocrResponseModel.getText());
                                 return model.getTestItem(id).toObservable();
                             });
                     break;
                 }
                 case 1: {
                     // noinspection unchecked
-                    model.writeTestItem(id, isQuestion, currentTicket, type, mPath);
+                    model.updateTestItem(id, isQuestion, currentTicket, type, path);
                     readTestItem = model
                             .getTestItem(id)
                             .toObservable();
@@ -164,37 +231,15 @@ public class CreateTestFragmentPresenter implements
 
             assert readTestItem != null;
             readTestItem
-                    .subscribe(readPhotoTakingSubscriber);
+                    .subscribe(Objects.requireNonNull(readSubscriberMap.get(id)));
         }
     }
 
-    @Override
-    public boolean onPhotoPermissionCompatResult(int reqCode, int resCode) {
-        switch (reqCode) {
-            case 200:
-                if (resCode == RESULT_OK) {
-                    return true;
-                }
-        }
-        return false;
-    }
 
     @Override
     public void rxUnsubscribe() {
-        if (readPhotoTakingSubscriber != null) {
-            if (!readPhotoTakingSubscriber.isDisposed()) {
-                readPhotoTakingSubscriber.dispose();
-            }
-        }
-        if (readQuestionTextTypingSubscriber != null) {
-            if (!readQuestionTextTypingSubscriber.isDisposed()) {
-                readQuestionTextTypingSubscriber.dispose();
-            }
-        }
-        if (readAnswerTextTypingSubscriber != null) {
-            if (!readAnswerTextTypingSubscriber.isDisposed()) {
-                readAnswerTextTypingSubscriber.dispose();
-            }
+        for (DisposableObserver<List<TestItem>> listDisposableObserver : readSubscriberMap.values()) {
+            listDisposableObserver.dispose();
         }
     }
 
@@ -207,15 +252,11 @@ public class CreateTestFragmentPresenter implements
     }
 
 
-    @Override
-    public void onPhotoTakingCancelled() {
-
-    }
 
     @Override
     public void onDialogTextSourceClick(boolean isQuestion) {
         if (view != null) {
-            view.showTextFragment("", 0, isQuestion);
+            view.showTextFragment(UniqueDigit.getUnique(), "", 0, isQuestion);
         }
     }
 
@@ -230,7 +271,6 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onDialogGallerySourceClick(boolean isQuestion) {
         if (view != null) {
-            view.resolveGalleryPermission();
             view.showGallery(2, isQuestion);
         }
     }
@@ -244,8 +284,20 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onTextDialogOkClick(String string, int type, boolean isQuestion) {
-
+    public void onTextDialogOkClick(String id, String content, int type, boolean isQuestion) {
+        if (model != null && view != null) {
+            if(readSubscriberMap.containsKey(id))
+            {
+                Objects.requireNonNull(readSubscriberMap.get(id)).dispose();
+            }
+            model.updateTestItem(id, isQuestion, currentTicket, type, content);
+            if (isQuestion) {
+                view.setTextQuestion(id, type, content);
+            } else {
+                view.setCurrentAnswer(id, type, content);
+                view.addNewAnswer();
+            }
+        }
     }
 
     @Override
@@ -254,20 +306,32 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onAnswerTextItemInteraction(String id) {
+    public void onAnswerFragmentInteraction(String id) {
         if (view != null && model != null) {
-            if (id.equals("new")) {
+            if (id.equals(STUB_PARAM_ID)) {
                 view.showChooseSourceDialog(false);
             } else {
                 Observable<List<TestItem>> readTestItem = model
                         .getTestItem(id)
                         .toObservable();
-                readAnswerTextTypingSubscriber = new DisposableObserver<List<TestItem>>() {
+                readSubscriberMap.put(id, new DisposableObserver<List<TestItem>>() {
                     @Override
                     public void onNext(List<TestItem> testItems) {
                         if (testItems.size() != 0) {
                             try {
-                                view.showTextFragment(testItems.get(0).getValue(), testItems.get(0).getType() , testItems.get(0).isQuestion());
+                                if(testItems.get(0).getType() == 0 || testItems.get(0).getType() ==3)
+                                {
+                                    view.showTextFragment(testItems.get(0).getId(),
+                                            testItems.get(0).getValue(),
+                                            testItems.get(0).getType() ,
+                                            testItems.get(0).isQuestion());
+                                } else if(testItems.get(0).getType() == 1 || testItems.get(0).getType() ==2)
+                                {
+                                    view.showPhotoFragment(testItems.get(0).getId(),
+                                            testItems.get(0).getValue(),
+                                            testItems.get(0).getType() ,
+                                            testItems.get(0).isQuestion());
+                                }
                             } catch (Exception e) {
                                 view.showToast(testItems.get(0).getValue());
                             }
@@ -283,10 +347,41 @@ public class CreateTestFragmentPresenter implements
                     public void onComplete() {
 
                     }
-                };
-                readTestItem.subscribe(readAnswerTextTypingSubscriber);
+                });
+                readTestItem.subscribe(Objects.requireNonNull(readSubscriberMap.get(id)));
             }
         }
+    }
+
+    @Override
+    public void onAnswerLongClick(String id) {
+        if (view != null && model != null) {
+            if(!id.equals(STUB_PARAM_ID))
+            {
+                view.removeAnswer(id);
+                if(readSubscriberMap.containsKey(id))
+                {
+                    Objects.requireNonNull(readSubscriberMap.get(id)).dispose();
+                }
+                model.deleteTestItem(id);
+            }
+        }
+    }
+
+    @Override
+    public boolean onQuestionLongPressed(String id) {
+        if (view != null && model != null) {
+            if(!id.equals(STUB_PARAM_ID))
+            {
+                view.deleteQuestion();
+                if(readSubscriberMap.containsKey(id))
+                {
+                    Objects.requireNonNull(readSubscriberMap.get(id)).dispose();
+                }
+                model.deleteTestItem(id);
+            }
+        }
+        return false;
     }
 }
 

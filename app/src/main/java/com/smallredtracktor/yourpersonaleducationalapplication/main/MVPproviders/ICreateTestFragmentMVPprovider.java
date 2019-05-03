@@ -1,12 +1,8 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders;
 
 
-import android.graphics.Bitmap;
-
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TicketDataSet;
-
 import java.util.List;
 
 import io.reactivex.Flowable;
@@ -20,55 +16,41 @@ public interface ICreateTestFragmentMVPprovider {
         void setView(IFragment view);
         void onAddQuestionClick();
         void onQuestionPressed(String id);
-        void onGalleryResult();
+        void onGalleryResult(String path, int type, boolean isQuestion);
         void onBackPressed();
         void onPhotoTaken(String mPath, int type, boolean isQuestion);
-        void onPhotoTakingCancelled();
         void onAcceptSubject();
-        boolean onPhotoPermissionCompatResult(int reqCode, int resCode);
         void rxUnsubscribe();
         void onViewResumed(String s);
-        void onAnswerTextItemInteraction(String id);
+        void onAnswerFragmentInteraction(String id);
+        void onAnswerLongClick(String id);
+        boolean onQuestionLongPressed(String id);
     }
 
     interface IFragment
     {
         void setCounterTextView(String s);
-
         void showToast(String msg);
-
-        void addQuestion(String id);
-        void setQuestion(String value);
-
-        void setCurrentAnswer(String id, int type, String param);
+        void setTextQuestion(String id, int type, String value);
+        void setPhotoQuestion(String id, int type, String content);
+        void setCurrentAnswer(String id, int type, String value);
         void addNewAnswer();
-
-        void removeAnswer(String position);
-
-        void showPhotoFragment(Bitmap bitmap);
-        void showTextFragment(String text, int i, boolean isQuestion);
-        void destroyFragment();
-        void showCameraFragment(int i, boolean isQuestion);
-        void showGallery(int i, boolean isQuestion);
-        void showDeleteAlertDialog();
+        void removeAnswer(String id);
+        void showPhotoFragment(String id, String value, int type, boolean question);
+        void showTextFragment(String id, String text, int type, boolean isQuestion);
+        void showCameraFragment(int type, boolean isQuestion);
+        void showGallery(int type, boolean isQuestion);
+        void deleteQuestion();
         void showWhatsSubjectDialog();
         void showChooseSourceDialog(boolean b);
-
         void resolveCameraPermission();
-        void resolveGalleryPermission();
-
-
     }
 
     interface IModel
     {
-        Observable<List<TestItem>> writeAllTestItem(List<TestItem> testItems);
         Flowable<List<TestItem>> getTestItem(String id);
-        Observable<TestItem> deleteTestItem(String id);
-        Observable<List<TestItem>> getAllTestItemsForTicket(String ticket);
-        Observable<List<TestItem>> deleteAllTestItemsForTicket(String ticket);
-        Observable<TicketDataSet> getTicketDataSet(int ticket);
+        void deleteTestItem(String id);
         Observable<OcrResponseModel> getParsedTextResult(String mPath);
-        void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
+        void updateTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
     }
 }

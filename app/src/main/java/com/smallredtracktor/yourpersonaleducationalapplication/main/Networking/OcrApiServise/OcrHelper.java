@@ -1,5 +1,7 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise;
 
+import android.util.Log;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 
 import io.reactivex.Observable;

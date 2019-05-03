@@ -4,6 +4,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.Photo
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise.OcrHelper;
@@ -19,6 +20,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ParseTextUtil {
 
+    private static final String OCR_LANGUAGE = "rus";
+
     public ParseTextUtil() {}
 
     public  Observable<OcrResponseModel> getResult(String mPath)
@@ -27,7 +30,7 @@ public class ParseTextUtil {
         return s.flatMap((Function<Bitmap, ObservableSource<String>>)
                 this::calculateBase64)
                 .flatMap((Function<String, ObservableSource<OcrResponseModel>>)
-                        value -> OcrHelper.getInstance().getParsedText(value, "rus"));
+                        value -> OcrHelper.getInstance().getParsedText(value, OCR_LANGUAGE));
     }
 
     private Observable<String> calculateBase64(Bitmap bitmap)
