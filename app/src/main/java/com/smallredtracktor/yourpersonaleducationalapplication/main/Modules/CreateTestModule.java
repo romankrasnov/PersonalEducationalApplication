@@ -5,6 +5,9 @@ import android.content.Context;
 
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreatingScope;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.PhotoDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TextDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.CreateTestDbImpl;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.ICreateTestDbApi;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
@@ -12,8 +15,10 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Models.Creat
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters.CreateTestFragmentPresenter;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Repositories.CreateTestMemoryRepository;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces.ICreateTestRepository;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.GalleryPathUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
-
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntentUtil;
 
 
 import dagger.Module;
@@ -34,9 +39,9 @@ public class CreateTestModule {
 
     @Provides
     @CreatingScope
-    ICreateTestFragmentMVPprovider.IPresenter provideCreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model)
+    ICreateTestFragmentMVPprovider.IPresenter provideCreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model, CompressUtil compressUtil, GalleryPathUtil galleryPathUtil, PhotoIntentUtil photoIntentUtil)
     {
-        return new CreateTestFragmentPresenter(model);
+        return new CreateTestFragmentPresenter(model, compressUtil, galleryPathUtil, photoIntentUtil);
     }
 
     @Provides
@@ -53,6 +58,7 @@ public class CreateTestModule {
         return new CreateTestMemoryRepository(dbApi,util);
     }
 
+
     @Provides
     @CreatingScope
     ICreateTestDbApi provideCreateTestDbApi()
@@ -66,4 +72,47 @@ public class CreateTestModule {
     {
         return new ParseTextUtil();
     }
+
+    @Provides
+    @CreatingScope
+    CompressUtil provideCompressUtil()
+    {
+        return new CompressUtil(context);
+    }
+
+    @Provides
+    @CreatingScope
+    GalleryPathUtil provideGalleryPathUtil()
+    {
+        return new GalleryPathUtil(context);
+    }
+
+    @Provides
+    @CreatingScope
+    PhotoIntentUtil providePhotoIntentUtil()
+    {
+        return new PhotoIntentUtil(context);
+    }
+
+    @Provides
+    @CreatingScope
+    ChooseSourceDialog provideChooseSourceDialog(ICreateTestFragmentMVPprovider.IPresenter presenter)
+    {
+        return new ChooseSourceDialog(presenter);
+    }
+
+    @Provides
+    @CreatingScope
+    PhotoDialog providePhotoDialog(CompressUtil util)
+    {
+        return new PhotoDialog(context, util);
+    }
+
+    @Provides
+    @CreatingScope
+    TextDialog provideTextDialog(ICreateTestFragmentMVPprovider.IPresenter presenter)
+    {
+        return new TextDialog(presenter);
+    }
+
 }

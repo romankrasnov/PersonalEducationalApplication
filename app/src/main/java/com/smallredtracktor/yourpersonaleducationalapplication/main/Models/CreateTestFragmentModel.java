@@ -9,7 +9,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interf
 import java.util.List;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 
 
 public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.IModel {
@@ -33,7 +33,7 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
 
 
     @Override
-    public Observable<OcrResponseModel> getParsedTextResult(String path) {
+    public Single<OcrResponseModel> getParsedTextResult(String path) {
         return repository.getParsedTextFromFile(path);
     }
 

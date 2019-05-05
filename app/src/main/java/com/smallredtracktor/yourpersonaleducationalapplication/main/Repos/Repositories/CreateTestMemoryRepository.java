@@ -10,7 +10,7 @@ import java.util.List;
 
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 
 public class CreateTestMemoryRepository implements ICreateTestRepository {
 
@@ -34,7 +34,7 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
     }
 
     @Override
-    public Observable<OcrResponseModel> getParsedTextFromFile(String mPath) {
+    public Single<OcrResponseModel> getParsedTextFromFile(String mPath) {
         return  util.getResult(mPath);
     }
 

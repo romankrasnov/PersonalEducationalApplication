@@ -8,12 +8,12 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.
 import java.util.List;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
+import io.reactivex.Single;
 
 public interface ICreateTestRepository  {
 
     Flowable<List<TestItem>> getTestItem(String id);
     void deleteTestItem(String id);
-    Observable<OcrResponseModel> getParsedTextFromFile(String mPath);
+    Single<OcrResponseModel> getParsedTextFromFile(String mPath);
     void writeTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
 }

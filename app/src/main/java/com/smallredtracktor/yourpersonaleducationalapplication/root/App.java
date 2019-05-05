@@ -2,6 +2,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.root;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreateTestComponent;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;

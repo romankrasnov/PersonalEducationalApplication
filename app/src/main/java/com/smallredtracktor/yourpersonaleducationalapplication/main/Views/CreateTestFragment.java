@@ -5,43 +5,41 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.PhotoDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TextDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.GalleryPathUtil;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntent;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.MyOwnPageAdapter;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.MyViewPager;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
 import java.util.Objects;
+
 import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import butterknife.Unbinder;
+
 
 import static android.app.Activity.RESULT_OK;
+
 
 
 @SuppressLint("ValidFragment")
@@ -50,26 +48,38 @@ public class CreateTestFragment extends Fragment implements
 
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final int PICK_IMAGE = 2;
-    public static final String STUB_PARAM_ID = "new" ;
+    public static final String STUB_PARAM_ID = "new";
     private static final String OUTCOME_PARAM = "outcome_param";
     public static final String STUB_PARAM = "CLICK TO ADD ANSWER";
     private static final String APP_ITEM_TYPE = "type";
     private static final String APP_ITEM_IS_QUESTION = "isQuestion";
-    private static final String FILE_PATH = "file_path" ;
+    private static final String FILE_PATH = "file_path";
+    @BindView(R.id.questionTextView)
+    TextView questionTextView;
+    @BindView(R.id.answerImageView)
+    ImageView questionImageView;
     private Bundle options;
     private String outcomeParam;
 
     @BindView(R.id.ticketCounterTextView)
     TextView ticketCounterTextView;
-    @BindView(R.id.addQuestionView)
-    TextView addQuestionView;
+
     @BindView(R.id.viewPager)
     MyViewPager viewPager;
 
 
     @Inject
     ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
-    MyOwnPageAdapter adapter;
+    @Inject
+    ChooseSourceDialog chooseSourceDialog;
+    @Inject
+    PhotoDialog photoDialog;
+    @Inject
+    TextDialog dialog;
+
+
+    private MyOwnPageAdapter adapter;
+    private Unbinder unbinder;
 
 
     public CreateTestFragment() {
@@ -96,13 +106,13 @@ public class CreateTestFragment extends Fragment implements
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_test, container, false);
-        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
         App.get(Objects.requireNonNull(getContext()))
                 .getComponent()
                 .plusCreateTestComponent(new CreateTestModule(getContext()))
                 .inject(this);
-        addQuestionView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
-        addQuestionView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID));
+        questionTextView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
+        questionTextView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID));
 
         return view;
     }
@@ -142,6 +152,7 @@ public class CreateTestFragment extends Fragment implements
     public void onDestroyView() {
         super.onDestroyView();
         createTestFragmentPresenter.rxUnsubscribe();
+        unbinder.unbind();
     }
 
     @Override
@@ -158,30 +169,28 @@ public class CreateTestFragment extends Fragment implements
     @SuppressLint("SetTextI18n")
     @Override
     public void deleteQuestion() {
-        addQuestionView.setText("CLICK TO ADD QUESTION");
-        addQuestionView.setBackgroundColor(Color.TRANSPARENT);
-        addQuestionView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
-        addQuestionView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID));
+        questionTextView.setText("CLICK TO ADD QUESTION");
+        questionImageView.setImageBitmap(null);
+        questionTextView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
+        questionTextView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID));
     }
 
     @Override
     public void setTextQuestion(String id, int type, String content) {
-        addQuestionView.setText(content);
-        addQuestionView.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
-        addQuestionView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(id));
+        questionTextView.setText(content);
+        questionImageView.setImageBitmap(null);
+        questionTextView.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
+        questionTextView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(id));
     }
 
     @Override
-    public void setPhotoQuestion(String id, int type, String content) {
-        addQuestionView.setText("");
-        Observable.just(Objects.requireNonNull(Drawable.createFromPath(content)))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(drawable -> addQuestionView.setBackgroundDrawable(drawable))
-                .doOnComplete(() -> Log.d("drawfrompath",Thread.currentThread().getName() + "drawfrompath"))
-                .subscribe();
-        addQuestionView.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
-        addQuestionView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(id));
+    public void setPhotoQuestion(String id, int type, Bitmap content) {
+        Glide.with(this)
+                .load(content)
+                .into(questionImageView);
+        questionTextView.setText("");
+        questionTextView.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
+        questionTextView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(id));
     }
 
     @Override
@@ -203,26 +212,24 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showPhotoFragment(String id, String value, int type, boolean isQuestion) {
-        PhotoDialog dialog = new PhotoDialog(getContext(), value, type, isQuestion);
-        dialog.show();
+        photoDialog.setDialogParams(id, value, type, isQuestion);
+        photoDialog.show();
     }
 
     @Override
     public void showTextFragment(String id, String text, int type, boolean isQuestion) {
-        TextDialog dialog = new TextDialog(createTestFragmentPresenter);
         dialog.setDialogParams(text, id, type, isQuestion);
         dialog.show(getChildFragmentManager(), null);
     }
 
 
     @Override
-    public void showCameraFragment(int type, boolean isQuestion) {
-        Intent takePictureIntent = PhotoIntent.newInstance(Objects.requireNonNull(getContext()));
+    public void showCameraFragment(Intent intent, int type, boolean isQuestion, String path) {
         options = new Bundle();
         options.putInt(APP_ITEM_TYPE, type);
         options.putBoolean(APP_ITEM_IS_QUESTION, isQuestion);
-        options.putString(FILE_PATH, PhotoIntent.getPath());
-        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+        options.putString(FILE_PATH, path);
+        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
     }
 
     @Override
@@ -244,8 +251,8 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showChooseSourceDialog(boolean isQuestion) {
-        DialogFragment dialog = new ChooseSourceDialog(createTestFragmentPresenter, isQuestion);
-        dialog.show(getChildFragmentManager(), null);
+        chooseSourceDialog.setIsQuestion(isQuestion);
+        chooseSourceDialog.show(getChildFragmentManager(), null);
     }
 
     @Override
@@ -272,18 +279,18 @@ public class CreateTestFragment extends Fragment implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUEST_TAKE_PHOTO) {
-                    createTestFragmentPresenter.onPhotoTaken(options.getString(FILE_PATH),
-                            options.getInt(APP_ITEM_TYPE),
-                            options.getBoolean(APP_ITEM_IS_QUESTION));
+            createTestFragmentPresenter.onPhotoTaken(options.getString(FILE_PATH),
+                    options.getInt(APP_ITEM_TYPE),
+                    options.getBoolean(APP_ITEM_IS_QUESTION));
 
         }
 
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
             Uri contentURI = data.getData();
-            String result = GalleryPathUtil.save(contentURI, Objects.requireNonNull(getActivity()));
-             createTestFragmentPresenter.onGalleryResult(result,
-                            options.getInt(APP_ITEM_TYPE),
-                            options.getBoolean(APP_ITEM_IS_QUESTION));
+            createTestFragmentPresenter.onGalleryResult(contentURI,
+                    options.getInt(APP_ITEM_TYPE),
+                    options.getBoolean(APP_ITEM_IS_QUESTION));
+
         }
     }
 }

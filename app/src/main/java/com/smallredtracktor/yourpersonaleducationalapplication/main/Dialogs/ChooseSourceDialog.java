@@ -17,11 +17,16 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders
 public class ChooseSourceDialog extends DialogFragment {
 
 
-    private final boolean isQuestion;
-
+    private boolean isQuestion;
+    private ChooseSourceDialogListener listener;
+    private ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
     @SuppressLint("ValidFragment")
-    public ChooseSourceDialog(ICreateTestFragmentMVPprovider.IPresenter presenter, boolean isQuestion) {
+    public ChooseSourceDialog(ICreateTestFragmentMVPprovider.IPresenter presenter) {
         this.createTestFragmentPresenter = presenter;
+
+    }
+
+    public void setIsQuestion(boolean isQuestion) {
         this.isQuestion = isQuestion;
     }
 
@@ -31,11 +36,6 @@ public class ChooseSourceDialog extends DialogFragment {
         void onDialogGallerySourceClick(boolean isQuestion);
         void onDialogOcrSourceClick(boolean isQuestion);
     }
-
-
-    ChooseSourceDialogListener listener;
-
-    ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
 
 
     @Override

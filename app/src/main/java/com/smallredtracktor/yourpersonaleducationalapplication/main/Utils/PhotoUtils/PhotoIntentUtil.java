@@ -8,19 +8,29 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
 import java.io.File;
 import java.io.IOException;
 
-public class PhotoIntent {
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
+public class PhotoIntentUtil {
 
     private static final String FILE_PROVIDER = "com.smallredtracktor.youreducationalapplication.android.fileprovider";
-    private static String path;
+    private String path;
+    private Context context;
 
-    public static Intent newInstance(Context context) {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    public PhotoIntentUtil(Context context) {
+        this.context = context;
+    }
 
+    public Single<Object[]> get() {
+        Single<Object[]> s = Single.create(emitter -> {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (intent.resolveActivity(context.getPackageManager()) != null) {
                 File photoFile = null;
                 try {
@@ -34,7 +44,7 @@ public class PhotoIntent {
                 } catch (IOException ex) {
                     // Error occurred while creating the File
                 }
-
+                Log.d("thread", Thread.currentThread().getName() + "PHOTO INTENT UTIL");
                 if (photoFile != null) {
                     path = photoFile.getAbsolutePath();
                     Uri photoURI = FileProvider.getUriForFile(context,
@@ -43,11 +53,12 @@ public class PhotoIntent {
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 }
             }
-        return intent;
-    }
 
-    public static String getPath() {
-        return path;
+            emitter.onSuccess(new Object[] {intent, path});
+        });
+
+        return s.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
 }

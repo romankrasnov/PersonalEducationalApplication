@@ -3,40 +3,49 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
+
+
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
+
+
 
 public class PhotoDialog extends Dialog {
 
-    private final int type;
-    private final boolean isQuestion;
-    private final String content;
+    private final CompressUtil util;
+    private int type;
+    private boolean isQuestion;
+    private String content;
     private final Context context;
+    private final SubsamplingScaleImageView imageView;
+    private String id;
 
-    public PhotoDialog(Context context, String content, int type, boolean isQuestion) {
+
+    public PhotoDialog(Context context, CompressUtil util) {
         super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        this.util = util;
+        imageView = new SubsamplingScaleImageView(context);
         this.context = context;
-        this.content = content;
-        this.type = type;
-        this.isQuestion = isQuestion;
     }
 
     @Override
     public void show() {
-        WebView webView = new WebView(context);
-        webView.setBackgroundColor(Color.BLACK);
-        webView.getSettings().setSupportZoom(true);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.setScrollbarFadingEnabled(true);
-        webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        webView.getSettings().setLoadWithOverviewMode(true);
-        webView.getSettings().setUseWideViewPort(true);
-        webView.loadUrl("file://" + content);
-        this.setContentView(webView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                util.getBitmap(content)
+                    .doOnSuccess(bitmap -> imageView.setImage(ImageSource.cachedBitmap(bitmap)))
+                    .subscribe();
+
+        this.setContentView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         super.show();
     }
 
+
+    public void setDialogParams(String id, String content, int type, boolean isQuestion) {
+        this.id = id;
+        this.content = content;
+        this.type = type;
+        this.isQuestion = isQuestion;
+    }
 }

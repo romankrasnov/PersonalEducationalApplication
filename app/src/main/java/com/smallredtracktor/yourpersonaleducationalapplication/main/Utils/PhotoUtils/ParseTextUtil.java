@@ -4,16 +4,11 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.Photo
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
-import android.util.Log;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise.OcrHelper;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -24,34 +19,33 @@ public class ParseTextUtil {
 
     public ParseTextUtil() {}
 
-    public  Observable<OcrResponseModel> getResult(String mPath)
+    public  Single<OcrResponseModel> getResult(String mPath)
     {
-        Observable<Bitmap> s = getBitmap(mPath);
-        return s.flatMap((Function<Bitmap, ObservableSource<String>>)
+        Single<Bitmap> s = getBitmap(mPath);
+        return s.flatMap((Function<Bitmap, Single<String>>)
                 this::calculateBase64)
-                .flatMap((Function<String, ObservableSource<OcrResponseModel>>)
+                .flatMap((Function<String, Single<OcrResponseModel>>)
                         value -> OcrHelper.getInstance().getParsedText(value, OCR_LANGUAGE));
     }
 
-    private Observable<String> calculateBase64(Bitmap bitmap)
+    private Single<String> calculateBase64(Bitmap bitmap)
     {
-        Observable<String> s = Observable.create(emitter -> {
+        Single<String> s = Single.create(emitter -> {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
             byte[] byteArray = byteArrayOutputStream .toByteArray();
             String base64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
-            emitter.onNext(base64);
+            emitter.onSuccess(base64);
         });
         return s.subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Observable<Bitmap> getBitmap(String path)
+    private Single<Bitmap> getBitmap(String path)
     {
-        Observable<Bitmap> s = Observable.create(emitter -> {
-            File imgFile = new File(path);
-            Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            emitter.onNext(bitmap);
+        Single<Bitmap> s = Single.create(emitter -> {
+            Bitmap bitmap = BitmapFactory.decodeFile(path);
+            emitter.onSuccess(bitmap);
         });
         return s.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());

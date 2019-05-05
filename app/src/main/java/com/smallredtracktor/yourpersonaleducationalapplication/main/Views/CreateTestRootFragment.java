@@ -10,12 +10,11 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TableLayout;
-
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Adapters.RootFragmentPagerAdapter;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,8 +62,16 @@ public class CreateTestRootFragment extends Fragment {
                 .replace(R.id.createRootHost, TabCreateTestFragment.newInstance("","", pagerAdapter))
                 .commit());
         pager.setOffscreenPageLimit(100);
-        pagerAdapter.addFragment(CreateTestFragment.newInstance("1"), 0);
-        pagerAdapter.addFragment(CreateTestFragment.newInstance("2"), 1);
+
+        Observable.just(0, 1)
+                .delay(300, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(i -> {
+                    pagerAdapter.addFragment(CreateTestFragment.newInstance(String.valueOf(i + 1)), i);
+                    pagerAdapter.notifyDataSetChanged();
+                }).subscribe();
+
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {

@@ -21,6 +21,7 @@ public class TextDialog extends DialogFragment {
     private boolean isQuestion;
     private String id;
     private String text;
+    EditText ed;
 
     @SuppressLint("ValidFragment")
     public TextDialog(ICreateTestFragmentMVPprovider.IPresenter presenter) {
@@ -28,8 +29,8 @@ public class TextDialog extends DialogFragment {
     }
 
     public interface TextDialogListener {
-        void onTextDialogOkClick(String id, String text, int type, boolean isQuestion);
-        void onTextDialogCancelClick();
+        void onTextDialogCreate(String id);
+        void onTextDialogInteraction(String id, String text, int type, boolean isQuestion);
     }
 
     TextDialogListener listener;
@@ -51,16 +52,24 @@ public class TextDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        EditText ed = new EditText(getContext());
+        ed = new EditText(getContext());
         ed.setVerticalScrollBarEnabled(true);
         ed.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         ed.setText(text);
+        listener.onTextDialogCreate(id);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Edit")
-                .setPositiveButton("Ok", (dialog, which) -> listener.onTextDialogOkClick(id, ed.getText().toString(), type, isQuestion))
-                .setNegativeButton("Cancel", (dialog, which) -> listener.onTextDialogCancelClick())
+                .setPositiveButton("Ok", (dialogInterface, i) -> {
+                    text = ed.getText().toString();
+                    listener.onTextDialogInteraction(id,text,type,isQuestion);
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) ->
+                        listener.onTextDialogInteraction(id,text,type,isQuestion))
                 .setView(ed);
+
+        Dialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
         return builder.create();
     }
 
@@ -71,4 +80,5 @@ public class TextDialog extends DialogFragment {
         this.isQuestion = isQuestion;
         this.text = text;
     }
+
 }

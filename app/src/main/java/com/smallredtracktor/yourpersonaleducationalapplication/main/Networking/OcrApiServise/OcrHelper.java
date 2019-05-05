@@ -1,10 +1,9 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise;
 
-import android.util.Log;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 
-import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -21,7 +20,7 @@ public class OcrHelper {
         return  mInstance;
     }
 
-    public Observable<OcrResponseModel> getParsedText(String base64, String lang)
+    public Single<OcrResponseModel> getParsedText(String base64, String lang)
     {
         String apikey = "9180640a9788957";
         return OcrService

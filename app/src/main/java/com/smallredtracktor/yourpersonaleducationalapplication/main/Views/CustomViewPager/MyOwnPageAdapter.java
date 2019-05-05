@@ -19,7 +19,7 @@ public class MyOwnPageAdapter extends MyFragmentStatePagerAdapter {
     private List<Fragment> fragments = new ArrayList<>();
     private ArrayList<String> answersId = new ArrayList<>();
     private MyViewPager viewPager;
-    ICreateTestFragmentMVPprovider.IPresenter presenter;
+    private ICreateTestFragmentMVPprovider.IPresenter presenter;
 
     public MyOwnPageAdapter(FragmentManager fm) {
         super(fm);
@@ -70,8 +70,7 @@ public class MyOwnPageAdapter extends MyFragmentStatePagerAdapter {
 
     @Override
     public void destroyItem(@NonNull View container, int position, @NonNull Object object) {
-        if (position == getCount() - 1) {
-        } else {
+        if (position != getCount() - 1) {
             super.destroyItem(container, position, object);
         }
     }
@@ -91,9 +90,12 @@ public class MyOwnPageAdapter extends MyFragmentStatePagerAdapter {
     }
 
     public void addItem(String id, String param) {
-        answersId.add(id);
-        fragments.add(AnswerContentFragment.newInstance(presenter,id, param, -1));
-        this.notifyDataSetChanged();
+        if(!answersId.contains(id))
+        {
+            answersId.add(id);
+            fragments.add(AnswerContentFragment.newInstance(presenter,id, param, -1));
+            this.notifyDataSetChanged();
+        }
     }
 
     public void setItem(String id, int type, String param) {
@@ -105,8 +107,8 @@ public class MyOwnPageAdapter extends MyFragmentStatePagerAdapter {
             position = answersId.indexOf(STUB_PARAM_ID);
         }
         Fragment oldFragment = fragments.get(position);
-        Fragment newFragment = this.prepareFragment(id, type, param);
-        this.replaceFragmetns(viewPager, oldFragment, newFragment);
+        Fragment newFragment = prepareFragment(id, type, param);
+        replaceFragmetns(viewPager, oldFragment, newFragment);
         fragments.set(position,newFragment);
         answersId.set(position,id);
     }
