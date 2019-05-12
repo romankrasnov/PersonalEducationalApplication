@@ -19,9 +19,15 @@ import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.IMainActivityMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.jonasrottmann.realmbrowser.RealmBrowser;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 
 public class MainActivity extends AppCompatActivity
@@ -67,15 +73,30 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
     }
 
+    private List<BackPressedListener> backPressedListeners = new ArrayList<>();
+    public void addBackPressedListener(BackPressedListener listener)
+    {
+        backPressedListeners.add(listener);
+    }
+
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            for (BackPressedListener listener: backPressedListeners) {
+                listener.onBackPressed();
+            }
+            //super.onBackPressed();
         }
     }
 
+
+
+    public interface BackPressedListener
+    {
+        void onBackPressed();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,7 +115,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        presenter.navigationItemSelected(id);
+        if (id == R.id.nav_statistics)
+        {
+            Realm.init(this);
+            Realm realm = Realm.getDefaultInstance();
+            RealmConfiguration configuration = realm.getConfiguration();
+            realm.close();
+            RealmBrowser.startRealmModelsActivity(this, configuration);
+        } else
+            {
+                presenter.navigationItemSelected(id);
+            }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }

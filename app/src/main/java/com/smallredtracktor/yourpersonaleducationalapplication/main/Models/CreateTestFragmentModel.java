@@ -9,7 +9,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interf
 import java.util.List;
 
 import io.reactivex.Flowable;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 
 
 public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.IModel {
@@ -31,14 +31,19 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
         repository.deleteTestItem(id);
     }
 
+    @Override
+    public void deleteFile(String filepath)
+    {
+        repository.deleteFile(filepath);
+    }
 
     @Override
-    public Single<OcrResponseModel> getParsedTextResult(String path) {
+    public Maybe<OcrResponseModel> getParsedTextResult(String path) {
         return repository.getParsedTextFromFile(path);
     }
 
     @Override
-    public void updateTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+    public void updateTestItem(String id, boolean isQuestion, String currentTicket, int type, String value) {
         repository.writeTestItem(id,  isQuestion,  currentTicket, type,  value);
     }
 }

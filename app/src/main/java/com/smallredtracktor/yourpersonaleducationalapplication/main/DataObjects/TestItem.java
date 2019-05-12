@@ -10,7 +10,7 @@ public class TestItem extends RealmObject {
     @PrimaryKey
     @Required
     private String id;
-    private int ticketId;
+    private String ticketId;
     private boolean isQuestion;
     private int type;
     private String value;
@@ -23,11 +23,11 @@ public class TestItem extends RealmObject {
         this.id = id;
     }
 
-    public int getTicketId() {
+    public String getTicketId() {
         return ticketId;
     }
 
-    public void setTicketId(int ticketId) {
+    public void setTicketId(String ticketId) {
         this.ticketId = ticketId;
     }
 

@@ -2,7 +2,6 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSo
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 
@@ -44,7 +43,7 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
 
 
     @Override
-    public void updateTestItem(String id, boolean isQuestion, int currentTicket, int type, String value) {
+    public void updateTestItem(String id, boolean isQuestion, String currentTicket, int type, String value) {
         new Thread(() -> {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(realm1 -> {

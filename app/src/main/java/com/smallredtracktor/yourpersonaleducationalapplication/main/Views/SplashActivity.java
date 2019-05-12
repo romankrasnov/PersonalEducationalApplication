@@ -1,4 +1,4 @@
-package com.smallredtracktor.yourpersonaleducationalapplication;
+package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,9 +11,9 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }
 }
+

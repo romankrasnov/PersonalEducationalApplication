@@ -9,15 +9,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
-
-import java.io.File;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CustomSubsamplingScaleImageView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,7 +29,8 @@ import static com.smallredtracktor.yourpersonaleducationalapplication.main.Prese
 
 
 @SuppressLint("ValidFragment")
-public class AnswerContentFragment extends Fragment {
+public class AnswerContentFragment extends Fragment implements
+        MyOwnPageAdapter.ViewModeChangeListener {
 
     private static final String PARAM_ID = "id";
     private static final String PARAM_CONTENT = "content";
@@ -37,12 +40,23 @@ public class AnswerContentFragment extends Fragment {
     @BindView(R.id.contentView)
     TextView contentView;
     @BindView(R.id.imageView)
-    ImageView imageView;
+    CustomSubsamplingScaleImageView imageView;
     Unbinder unbinder;
+    @BindView(R.id.transparentContentView)
+    TextView transparentContentView;
+    @BindView(R.id.scrollLayout)
+    LinearLayout scrollLayout;
+    @BindView(R.id.answerItemScrollView)
+    ScrollView answerItemScrollView;
+    @BindView(R.id.rooAnswerFragmentContainer)
+    FrameLayout rooAnswerFragmentContainer;
+
+
 
     private String id;
     private String content;
     private int type;
+
 
     @SuppressLint("ValidFragment")
     public AnswerContentFragment(ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter) {
@@ -75,77 +89,88 @@ public class AnswerContentFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_answer_content, container, false);
         unbinder = ButterKnife.bind(this, view);
+        imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+        imageView.setZoomEnabled(false);
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         switch (type) {
             case -1: {
-                imageView.setOnLongClickListener(v -> {
-                    presenter.onAnswerLongClick(id);
-                    return false;
-                });
-                contentView.setText(content);
+                transparentContentView.setText(content);
                 imageView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
                 break;
             }
 
             case 0: {
-                imageView.setOnLongClickListener(v -> {
+                imageView.setVisibility(View.INVISIBLE);
+                transparentContentView.setText("");
+                contentView.setText(content);
+                contentView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
+                contentView.setOnLongClickListener(v -> {
                     presenter.onAnswerLongClick(id);
                     return false;
                 });
-                contentView.setText(content);
-                imageView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
                 break;
             }
 
             case 1: {
                 loadImageIfNecessary();
+                imageView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
+                imageView.setOnLongClickListener(v -> {
+                    presenter.onAnswerLongClick(id);
+                    return false;
+                });
                 break;
             }
 
             case 2: {
                 loadImageIfNecessary();
-                break;
-            }
-
-            case 3: {
+                imageView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
                 imageView.setOnLongClickListener(v -> {
                     presenter.onAnswerLongClick(id);
                     return false;
                 });
-                if (content == null) {
-                    contentView.setText(STATUS_LOADING);
-                } else {
-                    contentView.setText(content);
-                    imageView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
-                }
+                break;
+            }
 
+            case 3: {
+                imageView.setVisibility(View.INVISIBLE);
+                if (content == null) {
+                    transparentContentView.setText(STATUS_LOADING);
+                    transparentContentView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
+                    transparentContentView.setOnLongClickListener(v -> {
+                        presenter.onAnswerLongClick(id);
+                        return false;
+                    });
+                } else {
+                    transparentContentView.setText("");
+                    contentView.setText(content);
+                    contentView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
+                    contentView.setOnLongClickListener(v -> {
+                        presenter.onAnswerLongClick(id);
+                        return false;
+                    });
+                }
                 break;
             }
         }
     }
 
+
     private void loadImageIfNecessary() {
         if (content == null) {
-            contentView.setText(STATUS_LOADING);
+            transparentContentView.setText(STATUS_LOADING);
         } else {
+            imageView.setVisibility(View.VISIBLE);
             new CompressUtil(getContext())
                     .getBitmap(content)
-                    .doOnSuccess(bitmap -> Glide.with(this)
-                    .load(new File(content))
-                    .into(imageView))
+                    .doOnSuccess(bitmap ->
+                        imageView.setImage(ImageSource.cachedBitmap(bitmap)))
                     .subscribe();
             contentView.setText("");
-            imageView.setOnClickListener(v -> presenter.onAnswerFragmentInteraction(id));
-            imageView.setOnLongClickListener(v -> {
-                presenter.onAnswerLongClick(id);
-                return false;
-            });
         }
     }
 
@@ -163,5 +188,15 @@ public class AnswerContentFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onViewModeChanged(boolean isFullScreenMode) {
+        if (!isFullScreenMode) {
+            imageView.setZoomEnabled(false);
+        } else
+            {
+                imageView.setZoomEnabled(true);
+            }
     }
 }

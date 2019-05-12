@@ -7,15 +7,19 @@ import android.net.Uri;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.Abstract.IAbstractModel;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.Abstract.IAbstractPresenter;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.Abstract.IAbstractView;
+
 import java.util.List;
 
 import io.reactivex.Flowable;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 
 
 public interface ICreateTestFragmentMVPprovider {
 
-    interface IPresenter
+    interface IPresenter extends IAbstractPresenter
     {
         void setView(IFragment view);
         void onAddQuestionClick();
@@ -23,15 +27,14 @@ public interface ICreateTestFragmentMVPprovider {
         void onGalleryResult(Uri path, int type, boolean isQuestion);
         void onBackPressed();
         void onPhotoTaken(String mPath, int type, boolean isQuestion);
-        void onAcceptSubject();
         void rxUnsubscribe();
-        void onViewResumed(String s);
+        void onViewResumed(String s, String ticketId);
         void onAnswerFragmentInteraction(String id);
         void onAnswerLongClick(String id);
         boolean onQuestionLongPressed(String id);
     }
 
-    interface IFragment
+    interface IFragment extends IAbstractView
     {
         void setCounterTextView(String s);
         void showToast(String msg);
@@ -45,16 +48,17 @@ public interface ICreateTestFragmentMVPprovider {
         void showCameraFragment(Intent intent, int type, boolean isQuestion, String path);
         void showGallery(int type, boolean isQuestion);
         void deleteQuestion();
-        void showWhatsSubjectDialog();
         void showChooseSourceDialog(boolean b);
         void resolveCameraPermission();
+        void switchAnswerViewPagerMode();
     }
 
-    interface IModel
+    interface IModel extends IAbstractModel
     {
         Flowable<List<TestItem>> getTestItem(String id);
         void deleteTestItem(String id);
-        Single<OcrResponseModel> getParsedTextResult(String mPath);
-        void updateTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
+        void deleteFile(String filepath);
+        Maybe<OcrResponseModel> getParsedTextResult(String mPath);
+        void updateTestItem(String id, boolean isQuestion, String currentTicket, int type, String value);
     }
 }

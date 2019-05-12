@@ -3,7 +3,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -20,14 +20,14 @@ public class OcrHelper {
         return  mInstance;
     }
 
-    public Single<OcrResponseModel> getParsedText(String base64, String lang)
+    public Maybe<OcrResponseModel> getParsedText(String base64, String lang)
     {
         String apikey = "9180640a9788957";
         return OcrService
                 .getInstance()
                 .getApi()
                 .getData(apikey, "data:image/png;base64," + base64, lang, "true")
-                .retry(100)
+                .retry(20)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

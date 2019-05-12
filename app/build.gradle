@@ -36,6 +36,11 @@ dependencies {
     implementation 'com.android.support:support-v4:27.1.0'
     implementation 'com.android.support:design:27.1.0'
 
+    //realm browser
+    debugImplementation 'com.github.jonasrottmann.realm-browser:realm-browser:0.0.14'
+    testImplementation 'com.github.jonasrottmann.realm-browser:realm-browser-no-op:0.0.14'
+    releaseImplementation 'com.github.jonasrottmann.realm-browser:realm-browser-no-op:0.0.14'
+
     //ADs
     implementation 'com.google.android.gms:play-services-ads:12.0.1'
     //for tests

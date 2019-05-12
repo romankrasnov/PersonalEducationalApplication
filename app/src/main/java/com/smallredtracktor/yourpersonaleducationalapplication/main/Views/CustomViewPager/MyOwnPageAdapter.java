@@ -122,4 +122,23 @@ public class MyOwnPageAdapter extends MyFragmentStatePagerAdapter {
         fragments.add(AnswerContentFragment.newInstance(presenter,  STUB_PARAM_ID, STUB_PARAM, -1));
         this.notifyDataSetChanged();
     }
+
+
+    public void setViewMode(boolean isFullScreenMode) {
+        for (Fragment f: fragments) {
+            if (f instanceof AnswerContentFragment)
+            {
+                ((AnswerContentFragment)f).onViewModeChanged(isFullScreenMode);
+                this.notifyDataSetChanged();
+            }
+        }
+    }
+
+
+    public interface ViewModeChangeListener
+    {
+        void onViewModeChanged(boolean isFullScreenMode);
+    }
+
+
 }

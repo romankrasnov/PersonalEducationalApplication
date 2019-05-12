@@ -8,6 +8,8 @@ import android.util.Base64;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.OcrApiServise.OcrHelper;
 import java.io.ByteArrayOutputStream;
+
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
@@ -19,20 +21,20 @@ public class ParseTextUtil {
 
     public ParseTextUtil() {}
 
-    public  Single<OcrResponseModel> getResult(String mPath)
+    public  Maybe<OcrResponseModel> getResult(String mPath)
     {
-        Single<Bitmap> s = getBitmap(mPath);
-        return s.flatMap((Function<Bitmap, Single<String>>)
+        Maybe<Bitmap> s = getBitmap(mPath);
+        return s.flatMap((Function<Bitmap, Maybe<String>>)
                 this::calculateBase64)
-                .flatMap((Function<String, Single<OcrResponseModel>>)
+                .flatMap((Function<String, Maybe<OcrResponseModel>>)
                         value -> OcrHelper.getInstance().getParsedText(value, OCR_LANGUAGE));
     }
 
-    private Single<String> calculateBase64(Bitmap bitmap)
+    private Maybe<String> calculateBase64(Bitmap bitmap)
     {
-        Single<String> s = Single.create(emitter -> {
+        Maybe<String> s = Maybe.create(emitter -> {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 30, byteArrayOutputStream);
             byte[] byteArray = byteArrayOutputStream .toByteArray();
             String base64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
             emitter.onSuccess(base64);
@@ -41,9 +43,9 @@ public class ParseTextUtil {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Single<Bitmap> getBitmap(String path)
+    private Maybe<Bitmap> getBitmap(String path)
     {
-        Single<Bitmap> s = Single.create(emitter -> {
+        Maybe<Bitmap> s = Maybe.create(emitter -> {
             Bitmap bitmap = BitmapFactory.decodeFile(path);
             emitter.onSuccess(bitmap);
         });

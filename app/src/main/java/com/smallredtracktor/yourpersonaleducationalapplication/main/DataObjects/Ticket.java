@@ -1,25 +1,31 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects;
 
-public class Ticket {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
-    private int id;
-    private int subjectId;
+public class Ticket extends RealmObject {
+
+    @PrimaryKey
+    @Required
+    private String id;
+    private String subjectId;
     private String value;
     private int progress;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getSubjectId() {
+    public String getSubjectId(String id) {
         return subjectId;
     }
 
-    public void setSubjectId(int subjectId) {
+    public void setSubjectId(String subjectId) {
         this.subjectId = subjectId;
     }
 

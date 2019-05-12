@@ -2,6 +2,6 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:drawable="@drawable/button_view_background" />
+        android:drawable="@drawable/splash_screen_background" />
 
 </layer-list>

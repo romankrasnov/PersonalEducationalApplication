@@ -10,6 +10,6 @@ import io.reactivex.Flowable;
 public interface ICreateTestDbApi {
 
     Flowable<List<TestItem>> itemById(String id);
-    void updateTestItem(String id, boolean isQuestion, int currentTicket, int type, String value);
+    void updateTestItem(String id, boolean isQuestion, String currentTicket, int type, String value);
     void deleteTestItem(String id);
 }

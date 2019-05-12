@@ -28,7 +28,7 @@ public class CompressUtil {
             try {
                 Log.d("thread", Thread.currentThread().getName() + "COMPRESS UTIL");
                 s1 = new Compressor(Objects.requireNonNull(context))
-                        .setQuality(30)
+                        .setQuality(70)
                         .compressToBitmap(file);
             } catch (IOException e) {
                 e.printStackTrace();

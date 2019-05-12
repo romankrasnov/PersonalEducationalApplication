@@ -2,10 +2,11 @@ package com.smallredtracktor.yourpersonaleducationalapplication.root;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreateTestComponent;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreateTestRootComponent;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestRootModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.MainActivityModule;
 
 
@@ -14,6 +15,7 @@ public class App extends Application {
 
 private ApplicationComponent appComponent;
 private static CreateTestComponent createTestComponent;
+private static CreateTestRootComponent createTestRootComponent;
 
     @Override
     public void onCreate() {
@@ -33,6 +35,7 @@ private static CreateTestComponent createTestComponent;
     }
 
 
+
         public CreateTestComponent plusCreateTestComponent() {
                 if (createTestComponent == null) {
                         createTestComponent = appComponent.plusCreateTestComponent(new CreateTestModule(this));
@@ -41,9 +44,19 @@ private static CreateTestComponent createTestComponent;
         }
 
         public void clearCreateTestComponent() {
-                // end lifecycle of chatComponent
                 createTestComponent = null;
         }
+
+    public CreateTestRootComponent plusCreateTestRootComponent() {
+        if (createTestRootComponent == null) {
+            createTestRootComponent = appComponent.plusCreateTestRootComponent(new CreateTestRootModule(this));
+        }
+        return createTestRootComponent;
+    }
+
+    public void clearCreateTestRootComponent() {
+        createTestRootComponent = null;
+    }
 
 }
 

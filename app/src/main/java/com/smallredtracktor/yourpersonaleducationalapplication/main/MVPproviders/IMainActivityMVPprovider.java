@@ -3,27 +3,27 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPprovider
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 
+import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.Abstract.IAbstractModel;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.Abstract.IAbstractPresenter;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.Abstract.IAbstractView;
+
 
 public interface IMainActivityMVPprovider
 {
 
-    interface IPresenter
+    interface IPresenter extends IAbstractPresenter
     {
         void setView(IView view);
-        ///With view EVENTS
         void navigationItemSelected(int id);
         void optionsItemSelected(int id);
-
-        void onCreateTestFragmentInteraction();
-        void onTrainingFragmentInteraction();
     }
 
-     interface IView extends NavigationView.OnNavigationItemSelectedListener
+     interface IView extends NavigationView.OnNavigationItemSelectedListener, IAbstractView
      {
          void setMainFragment(Fragment fragment);
      }
 
-    interface IModel
+    interface IModel extends IAbstractModel
     {
 
     }

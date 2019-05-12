@@ -4,16 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/rooAnswerFragmentContainer"
     tools:context=".main.Views.CustomViewPager.AnswerContentFragment">
 
     <TextView
-        android:id="@+id/contentView"
+        android:id="@+id/transparentContentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:text=""
         android:gravity="center"
         tools:textSize="18sp" />
 
-    <ImageView
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/answerItemScrollView">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/scrollLayout">
+            <TextView
+                android:id="@+id/contentView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text=""
+                android:gravity="center"
+                tools:textSize="18sp" />
+        </LinearLayout>
+    </ScrollView>
+
+
+
+    <com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CustomSubsamplingScaleImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

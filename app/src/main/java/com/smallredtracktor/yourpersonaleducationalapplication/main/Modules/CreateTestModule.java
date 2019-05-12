@@ -7,9 +7,11 @@ import android.content.Context;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreatingScope;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.PhotoDialog;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TextDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ItemTextDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.CreateTestDbImpl;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.ICreateTestDbApi;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataStorages.ILocalStorage;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataStorages.LocalStorage;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Models.CreateTestFragmentModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters.CreateTestFragmentPresenter;
@@ -53,9 +55,9 @@ public class CreateTestModule {
 
     @Provides
     @CreatingScope
-    ICreateTestRepository provideMemoryRepository(ICreateTestDbApi dbApi, ParseTextUtil util)
+    ICreateTestRepository provideMemoryRepository(ICreateTestDbApi dbApi, ParseTextUtil util, ILocalStorage localStorage)
     {
-        return new CreateTestMemoryRepository(dbApi,util);
+        return new CreateTestMemoryRepository(dbApi,util, localStorage);
     }
 
 
@@ -108,11 +110,23 @@ public class CreateTestModule {
         return new PhotoDialog(context, util);
     }
 
+
+
     @Provides
     @CreatingScope
-    TextDialog provideTextDialog(ICreateTestFragmentMVPprovider.IPresenter presenter)
+    ItemTextDialog provideTextDialog(ICreateTestFragmentMVPprovider.IPresenter presenter)
     {
-        return new TextDialog(presenter);
+        return new ItemTextDialog(presenter);
     }
+
+    @Provides
+    @CreatingScope
+    ILocalStorage provideLocalStorage()
+    {
+        return new LocalStorage(context);
+    }
+
+
+
 
 }

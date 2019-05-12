@@ -1,17 +1,23 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects;
 
-public class Test {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
-    private int id;
+public class Test extends RealmObject {
+
+    @PrimaryKey
+    @Required
+    private String id;
     private String name;
     private int progress;
     private int difficulty;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

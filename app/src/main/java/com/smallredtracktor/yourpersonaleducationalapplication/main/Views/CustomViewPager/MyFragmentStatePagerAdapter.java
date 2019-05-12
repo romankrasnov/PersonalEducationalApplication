@@ -60,6 +60,7 @@ public abstract class MyFragmentStatePagerAdapter extends MyPagerAdapter {
 
     public void replaceFragmetns(MyViewPager container, Fragment oldFragment, Fragment newFragment) {
         handleGetItemInbalidated(container, oldFragment, newFragment);
+
         startUpdate(container);
 
         // remove old fragment

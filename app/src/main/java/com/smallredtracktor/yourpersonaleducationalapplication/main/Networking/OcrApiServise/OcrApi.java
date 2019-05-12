@@ -2,6 +2,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import retrofit2.Call;
@@ -13,7 +14,7 @@ public interface OcrApi {
 
     @FormUrlEncoded
     @POST("parse/image")
-    Single<OcrResponseModel> getData(
+    Maybe<OcrResponseModel> getData(
             @Field("apikey") String apikey,
             @Field("base64Image") String base64Image,
             @Field("language") String language,
