@@ -65,7 +65,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/frameLayout">
 
-        <com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.MyViewPager
+        <com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.CustomViewPager
             android:id="@+id/smallViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

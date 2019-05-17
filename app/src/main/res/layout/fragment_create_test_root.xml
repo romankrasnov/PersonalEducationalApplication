@@ -8,11 +8,12 @@
     android:fitsSystemWindows="true"
     tools:context=".main.Views.CreateTestRootFragment">
 
-    <android.support.v4.view.ViewPager
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </android.support.v4.view.ViewPager>
+    </android.support.v7.widget.RecyclerView>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabTabSwitch"

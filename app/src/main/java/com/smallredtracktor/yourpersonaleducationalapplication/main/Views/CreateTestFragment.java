@@ -30,8 +30,8 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.Item
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.PhotoDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.MyOwnPageAdapter;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.MyViewPager;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.Adapters.CustomFinalPageAdapter;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.CustomViewPager;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
 import java.util.Objects;
@@ -52,13 +52,14 @@ public class CreateTestFragment extends Fragment implements
 
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final int PICK_IMAGE = 2;
-    public static final String STUB_PARAM_ID = "new";
-    static final String OUTCOME_PARAM_COUNT = "outcome_param_count";
+    public static final String STUB_PARAM_ID = "NEW";
+    public static final String OUTCOME_PARAM_COUNT = "outcome_param_count";
     static final String OUTCOME_PARAM_TICKET_ID = "outcome_param_ticket_id";
     public static final String STUB_PARAM = "CLICK TO ADD ANSWER";
     private static final String APP_ITEM_TYPE = "type";
     private static final String APP_ITEM_IS_QUESTION = "isQuestion";
     private static final String FILE_PATH = "file_path";
+    private static final int CODE_REQUEST_CAMERA = 200;
 
 
     private Bundle options;
@@ -75,7 +76,7 @@ public class CreateTestFragment extends Fragment implements
     @BindView(R.id.viewPagerLayout)
     FrameLayout viewPagerLayout;
     @BindView(R.id.smallViewPager)
-    MyViewPager smallViewPager;
+    CustomViewPager smallViewPager;
     @BindView(R.id.createTestRootConstraintLayout)
     ConstraintLayout createTestRootConstraintLayout;
 
@@ -88,11 +89,9 @@ public class CreateTestFragment extends Fragment implements
     @Inject
     ItemTextDialog textDialog;
 
-
-    private MyOwnPageAdapter smallAdapter;
+    private CustomFinalPageAdapter smallAdapter;
     private Unbinder unbinder;
     private ViewGroup.LayoutParams layoutParams;
-    private boolean isFullscreenMode = false;
 
     public CreateTestFragment() {
     }
@@ -125,6 +124,8 @@ public class CreateTestFragment extends Fragment implements
                 .getComponent()
                 .plusCreateTestComponent(new CreateTestModule(getContext()))
                 .inject(this);
+        layoutParams = viewPagerLayout.getLayoutParams();
+        ((MainActivity) Objects.requireNonNull(getActivity())).addBackPressedListener(this);
         questionImageView.setZoomEnabled(false);
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
         questionImageView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID));
@@ -135,14 +136,22 @@ public class CreateTestFragment extends Fragment implements
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //Warning ! Rocket science
-        smallAdapter = new MyOwnPageAdapter(getChildFragmentManager());
+        smallAdapter = new CustomFinalPageAdapter(getChildFragmentManager());
         smallAdapter.setViewPager(smallViewPager);
         smallAdapter.setPresenter(createTestFragmentPresenter);
         smallAdapter.addFirstItem();
+        smallViewPager.setCurrentItem(1);
         smallViewPager.setOffscreenPageLimit(50);
         smallViewPager.setAdapter(smallAdapter);
-    }
-
+        smallViewPager.setCurrentItem(1);
+        smallViewPager.addOnPageChangeListener(new CustomViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int var1, float var2, int var3) {}
+            @Override
+            public void onPageSelected(int page)
+            { createTestFragmentPresenter.onAnswerPageSelected(page, smallAdapter.getCount()); }
+            @Override
+            public void onPageScrollStateChanged(int var1) {}});}
 
     @Override
     public void onResume() {
@@ -185,7 +194,7 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void deleteQuestion() {
         questionTextView.setText("CLICK TO ADD QUESTION");
-        Bitmap white = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        Bitmap white = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         white.eraseColor(getResources().getColor(R.color.colorBack));
         questionImageView.setImage(ImageSource.cachedBitmap(white));
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
@@ -195,7 +204,7 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void setTextQuestion(String id, int type, String content) {
         questionTextView.setText(content);
-        Bitmap white = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        Bitmap white = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         white.eraseColor(getResources().getColor(R.color.colorBack));
         questionImageView.setImage(ImageSource.cachedBitmap(white));
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
@@ -271,41 +280,37 @@ public class CreateTestFragment extends Fragment implements
     public void resolveCameraPermission() {
         if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            int requestCode = 200;
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, requestCode);
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CODE_REQUEST_CAMERA);
         }
     }
 
-    @Override
-    public void switchAnswerViewPagerMode() {
-        if (isFullscreenMode) {
-            isFullscreenMode = false;
-            smallAdapter.setViewMode(false);
-            Objects.requireNonNull(((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).show();
-            createTestRootConstraintLayout.setPadding(8,8,8,8);
-            viewPagerLayout.setBackgroundColor(getResources().getColor(R.color.colorBack));
-            viewPagerLayout.setLayoutParams(layoutParams);
 
-        } else {
-            ((MainActivity) Objects.requireNonNull(getActivity())).addBackPressedListener(this);
-            isFullscreenMode = true;
-            smallAdapter.setViewMode(true);
-            Objects.requireNonNull(((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
-            createTestRootConstraintLayout.setPadding(0,0,0,0);
-            viewPagerLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.splash_screen));
-            layoutParams = viewPagerLayout.getLayoutParams();
-            viewPagerLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        }
+    @Override
+    public void setCurrentAnswerItem(int position) {
+        smallViewPager.setCurrentItem(position);
     }
 
     @Override
-    public void onBackPressed() {
-        isFullscreenMode = false;
-        smallAdapter.setViewMode(false);
+    public void switchPagerToFullScreen() {
+        Objects.requireNonNull(((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
+        createTestRootConstraintLayout.setPadding(0,0,0,0);
+        viewPagerLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.splash_screen));
+        viewPagerLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        smallAdapter.setViewMode(true);
+    }
+
+    @Override
+    public void switchPagerToSmallView() {
         Objects.requireNonNull(((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).show();
         createTestRootConstraintLayout.setPadding(8,8,8,8);
         viewPagerLayout.setBackgroundColor(getResources().getColor(R.color.colorBack));
         viewPagerLayout.setLayoutParams(layoutParams);
+        smallAdapter.setViewMode(false);
+    }
+
+    @Override
+    public void onBackPressed() {
+        createTestFragmentPresenter.onBackPressed();
     }
 
     @Override

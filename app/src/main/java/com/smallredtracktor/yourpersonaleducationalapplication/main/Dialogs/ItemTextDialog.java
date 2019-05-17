@@ -69,7 +69,7 @@ public class ItemTextDialog extends DialogFragment {
 
         Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
-        return builder.create();
+        return dialog;
     }
 
     public void setDialogParams(String text, String id, int type, boolean isQuestion)

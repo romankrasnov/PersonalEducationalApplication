@@ -22,12 +22,12 @@ public interface IRootCreateTestFragmentMVPprovider {
 
     interface IFragment extends IAbstractView
     {
-        void hideTable();
         void showTable();
-        void addFragmentToPageAdapter(int i);
+        void addFragmentToPageAdapter(int i, String id);
         void setCurrentPage(int position);
         void showTextDialog(String text, String id, List<String> strings);
         void close();
+        void hideTable();
     }
 
     interface IModel extends IAbstractModel

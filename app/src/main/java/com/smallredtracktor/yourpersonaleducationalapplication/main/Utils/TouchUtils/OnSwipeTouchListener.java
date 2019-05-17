@@ -1,4 +1,4 @@
-package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.SwipeUtils;
+package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.TouchUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

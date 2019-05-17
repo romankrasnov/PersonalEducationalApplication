@@ -8,16 +8,17 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.SubjectTextDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TableDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.IRootCreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestRootModule;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Adapters.RootFragmentPagerAdapter;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.Adapters.RootFragmentPagerAdapter;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
 
 import java.util.List;
@@ -34,8 +35,9 @@ public class CreateTestRootFragment extends Fragment
         implements IRootCreateTestFragmentMVPprovider.IFragment {
 
     private static final String OUTCOME_PARAM_ID = "outcome_id";
+    private static final int MAX_OFFSCREEN_PAGE_LIMIT = 1000;
     @BindView(R.id.viewPager)
-    ViewPager pager;
+    RecyclerView pager;
     Unbinder unbinder;
     RootFragmentPagerAdapter<CreateTestFragment> pagerAdapter;
     @BindView(R.id.fabTabSwitch)
@@ -49,6 +51,8 @@ public class CreateTestRootFragment extends Fragment
     IRootCreateTestFragmentMVPprovider.IPresenter presenter;
     @Inject
     SubjectTextDialog textDialog;
+    @Inject
+    TableDialog tableDialog;
     private String outcome;
 
 
@@ -94,22 +98,16 @@ public class CreateTestRootFragment extends Fragment
         pagerAdapter = new RootFragmentPagerAdapter<>(getChildFragmentManager());
         fabTabSwitch.setOnClickListener(v -> presenter.onTableFabClick());
         fabTabCreate.setOnClickListener(view1 -> presenter.onSaveFabClick(pagerAdapter.getIdList(), outcome));
-        pager.setOffscreenPageLimit(100);
+        pager.setItemViewCacheSize(MAX_OFFSCREEN_PAGE_LIMIT);
         presenter.onViewCreated();
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int i, float v, int i1) {
-            }
-
+            public void onPageScrolled(int i, float v, int i1) {}
             @Override
             public void onPageSelected(int i) {
-                presenter.onPageSelected(i, pagerAdapter.getCount());
-            }
-
+                presenter.onPageSelected(i, pagerAdapter.getCount());}
             @Override
-            public void onPageScrollStateChanged(int i) {
-            }
-        });
+            public void onPageScrollStateChanged(int i) {}});
         pager.setAdapter(pagerAdapter);
         super.onViewCreated(view, savedInstanceState);
     }
@@ -126,35 +124,21 @@ public class CreateTestRootFragment extends Fragment
         presenter = null;
     }
 
-    @Override
-    public void hideTable() {
-        getChildFragmentManager().beginTransaction()
-                .replace(R.id.createRootHost, new Fragment())
-                .commit();
-        fabTabSwitch.setImageResource(R.drawable.ic_fab_table);
-        fabTabSwitch.setVisibility(View.VISIBLE);
-        pager.setVisibility(View.VISIBLE);
-        pager.setClickable(true);
-    }
-
-
 
     @Override
     public void showTable() {
-        getChildFragmentManager().beginTransaction()
-                .replace(R.id.createRootHost, TabCreateTestFragment.newInstance("", "",
-                        pagerAdapter.getItemList(),
-                        presenter))
-                .commit();
-        fabTabSwitch.setVisibility(View.INVISIBLE);
-        pager.setVisibility(View.INVISIBLE);
-        pager.setClickable(false);
+        tableDialog.prepareTable(pagerAdapter.getItemList());
+        tableDialog.show();
     }
 
     @Override
-    public void addFragmentToPageAdapter(int i) {
-        String unique = UniqueDigit.getUnique();
-        pagerAdapter.addFragment(CreateTestFragment.newInstance(String.valueOf(i + 1), unique), i, unique);
+    public void hideTable() {
+        tableDialog.dismiss();
+    }
+
+    @Override
+    public void addFragmentToPageAdapter(int i, String id) {
+        pagerAdapter.addFragment(CreateTestFragment.newInstance(String.valueOf(i + 1), id), i, id);
         pagerAdapter.notifyDataSetChanged();
     }
 
@@ -171,10 +155,12 @@ public class CreateTestRootFragment extends Fragment
 
     @Override
     public void close() {
-        getChildFragmentManager().beginTransaction()
+        getChildFragmentManager()
+                .beginTransaction()
                 .remove(this)
                 .commit();
     }
+
 
     @Override
     public void onDestroyView() {

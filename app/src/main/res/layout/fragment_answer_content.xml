@@ -1,41 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rooAnswerFragmentContainer"
-    tools:context=".main.Views.CustomViewPager.AnswerContentFragment">
-
-    <TextView
-        android:id="@+id/transparentContentView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text=""
-        android:gravity="center"
-        tools:textSize="18sp" />
+    tools:context=".main.Views.AnswerContentFragment">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/answerItemScrollView">
+        android:id="@+id/answerItemScrollView"
+        android:scrollbarStyle="outsideOverlay"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:gravity="center"
             android:id="@+id/scrollLayout">
             <TextView
                 android:id="@+id/contentView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text=""
-                android:gravity="center"
+                android:textAlignment="textStart"
+                android:gravity="start"
                 tools:textSize="18sp" />
         </LinearLayout>
     </ScrollView>
-
-
 
     <com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CustomSubsamplingScaleImageView
         android:id="@+id/imageView"

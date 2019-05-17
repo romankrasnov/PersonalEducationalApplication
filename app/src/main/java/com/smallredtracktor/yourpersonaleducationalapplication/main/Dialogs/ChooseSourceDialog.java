@@ -80,7 +80,6 @@ public class ChooseSourceDialog extends DialogFragment {
                         }
                     }
                 });
-
         return builder.create();
     }
 

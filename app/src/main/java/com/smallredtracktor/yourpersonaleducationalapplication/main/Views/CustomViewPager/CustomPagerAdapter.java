@@ -8,13 +8,13 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
-public abstract class MyPagerAdapter {
+public abstract class CustomPagerAdapter {
     private final DataSetObservable mObservable = new DataSetObservable();
     private DataSetObserver mViewPagerObserver;
     public static final int POSITION_UNCHANGED = -1;
     public static final int POSITION_NONE = -2;
 
-    public MyPagerAdapter() {
+    public CustomPagerAdapter() {
     }
 
 

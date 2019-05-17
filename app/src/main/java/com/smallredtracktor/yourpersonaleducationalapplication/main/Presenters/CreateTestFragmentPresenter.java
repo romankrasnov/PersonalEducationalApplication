@@ -34,6 +34,7 @@ public class CreateTestFragmentPresenter implements
         ItemTextDialog.TextDialogListener {
 
     public static final String STATUS_LOADING = "loading";
+    private static final String MESSAGE_NETWORK_ERROR = "error while networking";
 
     @Nullable
     private GalleryPathUtil galleryPathUtil;
@@ -49,7 +50,7 @@ public class CreateTestFragmentPresenter implements
     private HashMap<String,DisposableObserver<List<TestItem>>> readSubscriberMap = new HashMap<>();
     private HashMap<String, DisposableMaybeObserver<OcrResponseModel>> readOcrSubscriberMap = new HashMap<>();
     private String currentTicket;
-
+    private boolean isFullScreenMode = false;
 
 
     public CreateTestFragmentPresenter(@Nullable ICreateTestFragmentMVPprovider.IModel model,
@@ -104,12 +105,10 @@ public class CreateTestFragmentPresenter implements
                         }
                     }
                 }
-
                 @Override
                 public void onError(Throwable e) {
                     view.showToast(e.getMessage());
                 }
-
                 @Override
                 public void onComplete() {
                 }
@@ -147,7 +146,9 @@ public class CreateTestFragmentPresenter implements
 
     @Override
     public void onBackPressed() {
-
+        if (view != null) {
+            view.switchPagerToSmallView();
+        }
     }
 
 
@@ -157,29 +158,30 @@ public class CreateTestFragmentPresenter implements
         if (view != null && model != null) {
             String id = UniqueDigit.getUnique();
             model.updateTestItem(id, isQuestion, currentTicket, 1, path);
-            if (isQuestion) {
-                if(type == 1)
-                {
-                    Objects.requireNonNull(compressUtil)
-                            .getBitmap(path)
-                            .doOnSuccess(bitmap -> view.setPhotoQuestion(id, 1, bitmap))
-                            .subscribe();
-                } else if (type == 3)
-                    {
-                        view.setTextQuestion(id, type, STATUS_LOADING);
-                        registerOcrDataQuestionConsumer(id, path);
-                    }
-            } else {
-                if(type == 1)
-                {
-                    view.setCurrentAnswer(id, type, path);
-                } else if (type == 3)
-                    {
-                    view.setCurrentAnswer(id, 3, null);
-                    registerOcrDataAnswerConsumer(id, path);
-                }
-                view.addNewAnswer();
-            }
+                        if (isQuestion) {
+                            if(type == 1)
+                            {
+                                Objects.requireNonNull(compressUtil)
+                                    .getBitmap(path)
+                                    .doOnSuccess(bitmap ->
+                                            view.setPhotoQuestion(id, 1, bitmap))
+                                        .subscribe();
+                            } else if (type == 3)
+                            {
+                                view.setTextQuestion(id, type, STATUS_LOADING);
+                                registerOcrDataQuestionConsumer(id, path);
+                            }
+                        } else {
+                            if(type == 1)
+                            {
+                                view.setCurrentAnswer(id, type, path);
+                            } else if (type == 3)
+                            {
+                                view.setCurrentAnswer(id, 3, null);
+                                registerOcrDataAnswerConsumer(id, path);
+                            }
+                            view.addNewAnswer();
+                        }
         }
     }
 
@@ -194,23 +196,18 @@ public class CreateTestFragmentPresenter implements
                                 model.updateTestItem(id, false, currentTicket, 3, text);
                                 model.deleteFile(path);
                                 view.setCurrentAnswer(id, 3, text);
-                            }catch (NullPointerException e)
+                            }catch (Exception e)
                             {
+                                view.showToast(MESSAGE_NETWORK_ERROR);
                                 view.setCurrentAnswer(id, 1, path);
                             }
-
                         }
-
                         @Override
                         public void onError(Throwable e) {
                             view.setCurrentAnswer(id, 1, path);
                         }
-
                         @Override
-                        public void onComplete() {
-
-                        }
-                    });
+                        public void onComplete() {}});
             ocrData(path)
                     .subscribe(readOcrSubscriberMap.get(id));
         }
@@ -230,15 +227,14 @@ public class CreateTestFragmentPresenter implements
 
                 @Override
                 public void onError(Throwable e) {
+                    view.showToast(MESSAGE_NETWORK_ERROR);
                     Objects.requireNonNull(compressUtil)
                             .getBitmap(path)
                             .doOnSuccess(bitmap -> view.setPhotoQuestion(id, 1, bitmap))
                             .subscribe();
                 }
-
                 @Override
-                public void onComplete() {}
-            });
+                public void onComplete() {}});
             ocrData(path)
                     .subscribe(readOcrSubscriberMap.get(id));
         }
@@ -254,15 +250,6 @@ public class CreateTestFragmentPresenter implements
         return ocrResponse;
     }
 
-    @Override
-    public void rxUnsubscribe() {
-        for (DisposableObserver<List<TestItem>> listDisposableObserver : readSubscriberMap.values()) {
-            listDisposableObserver.dispose();
-        }
-        for (DisposableMaybeObserver<OcrResponseModel> listDisposableMaybeObserver : readOcrSubscriberMap.values()) {
-            listDisposableMaybeObserver.dispose();
-        }
-    }
 
     @Override
     public void onViewResumed(String s, String ticketId) {
@@ -326,13 +313,20 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onAnswerFragmentInteraction(String id) {
+    public void onAnswerFragmentClick(String id, boolean isFullScreenMode) {
         if (view != null && model != null) {
+            this.isFullScreenMode = !isFullScreenMode;
             if (id.equals(STUB_PARAM_ID)) {
                 view.showChooseSourceDialog(false);
             } else
                 {
-                    view.switchAnswerViewPagerMode();
+                    if(isFullScreenMode)
+                    {
+                        view.switchPagerToSmallView();
+                    } else
+                        {
+                            view.switchPagerToFullScreen();
+                        }
                 }
         }
     }
@@ -362,6 +356,30 @@ public class CreateTestFragmentPresenter implements
         return false;
     }
 
+    @Override
+    public void onAnswerPageSelected(int currentPage, int count) {
+        if(view != null) {
+            if (currentPage == 0) {
+                if (isFullScreenMode) {
+                    view.switchPagerToSmallView();
+                }
+                view.setCurrentAnswerItem(1);
+            }
+            if (currentPage == count - 1) {
+                if (isFullScreenMode) {
+                    view.switchPagerToSmallView();
+                }
+                view.setCurrentAnswerItem(count - 2);
+            }
+        }
+    }
+
+    @Override
+    public void onAnswerDoubleTap(String id) {
+        if (view != null) {
+            view.showToast("WOW");
+        }
+    }
 
     private void unsubscribeById(String id) {
         if(readSubscriberMap.containsKey(id))
@@ -371,6 +389,16 @@ public class CreateTestFragmentPresenter implements
         if(readOcrSubscriberMap.containsKey(id))
         {
             Objects.requireNonNull(readOcrSubscriberMap.get(id)).dispose();
+        }
+    }
+
+    @Override
+    public void rxUnsubscribe() {
+        for (DisposableObserver<List<TestItem>> listDisposableObserver : readSubscriberMap.values()) {
+            listDisposableObserver.dispose();
+        }
+        for (DisposableMaybeObserver<OcrResponseModel> listDisposableMaybeObserver : readOcrSubscriberMap.values()) {
+            listDisposableMaybeObserver.dispose();
         }
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreatingRootScope;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.SubjectTextDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TableDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.CreateTestRootDbImpl;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.ICreateTestRootDbApi;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.IRootCreateTestFragmentMVPprovider;
@@ -50,4 +51,12 @@ public class CreateTestRootModule {
     {
         return new CreateTestRootDbImpl(context);
     }
+
+    @Provides
+    @CreatingRootScope
+    TableDialog provideTableDialog(IRootCreateTestFragmentMVPprovider.IPresenter presenter)
+    {
+        return new TableDialog(context, presenter);
+    }
+
 }

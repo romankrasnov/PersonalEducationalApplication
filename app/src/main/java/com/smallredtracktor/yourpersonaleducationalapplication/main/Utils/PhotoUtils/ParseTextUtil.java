@@ -10,7 +10,6 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Networking.O
 import java.io.ByteArrayOutputStream;
 
 import io.reactivex.Maybe;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -18,6 +17,7 @@ import io.reactivex.schedulers.Schedulers;
 public class ParseTextUtil {
 
     private static final String OCR_LANGUAGE = "rus";
+    private static final int OCR_PHOTO_QUALITY = 30;
 
     public ParseTextUtil() {}
 
@@ -34,7 +34,7 @@ public class ParseTextUtil {
     {
         Maybe<String> s = Maybe.create(emitter -> {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 30, byteArrayOutputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, OCR_PHOTO_QUALITY, byteArrayOutputStream);
             byte[] byteArray = byteArrayOutputStream .toByteArray();
             String base64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
             emitter.onSuccess(base64);

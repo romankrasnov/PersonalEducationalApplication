@@ -20,6 +20,8 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil.LOCAL_PHOTO_QUALITY;
+
 public class GalleryPathUtil {
 
     private final Context context;
@@ -35,7 +37,7 @@ public class GalleryPathUtil {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), contentURI);
                 bytes = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, LOCAL_PHOTO_QUALITY, bytes);
             } catch (IOException e) {
                 e.printStackTrace();
             }

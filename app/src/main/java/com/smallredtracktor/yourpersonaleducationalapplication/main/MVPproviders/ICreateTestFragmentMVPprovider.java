@@ -29,9 +29,11 @@ public interface ICreateTestFragmentMVPprovider {
         void onPhotoTaken(String mPath, int type, boolean isQuestion);
         void rxUnsubscribe();
         void onViewResumed(String s, String ticketId);
-        void onAnswerFragmentInteraction(String id);
+        void onAnswerFragmentClick(String id, boolean isFullScreenMode);
         void onAnswerLongClick(String id);
         boolean onQuestionLongPressed(String id);
+        void onAnswerPageSelected(int page, int count);
+        void onAnswerDoubleTap(String id);
     }
 
     interface IFragment extends IAbstractView
@@ -50,7 +52,9 @@ public interface ICreateTestFragmentMVPprovider {
         void deleteQuestion();
         void showChooseSourceDialog(boolean b);
         void resolveCameraPermission();
-        void switchAnswerViewPagerMode();
+        void setCurrentAnswerItem(int i);
+        void switchPagerToFullScreen();
+        void switchPagerToSmallView();
     }
 
     interface IModel extends IAbstractModel

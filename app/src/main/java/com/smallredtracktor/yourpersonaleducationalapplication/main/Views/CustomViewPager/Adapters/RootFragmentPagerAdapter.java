@@ -1,4 +1,4 @@
-package com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Adapters;
+package com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.Adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

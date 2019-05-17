@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public abstract class MyFragmentStatePagerAdapter extends MyPagerAdapter {
+public abstract class CustomFragmentStatePagerAdapter extends CustomPagerAdapter {
 
     private static final String TAG = "FragmentStatePagerAdapt";
     private static final boolean DEBUG = false;
@@ -23,7 +23,7 @@ public abstract class MyFragmentStatePagerAdapter extends MyPagerAdapter {
     private ArrayList<Fragment> mFragments = new ArrayList();
     private Fragment mCurrentPrimaryItem = null;
 
-    public MyFragmentStatePagerAdapter(FragmentManager fm) {
+    public CustomFragmentStatePagerAdapter(FragmentManager fm) {
         this.mFragmentManager = fm;
     }
 
@@ -58,7 +58,7 @@ public abstract class MyFragmentStatePagerAdapter extends MyPagerAdapter {
     }
     */
 
-    public void replaceFragmetns(MyViewPager container, Fragment oldFragment, Fragment newFragment) {
+    public void replaceFragmetns(CustomViewPager container, Fragment oldFragment, Fragment newFragment) {
         handleGetItemInbalidated(container, oldFragment, newFragment);
 
         startUpdate(container);
@@ -164,7 +164,6 @@ public abstract class MyFragmentStatePagerAdapter extends MyPagerAdapter {
             this.mCurTransaction.commitNowAllowingStateLoss();
             this.mCurTransaction = null;
         }
-
     }
 
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
