@@ -6,4 +6,7 @@
     <color name="colorAppBar">#151EC0</color>
     <color name="colorBack">#00000000</color>
     <color name="colorBlack">#000000</color>
+    <color name="LightBack">#C8C5C8</color>
+    <color name="colorSplashAccent">#A18CD1</color>
+    <color name="colorSplashMain">#FBC2EB</color>
 </resources>

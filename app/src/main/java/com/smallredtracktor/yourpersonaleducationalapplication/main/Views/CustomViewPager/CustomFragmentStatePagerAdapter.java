@@ -59,8 +59,8 @@ public abstract class CustomFragmentStatePagerAdapter extends CustomPagerAdapter
     */
 
     public void replaceFragmetns(CustomViewPager container, Fragment oldFragment, Fragment newFragment) {
-        handleGetItemInbalidated(container, oldFragment, newFragment);
 
+        handleGetItemInvalidated(container, oldFragment, newFragment);
         startUpdate(container);
 
         // remove old fragment
@@ -68,29 +68,28 @@ public abstract class CustomFragmentStatePagerAdapter extends CustomPagerAdapter
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
-        int position = getFragmentPosition(oldFragment);
-        while (mSavedState.size() <= position) {
+        int fragmentPosition = getFragmentPosition(oldFragment);
+        while (mSavedState.size() <= fragmentPosition) {
             mSavedState.add(null);
         }
-        mSavedState.set(position, null);
-        mFragments.set(position, null);
+        mSavedState.set(fragmentPosition, null);
+        mFragments.set(fragmentPosition, null);
 
         mCurTransaction.remove(oldFragment);
 
         // add new fragment
 
-        while (mFragments.size() <= position) {
+        while (mFragments.size() <= fragmentPosition) {
             mFragments.add(null);
         }
-        mFragments.set(position, newFragment);
+        mFragments.set(fragmentPosition, newFragment);
         mCurTransaction.add(container.getId(), newFragment);
 
         finishUpdate(container);
-
         container.notifyItemChanged(oldFragment, newFragment);
     }
 
-    protected abstract void handleGetItemInbalidated(View container, Fragment oldFragment, Fragment newFragment);
+    protected abstract void handleGetItemInvalidated(View container, Fragment oldFragment, Fragment newFragment);
     protected abstract int  getFragmentPosition(Fragment fragment);
 
     @NonNull

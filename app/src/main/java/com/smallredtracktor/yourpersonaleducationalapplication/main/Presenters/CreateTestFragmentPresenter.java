@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.view.MotionEvent;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
@@ -51,7 +52,6 @@ public class CreateTestFragmentPresenter implements
     private HashMap<String, DisposableMaybeObserver<OcrResponseModel>> readOcrSubscriberMap = new HashMap<>();
     private String currentTicket;
     private boolean isFullScreenMode = false;
-
 
     public CreateTestFragmentPresenter(@Nullable ICreateTestFragmentMVPprovider.IModel model,
                                        @Nullable CompressUtil compressUtil,
@@ -312,36 +312,6 @@ public class CreateTestFragmentPresenter implements
         }
     }
 
-    @Override
-    public void onAnswerFragmentClick(String id, boolean isFullScreenMode) {
-        if (view != null && model != null) {
-            this.isFullScreenMode = !isFullScreenMode;
-            if (id.equals(STUB_PARAM_ID)) {
-                view.showChooseSourceDialog(false);
-            } else
-                {
-                    if(isFullScreenMode)
-                    {
-                        view.switchPagerToSmallView();
-                    } else
-                        {
-                            view.switchPagerToFullScreen();
-                        }
-                }
-        }
-    }
-
-    @Override
-    public void onAnswerLongClick(String id) {
-        if (view != null && model != null) {
-            if(!id.equals(STUB_PARAM_ID))
-            {
-                view.removeAnswer(id);
-                unsubscribeById(id);
-                model.deleteTestItem(id);
-            }
-        }
-    }
 
     @Override
     public boolean onQuestionLongPressed(String id) {
@@ -375,11 +345,74 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
+    public void onAnswerFragmentClick(String id) {
+        if (view != null && model != null) {
+            if (id.equals(STUB_PARAM_ID)) {
+                view.showChooseSourceDialog(false);
+            } else
+            {
+                if (!isFullScreenMode) {
+                    view.switchPagerToFullScreen();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAnswerViewSwipe(String id) {
+        if (view != null && model != null) {
+            if(!isFullScreenMode)
+            {
+                view.removeAnswer(id);
+                view.setCurrentAnswerItem(1);
+                unsubscribeById(id);
+                model.deleteTestItem(id);
+            } else
+            {
+                view.switchPagerToSmallView();
+            }
+        }
+    }
+
+
+    @Override
     public void onAnswerDoubleTap(String id) {
         if (view != null) {
+            if(isFullScreenMode)
             view.showToast("WOW");
         }
     }
+
+    @Override
+    public void onViewModeChanged(boolean isFullScreenMode) {
+        this.isFullScreenMode = isFullScreenMode;
+        if (view != null) {
+            view.notifyAdapterViewModeChanged(isFullScreenMode);
+        }
+    }
+
+    @Override
+    public void onAnswerScroll(String id, MotionEvent e2) {
+        if (view != null) {
+            view.animateAnswer(id, e2);
+        }
+    }
+
+    @Override
+    public void onAnswerDown(String id, MotionEvent e) {
+        if (view != null) {
+            view.calculateAnswerScroll(id,e);
+        }
+    }
+
+    @Override
+    public void onAnswerFragmentUp(String id, MotionEvent event) {
+        if (view != null) {
+            view.scrollAnswer(id, event);
+        }
+    }
+
+
 
     private void unsubscribeById(String id) {
         if(readSubscriberMap.containsKey(id))

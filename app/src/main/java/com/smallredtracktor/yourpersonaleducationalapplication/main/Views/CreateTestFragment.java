@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -31,8 +32,10 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.Phot
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.Adapters.CustomFinalPageAdapter;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.CustomFinalViewPager;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.CustomViewPager;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
+
 
 import java.util.Objects;
 
@@ -45,10 +48,11 @@ import butterknife.Unbinder;
 import static android.app.Activity.RESULT_OK;
 
 
+
 @SuppressLint("ValidFragment")
 public class CreateTestFragment extends Fragment implements
         ICreateTestFragmentMVPprovider.IFragment,
-        MainActivity.BackPressedListener {
+        MainActivity.BackPressedListener{
 
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final int PICK_IMAGE = 2;
@@ -76,7 +80,7 @@ public class CreateTestFragment extends Fragment implements
     @BindView(R.id.viewPagerLayout)
     FrameLayout viewPagerLayout;
     @BindView(R.id.smallViewPager)
-    CustomViewPager smallViewPager;
+    CustomFinalViewPager smallViewPager;
     @BindView(R.id.createTestRootConstraintLayout)
     ConstraintLayout createTestRootConstraintLayout;
 
@@ -132,26 +136,31 @@ public class CreateTestFragment extends Fragment implements
         return view;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //Warning ! Rocket science
         smallAdapter = new CustomFinalPageAdapter(getChildFragmentManager());
         smallAdapter.setViewPager(smallViewPager);
         smallAdapter.setPresenter(createTestFragmentPresenter);
+        smallViewPager.setAdapter(smallAdapter);
         smallAdapter.addFirstItem();
         smallViewPager.setCurrentItem(1);
         smallViewPager.setOffscreenPageLimit(50);
-        smallViewPager.setAdapter(smallAdapter);
         smallViewPager.setCurrentItem(1);
+        smallViewPager.setPageMargin(200);
         smallViewPager.addOnPageChangeListener(new CustomViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int var1, float var2, int var3) {}
             @Override
             public void onPageSelected(int page)
-            { createTestFragmentPresenter.onAnswerPageSelected(page, smallAdapter.getCount()); }
+            {
+                createTestFragmentPresenter.onAnswerPageSelected(page, smallAdapter.getCount());
+            }
             @Override
-            public void onPageScrollStateChanged(int var1) {}});}
+            public void onPageScrollStateChanged(int var1) {
+            }});
+    }
 
     @Override
     public void onResume() {
@@ -170,6 +179,7 @@ public class CreateTestFragment extends Fragment implements
         super.onDetach();
         createTestFragmentPresenter = null;
     }
+
 
 
     @Override
@@ -228,13 +238,13 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void addNewAnswer() {
         smallAdapter.addItem(STUB_PARAM_ID, STUB_PARAM);
+
     }
 
     @Override
     public void removeAnswer(String id) {
         smallAdapter.removeItem(id);
     }
-
 
     @Override
     public void showPhotoFragment(String id, String value, int type, boolean isQuestion) {
@@ -284,7 +294,6 @@ public class CreateTestFragment extends Fragment implements
         }
     }
 
-
     @Override
     public void setCurrentAnswerItem(int position) {
         smallViewPager.setCurrentItem(position);
@@ -292,20 +301,43 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void switchPagerToFullScreen() {
-        Objects.requireNonNull(((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
-        createTestRootConstraintLayout.setPadding(0,0,0,0);
+        Objects.requireNonNull(((AppCompatActivity)
+                Objects.requireNonNull(
+                        getActivity())).getSupportActionBar()).hide();
         viewPagerLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.splash_screen));
         viewPagerLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        smallAdapter.setViewMode(true);
+        createTestFragmentPresenter.onViewModeChanged(true);
     }
 
     @Override
     public void switchPagerToSmallView() {
-        Objects.requireNonNull(((AppCompatActivity) Objects.requireNonNull(getActivity())).getSupportActionBar()).show();
-        createTestRootConstraintLayout.setPadding(8,8,8,8);
+        Objects.requireNonNull(((AppCompatActivity)
+                Objects.requireNonNull
+                        (getActivity())).getSupportActionBar()).show();
         viewPagerLayout.setBackgroundColor(getResources().getColor(R.color.colorBack));
         viewPagerLayout.setLayoutParams(layoutParams);
-        smallAdapter.setViewMode(false);
+        createTestFragmentPresenter.onViewModeChanged(false);
+    }
+
+
+    @Override
+    public void animateAnswer(String id, MotionEvent e2) {
+        ((AnswerContentFragment)smallAdapter.getItemById(id)).animate(e2);
+    }
+
+    @Override
+    public void calculateAnswerScroll(String id, MotionEvent e) {
+        ((AnswerContentFragment)smallAdapter.getItemById(id)).calculateScroll(e);
+    }
+
+    @Override
+    public void scrollAnswer(String id, MotionEvent event) {
+        ((AnswerContentFragment)smallAdapter.getItemById(id)).slideView(event);
+    }
+
+    @Override
+    public void notifyAdapterViewModeChanged(boolean isFullScreenMode) {
+        smallAdapter.setViewMode(isFullScreenMode);
     }
 
     @Override

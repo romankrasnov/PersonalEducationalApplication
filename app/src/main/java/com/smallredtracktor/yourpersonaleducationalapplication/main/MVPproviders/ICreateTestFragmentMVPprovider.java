@@ -4,6 +4,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPprovider
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.view.MotionEvent;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
@@ -29,11 +30,15 @@ public interface ICreateTestFragmentMVPprovider {
         void onPhotoTaken(String mPath, int type, boolean isQuestion);
         void rxUnsubscribe();
         void onViewResumed(String s, String ticketId);
-        void onAnswerFragmentClick(String id, boolean isFullScreenMode);
-        void onAnswerLongClick(String id);
+        void onAnswerViewSwipe(String id);
         boolean onQuestionLongPressed(String id);
         void onAnswerPageSelected(int page, int count);
+        void onViewModeChanged(boolean isFullScreenMode);
         void onAnswerDoubleTap(String id);
+        void onAnswerFragmentClick(String id);
+        void onAnswerScroll(String id, MotionEvent e2);
+        void onAnswerDown(String id, MotionEvent e);
+        void onAnswerFragmentUp(String id, MotionEvent event);
     }
 
     interface IFragment extends IAbstractView
@@ -55,6 +60,10 @@ public interface ICreateTestFragmentMVPprovider {
         void setCurrentAnswerItem(int i);
         void switchPagerToFullScreen();
         void switchPagerToSmallView();
+        void animateAnswer(String id, MotionEvent e2);
+        void calculateAnswerScroll(String id, MotionEvent e);
+        void scrollAnswer(String id, MotionEvent event);
+        void notifyAdapterViewModeChanged(boolean isFullScreenMode);
     }
 
     interface IModel extends IAbstractModel

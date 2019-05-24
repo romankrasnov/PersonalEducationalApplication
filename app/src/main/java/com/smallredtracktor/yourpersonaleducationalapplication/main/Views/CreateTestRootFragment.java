@@ -8,7 +8,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,7 @@ public class CreateTestRootFragment extends Fragment
     private static final String OUTCOME_PARAM_ID = "outcome_id";
     private static final int MAX_OFFSCREEN_PAGE_LIMIT = 1000;
     @BindView(R.id.viewPager)
-    RecyclerView pager;
+    ViewPager pager;
     Unbinder unbinder;
     RootFragmentPagerAdapter<CreateTestFragment> pagerAdapter;
     @BindView(R.id.fabTabSwitch)
@@ -98,7 +97,7 @@ public class CreateTestRootFragment extends Fragment
         pagerAdapter = new RootFragmentPagerAdapter<>(getChildFragmentManager());
         fabTabSwitch.setOnClickListener(v -> presenter.onTableFabClick());
         fabTabCreate.setOnClickListener(view1 -> presenter.onSaveFabClick(pagerAdapter.getIdList(), outcome));
-        pager.setItemViewCacheSize(MAX_OFFSCREEN_PAGE_LIMIT);
+        pager.setOffscreenPageLimit(MAX_OFFSCREEN_PAGE_LIMIT);
         presenter.onViewCreated();
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

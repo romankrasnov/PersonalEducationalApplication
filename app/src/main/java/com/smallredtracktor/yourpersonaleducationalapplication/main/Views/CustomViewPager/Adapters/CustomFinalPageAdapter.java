@@ -19,12 +19,12 @@ import static com.smallredtracktor.yourpersonaleducationalapplication.main.Views
 public class CustomFinalPageAdapter extends CustomFragmentStatePagerAdapter {
 
     private static final String STUB_PARAM_ID_DECOR = "decor";
+
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private ArrayList<String> fragmentsId = new ArrayList<>();
     private CustomViewPager viewPager;
     private ICreateTestFragmentMVPprovider.IPresenter presenter;
-    private boolean isFullScreenMode;
-
+    private boolean isFullScreenMode = false;
 
     public CustomFinalPageAdapter(FragmentManager fm) {
         super(fm);
@@ -45,7 +45,7 @@ public class CustomFinalPageAdapter extends CustomFragmentStatePagerAdapter {
     }
 
     @Override
-    protected void handleGetItemInbalidated(View container, Fragment oldFragment, Fragment newFragment) {
+    protected void handleGetItemInvalidated(View container, Fragment oldFragment, Fragment newFragment) {
 
     }
 
@@ -92,7 +92,6 @@ public class CustomFinalPageAdapter extends CustomFragmentStatePagerAdapter {
             this.viewPager.setAdapter(this);
             this.notifyDataSetChanged();
             viewPager.setCurrentItem(1);
-            setViewMode(isFullScreenMode);
         }
     }
 
@@ -109,7 +108,7 @@ public class CustomFinalPageAdapter extends CustomFragmentStatePagerAdapter {
             this.notifyDataSetChanged();
 
             fragmentsId.add(id);
-            fragments.add(AnswerContentFragment.newInstance(presenter,id, param, -1));
+            fragments.add(AnswerContentFragment.newInstance(presenter,id, param, -1, isFullScreenMode));
             this.notifyDataSetChanged();
 
             //decor
@@ -117,7 +116,6 @@ public class CustomFinalPageAdapter extends CustomFragmentStatePagerAdapter {
             fragments.add(new Fragment());
             this.notifyDataSetChanged();
             viewPager.setCurrentItem(lastDecorPagePos-1);
-            setViewMode(isFullScreenMode);
         }
     }
 
@@ -133,33 +131,41 @@ public class CustomFinalPageAdapter extends CustomFragmentStatePagerAdapter {
         Fragment newFragment = prepareFragment(id, type, param);
         replaceFragmetns(viewPager, oldFragment, newFragment);
         fragments.set(position,newFragment);
-        fragmentsId.set(position,id);
-        setViewMode(isFullScreenMode);
+        fragmentsId.set(position, id);
     }
 
     private Fragment prepareFragment(String id, int type, String param) {
-        return AnswerContentFragment.newInstance(presenter,id, param, type);
+        return AnswerContentFragment.newInstance(presenter,id, param, type, isFullScreenMode);
     }
 
     public void addFirstItem() {
         fragmentsId.add(STUB_PARAM_ID_DECOR);
         fragments.add(new Fragment());
         fragmentsId.add(STUB_PARAM_ID);
-        fragments.add(AnswerContentFragment.newInstance(presenter,  STUB_PARAM_ID, STUB_PARAM, -1));
+        fragments.add(AnswerContentFragment.newInstance(presenter,  STUB_PARAM_ID, STUB_PARAM, -1, isFullScreenMode));
         fragmentsId.add(STUB_PARAM_ID_DECOR);
         fragments.add(new Fragment());
         this.notifyDataSetChanged();
     }
 
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+
+    }
 
     public void setViewMode(boolean isFullScreenMode) {
         this.isFullScreenMode = isFullScreenMode;
+        this.notifyDataSetChanged();
             for (Fragment f: fragments) {
                 if(f instanceof AnswerContentFragment) {
                     ((AnswerContentFragment) f).onViewModeChanged(isFullScreenMode);
-                    this.notifyDataSetChanged();
                 }
             }
+    }
+
+    public Fragment getItemById(String id) {
+        return fragments.get(fragmentsId.indexOf(id));
     }
 
 
