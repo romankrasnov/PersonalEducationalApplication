@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/custom_backgroung"
-    android:id="@+id/createTestRootConstraintLayout"
     android:clipChildren="false"
+    app:cardBackgroundColor="@color/color_card_light"
+    app:cardElevation="2dp"
     tools:context=".main.Views.CreateTestFragment">
+
+<android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:background="@drawable/custom_backgroung"
+    android:id="@+id/createTestRootConstraintLayout">
 
     <TextView
         android:id="@+id/ticketCounterTextView"
@@ -80,3 +87,4 @@
 
 
 </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>

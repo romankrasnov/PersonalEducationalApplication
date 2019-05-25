@@ -109,6 +109,7 @@ public class CreateTestRootFragment extends Fragment
             return false;
         });
         pager.setOffscreenPageLimit(MAX_OFFSCREEN_PAGE_LIMIT);
+        pager.setPageMargin(50);
         presenter.onViewCreated();
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

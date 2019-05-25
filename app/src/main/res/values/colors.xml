@@ -9,5 +9,6 @@
     <color name="LightBack">#C8C5C8</color>
     <color name="colorSplashAccent">#0D47A1</color>
     <color name="colorSplashMain">#2575FC</color>
-    <color name="color_card">#F2F2F2</color>
+    <color name="color_card">#F0F0F0</color>
+    <color name="color_card_light">#FAFAFA</color>
 </resources>

@@ -11,6 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/card"
+        card:cardUseCompatPadding="true"
+        card:cardElevation="4dp"
         card:cardBackgroundColor="@color/color_card"
         card:cardCornerRadius="4dp">
         <FrameLayout
