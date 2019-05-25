@@ -23,6 +23,8 @@ public class ItemTextDialog extends DialogFragment {
     private String id;
     private String text;
     EditText ed;
+    TextDialogListener listener;
+    ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
 
     @SuppressLint("ValidFragment")
     public ItemTextDialog(ICreateTestFragmentMVPprovider.IPresenter presenter) {
@@ -34,9 +36,6 @@ public class ItemTextDialog extends DialogFragment {
         void onTextDialogInteraction(String id, String text, int type, boolean isQuestion);
     }
 
-    TextDialogListener listener;
-    ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
-
 
     @Override
     public void onAttach(Context context) {
@@ -44,7 +43,7 @@ public class ItemTextDialog extends DialogFragment {
         try {
             listener = (TextDialogListener) createTestFragmentPresenter;
         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString()
+            throw new ClassCastException(createTestFragmentPresenter.getClass().toString()
                     + " must implement NoticeDialogListener");
         }
     }

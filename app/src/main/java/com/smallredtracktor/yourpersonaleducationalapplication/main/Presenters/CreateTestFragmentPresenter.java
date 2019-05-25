@@ -10,6 +10,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ItemTextDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.OcrDrawingDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.GalleryPathUtil;
@@ -32,7 +33,8 @@ import static com.smallredtracktor.yourpersonaleducationalapplication.main.Views
 public class CreateTestFragmentPresenter implements
         ICreateTestFragmentMVPprovider.IPresenter,
         ChooseSourceDialog.ChooseSourceDialogListener,
-        ItemTextDialog.TextDialogListener {
+        ItemTextDialog.TextDialogListener,
+        OcrDrawingDialog.OcrDrawingDialogListener {
 
     public static final String STATUS_LOADING = "loading";
     private static final String MESSAGE_NETWORK_ERROR = "error while networking";
@@ -159,26 +161,23 @@ public class CreateTestFragmentPresenter implements
             String id = UniqueDigit.getUnique();
             model.updateTestItem(id, isQuestion, currentTicket, 1, path);
                         if (isQuestion) {
-                            if(type == 1)
-                            {
+                            if(type == 1) {
                                 Objects.requireNonNull(compressUtil)
                                     .getBitmap(path)
                                     .doOnSuccess(bitmap ->
                                             view.setPhotoQuestion(id, 1, bitmap))
                                         .subscribe();
-                            } else if (type == 3)
-                            {
+                            } else if (type == 3) {
                                 view.setTextQuestion(id, type, STATUS_LOADING);
                                 registerOcrDataQuestionConsumer(id, path);
                             }
                         } else {
-                            if(type == 1)
-                            {
+                            if(type == 1) {
                                 view.setCurrentAnswer(id, type, path);
-                            } else if (type == 3)
-                            {
+                            } else if (type == 3) {
                                 view.setCurrentAnswer(id, 3, null);
-                                registerOcrDataAnswerConsumer(id, path);
+                                view.showOcrDrawingDialog(id, path);
+                                //registerOcrDataAnswerConsumer(id, path);
                             }
                             view.addNewAnswer();
                         }
@@ -209,7 +208,7 @@ public class CreateTestFragmentPresenter implements
                         @Override
                         public void onComplete() {}});
             ocrData(path)
-                    .subscribe(readOcrSubscriberMap.get(id));
+                    .subscribe(Objects.requireNonNull(readOcrSubscriberMap.get(id)));
         }
     }
 
@@ -236,7 +235,7 @@ public class CreateTestFragmentPresenter implements
                 @Override
                 public void onComplete() {}});
             ocrData(path)
-                    .subscribe(readOcrSubscriberMap.get(id));
+                    .subscribe(Objects.requireNonNull(readOcrSubscriberMap.get(id)));
         }
     }
 
@@ -312,6 +311,30 @@ public class CreateTestFragmentPresenter implements
         }
     }
 
+    @Override
+    public void onOcrDrawingDialogUndo(String id, Bitmap takenImage) {
+
+    }
+
+    @Override
+    public void onOcrDrawingDialogRedo(String id, Bitmap selectedBitmapRegion) {
+
+    }
+
+    @Override
+    public void onOcrDrawingDialogEdit(String id, Object o) {
+
+    }
+
+    @Override
+    public void onOcrDrawingDialogTouchModeFabOn(String id, Object o) {
+
+    }
+
+    @Override
+    public void onOcrDrawingDialogDone(String id, Object o) {
+
+    }
 
     @Override
     public boolean onQuestionLongPressed(String id) {
@@ -369,6 +392,7 @@ public class CreateTestFragmentPresenter implements
                 model.deleteTestItem(id);
             } else
             {
+                view.resetAnswerTransition(id);
                 view.switchPagerToSmallView();
             }
         }
@@ -434,5 +458,7 @@ public class CreateTestFragmentPresenter implements
             listDisposableMaybeObserver.dispose();
         }
     }
+
+
 }
 

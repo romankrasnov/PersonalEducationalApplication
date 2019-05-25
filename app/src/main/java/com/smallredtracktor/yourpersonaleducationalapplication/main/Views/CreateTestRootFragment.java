@@ -4,14 +4,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.leinardi.android.speeddial.SpeedDialActionItem;
+import com.leinardi.android.speeddial.SpeedDialView;
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.SubjectTextDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.TableDialog;
@@ -35,16 +35,13 @@ public class CreateTestRootFragment extends Fragment
 
     private static final String OUTCOME_PARAM_ID = "outcome_id";
     private static final int MAX_OFFSCREEN_PAGE_LIMIT = 1000;
+
     @BindView(R.id.viewPager)
     ViewPager pager;
+    @BindView(R.id.fabTabCreate)
+    SpeedDialView fabTabCreate;
     Unbinder unbinder;
     RootFragmentPagerAdapter<CreateTestFragment> pagerAdapter;
-    @BindView(R.id.fabTabSwitch)
-    FloatingActionButton fabTabSwitch;
-    @BindView(R.id.fabTabCreate)
-    FloatingActionButton fabTabCreate;
-    @BindView(R.id.createRootHost)
-    CoordinatorLayout createRootHost;
 
     @Inject
     IRootCreateTestFragmentMVPprovider.IPresenter presenter;
@@ -95,18 +92,38 @@ public class CreateTestRootFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         pagerAdapter = new RootFragmentPagerAdapter<>(getChildFragmentManager());
-        fabTabSwitch.setOnClickListener(v -> presenter.onTableFabClick());
-        fabTabCreate.setOnClickListener(view1 -> presenter.onSaveFabClick(pagerAdapter.getIdList(), outcome));
+        fabTabCreate.getMainFab().setImageResource(R.drawable.ic_toolbox);
+        fabTabCreate.addActionItem(new SpeedDialActionItem.Builder(R.id.fab_table, R.drawable.ic_grid).create());
+        fabTabCreate.addActionItem(new SpeedDialActionItem.Builder(R.id.fab_create, R.drawable.ic_save).create());
+        fabTabCreate.setOnActionSelectedListener(speedDialActionItem -> {
+            switch (speedDialActionItem.getId()) {
+                case R.id.fab_table: {
+                    presenter.onTableFabClick();
+                    break;
+                }
+                case R.id.fab_create: {
+                    presenter.onSaveFabClick(pagerAdapter.getIdList(), outcome);
+                    break;
+                }
+            }
+            return false;
+        });
         pager.setOffscreenPageLimit(MAX_OFFSCREEN_PAGE_LIMIT);
         presenter.onViewCreated();
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int i, float v, int i1) {}
+            public void onPageScrolled(int i, float v, int i1) {
+            }
+
             @Override
             public void onPageSelected(int i) {
-                presenter.onPageSelected(i, pagerAdapter.getCount());}
+                presenter.onPageSelected(i, pagerAdapter.getCount());
+            }
+
             @Override
-            public void onPageScrollStateChanged(int i) {}});
+            public void onPageScrollStateChanged(int i) {
+            }
+        });
         pager.setAdapter(pagerAdapter);
         super.onViewCreated(view, savedInstanceState);
     }

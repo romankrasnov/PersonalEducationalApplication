@@ -15,19 +15,14 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoU
 public class PhotoDialog extends Dialog {
 
     private final CompressUtil util;
-    private int type;
-    private boolean isQuestion;
     private String content;
-    private final Context context;
     private final SubsamplingScaleImageView imageView;
-    private String id;
 
 
     public PhotoDialog(Context context, CompressUtil util) {
         super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         this.util = util;
         imageView = new SubsamplingScaleImageView(context);
-        this.context = context;
     }
 
     @Override
@@ -43,9 +38,6 @@ public class PhotoDialog extends Dialog {
 
 
     public void setDialogParams(String id, String content, int type, boolean isQuestion) {
-        this.id = id;
         this.content = content;
-        this.type = type;
-        this.isQuestion = isQuestion;
     }
 }

@@ -64,6 +64,8 @@ public interface ICreateTestFragmentMVPprovider {
         void calculateAnswerScroll(String id, MotionEvent e);
         void scrollAnswer(String id, MotionEvent event);
         void notifyAdapterViewModeChanged(boolean isFullScreenMode);
+        void resetAnswerTransition(String id);
+        void showOcrDrawingDialog(String id, String path);
     }
 
     interface IModel extends IAbstractModel

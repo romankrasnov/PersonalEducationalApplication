@@ -6,6 +6,7 @@ import android.content.Context;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Components.CreatingScope;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.OcrDrawingDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.PhotoDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ItemTextDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.CreateTestDbImpl;
@@ -109,7 +110,12 @@ public class CreateTestModule {
         return new PhotoDialog(context, util);
     }
 
-
+    @Provides
+    @CreatingScope
+    OcrDrawingDialog provideOcrDrawingDialog(ICreateTestFragmentMVPprovider.IPresenter presenter, CompressUtil util)
+    {
+        return new OcrDrawingDialog(context, util, presenter);
+    }
 
     @Provides
     @CreatingScope

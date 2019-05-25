@@ -128,6 +128,9 @@ public class AnswerContentFragment extends Fragment implements
         }
     }
 
+    public void resetTransition() {
+        card.setTranslationY(0);
+    }
 
     public void animate(MotionEvent e2) {
         card.setTranslationY(e2.getRawY() - mMotionDownY);
@@ -348,4 +351,5 @@ public class AnswerContentFragment extends Fragment implements
             }
         });
     }
+
 }

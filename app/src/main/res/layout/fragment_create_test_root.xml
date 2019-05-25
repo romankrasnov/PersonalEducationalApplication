@@ -15,23 +15,11 @@
     </android.support.v4.view.ViewPager>
 
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabTabSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_fab_table"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_anchor="@+id/viewPager"
-        app:layout_anchorGravity="right|top" />
-
-    <android.support.design.widget.FloatingActionButton
+    <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/fabTabCreate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_fab_save"
         app:backgroundTint="@color/colorAccent"
         app:layout_anchor="@+id/viewPager"
         app:layout_anchorGravity="right|bottom" />

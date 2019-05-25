@@ -7,7 +7,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.text.InputType;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -44,7 +43,7 @@ public class SubjectTextDialog extends DialogFragment {
         try {
             listener = (TextDialogListener) presenter;
         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString()
+            throw new ClassCastException(presenter.getClass().toString()
                     + " must implement NoticeDialogListener");
         }
     }

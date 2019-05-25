@@ -15,7 +15,6 @@ public interface IMainActivityMVPprovider
     {
         void setView(IView view);
         void navigationItemSelected(int id);
-        void optionsItemSelected(int id);
     }
 
      interface IView extends NavigationView.OnNavigationItemSelectedListener, IAbstractView

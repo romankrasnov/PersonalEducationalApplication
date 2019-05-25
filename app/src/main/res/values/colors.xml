@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#03227E</color>
-    <color name="colorPrimaryDark">#0C0766</color>
+    <color name="colorPrimary">#0D47A1</color>
+    <color name="colorPrimaryDark">#0D47A1</color>
     <color name="colorAccent">#0D47A1</color>
-    <color name="colorAppBar">#151EC0</color>
+    <color name="colorAppBar">#2575FC</color>
     <color name="colorBack">#00000000</color>
     <color name="colorBlack">#000000</color>
     <color name="LightBack">#C8C5C8</color>
-    <color name="colorSplashAccent">#A18CD1</color>
-    <color name="colorSplashMain">#FBC2EB</color>
+    <color name="colorSplashAccent">#0D47A1</color>
+    <color name="colorSplashMain">#2575FC</color>
+    <color name="color_card">#F2F2F2</color>
 </resources>

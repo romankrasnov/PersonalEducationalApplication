@@ -23,7 +23,6 @@ public class ChooseSourceDialog extends DialogFragment {
     @SuppressLint("ValidFragment")
     public ChooseSourceDialog(ICreateTestFragmentMVPprovider.IPresenter presenter) {
         this.createTestFragmentPresenter = presenter;
-
     }
 
     public void setIsQuestion(boolean isQuestion) {
@@ -44,7 +43,7 @@ public class ChooseSourceDialog extends DialogFragment {
         try {
             listener = (ChooseSourceDialogListener) createTestFragmentPresenter;
         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString()
+            throw new ClassCastException(createTestFragmentPresenter.getClass().toString()
                     + " must implement NoticeDialogListener");
         }
     }

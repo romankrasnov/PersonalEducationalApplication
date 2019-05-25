@@ -28,6 +28,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ChooseSourceDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.ItemTextDialog;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.OcrDrawingDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.PhotoDialog;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestModule;
@@ -92,6 +93,8 @@ public class CreateTestFragment extends Fragment implements
     PhotoDialog photoDialog;
     @Inject
     ItemTextDialog textDialog;
+    @Inject
+    OcrDrawingDialog ocrDrawingDialog;
 
     private CustomFinalPageAdapter smallAdapter;
     private Unbinder unbinder;
@@ -258,6 +261,12 @@ public class CreateTestFragment extends Fragment implements
         textDialog.show(getChildFragmentManager(), null);
     }
 
+    @Override
+    public void showOcrDrawingDialog(String id, String path) {
+        ocrDrawingDialog.setDialogParams(id, path);
+        ocrDrawingDialog.show();
+    }
+
 
     @Override
     public void showCameraFragment(Intent intent, int type, boolean isQuestion, String path) {
@@ -304,7 +313,7 @@ public class CreateTestFragment extends Fragment implements
         Objects.requireNonNull(((AppCompatActivity)
                 Objects.requireNonNull(
                         getActivity())).getSupportActionBar()).hide();
-        viewPagerLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.splash_screen));
+        viewPagerLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
         viewPagerLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         createTestFragmentPresenter.onViewModeChanged(true);
     }
@@ -338,6 +347,11 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void notifyAdapterViewModeChanged(boolean isFullScreenMode) {
         smallAdapter.setViewMode(isFullScreenMode);
+    }
+
+    @Override
+    public void resetAnswerTransition(String id) {
+        ((AnswerContentFragment)smallAdapter.getItemById(id)).resetTransition();
     }
 
     @Override

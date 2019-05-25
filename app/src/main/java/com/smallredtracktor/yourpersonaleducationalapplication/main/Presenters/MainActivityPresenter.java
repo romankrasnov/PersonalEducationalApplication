@@ -38,11 +38,4 @@ public class MainActivityPresenter implements IMainActivityMVPprovider.IPresente
         }
     }
 
-    @Override
-    public void optionsItemSelected(int id) {
-        if (id == R.id.action_settings) {
-
-        }
-    }
-
 }
