@@ -7,6 +7,12 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.
 
 import java.util.List;
 
+
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
 public class CreateTestRootDbImpl implements ICreateTestRootDbApi {
@@ -17,7 +23,7 @@ public class CreateTestRootDbImpl implements ICreateTestRootDbApi {
 
     @Override
     public void writeSubject(String id, String name) {
-        new Thread(() -> {
+        Single.create(emitter -> {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(realm1 -> {
                     Test item = new Test();
@@ -26,12 +32,14 @@ public class CreateTestRootDbImpl implements ICreateTestRootDbApi {
                     realm1.insertOrUpdate(item);
                 });
             }
-        }).start();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 
     @Override
     public void writeTickets(List<String> strings, String id) {
-        new Thread(() -> {
+        Single.create(emitter -> {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(realm1 -> {
                     for (int i = 0; i<strings.size(); i++) {
@@ -42,6 +50,8 @@ public class CreateTestRootDbImpl implements ICreateTestRootDbApi {
                     }
                 });
             }
-        }).start();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 }

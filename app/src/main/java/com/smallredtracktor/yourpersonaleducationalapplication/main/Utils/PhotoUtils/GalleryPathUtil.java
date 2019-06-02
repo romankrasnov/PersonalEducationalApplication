@@ -2,6 +2,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.Photo
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
@@ -16,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -26,9 +28,18 @@ public class GalleryPathUtil {
 
     private final Context context;
     private static final int LOCAL_PHOTO_QUALITY = 100;
+    private final Intent chooserIntent;
+    private static final String TYPE_IMAGE = "image/*";
+    private static final CharSequence GALLERY_TITLE = "Select Picture";
+
     public GalleryPathUtil(Context context) {
         this.context = context;
+        Intent intent = new Intent();
+        intent.setType(TYPE_IMAGE);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        chooserIntent = Intent.createChooser(intent, GALLERY_TITLE);
     }
+
 
     public Single<String> save(Uri contentURI) {
         Single<String> path = Single.create(emitter -> {
@@ -75,5 +86,10 @@ public class GalleryPathUtil {
 
         return path.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Intent getPreparedPhotoPickerIntent()
+    {
+        return chooserIntent;
     }
 }

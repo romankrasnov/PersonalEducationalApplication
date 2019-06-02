@@ -1,7 +1,5 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Components;
 
-
-
 import android.content.Context;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.CreateTestRootModule;
@@ -10,7 +8,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Create
 import dagger.Subcomponent;
 
 @CreatingRootScope
-@Subcomponent( modules = {CreateTestRootModule.class})
+@Subcomponent(modules = {CreateTestRootModule.class})
 public interface CreateTestRootComponent {
     Context context();
     void inject(CreateTestRootFragment target);

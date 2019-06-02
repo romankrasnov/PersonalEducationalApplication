@@ -60,15 +60,13 @@ public class CreateTestFragment extends Fragment implements
     static final String OUTCOME_PARAM_TICKET_ID = "outcome_param_ticket_id";
     public static final String STUB_PARAM_ANSWER = "CLICK TO ADD ANSWER";
     private static final String STUB_PARAM_QUESTION = "CLICK TO ADD QUESTION";
-    private static final String TYPE_IMAGE = "image/*";
-    private static final CharSequence GALLERY_TITLE = "Select Picture";
     private static final String APP_ITEM_TYPE = "type";
     private static final String APP_ITEM_IS_QUESTION = "isQuestion";
     private static final String FILE_PATH = "file_path";
     private static final int CODE_REQUEST_CAMERA = 200;
 
 
-    private Bundle options;
+    private Bundle imagePickingIntentOptions;
     private String outcomeParam;
     private String ticketId;
 
@@ -102,6 +100,7 @@ public class CreateTestFragment extends Fragment implements
     private ViewGroup.LayoutParams layoutParams;
     private ActionBar appBar;
     private CardStackPageTransformer cardPageTransformer;
+    private Bitmap whiteQuestionBitmap;
 
     public CreateTestFragment() {
     }
@@ -141,8 +140,13 @@ public class CreateTestFragment extends Fragment implements
                         getActivity())).getSupportActionBar());
         ((MainActivity) Objects.requireNonNull(getActivity())).addBackPressedListener(this);
         questionImageView.setZoomEnabled(false);
+        whiteQuestionBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+        whiteQuestionBitmap.eraseColor(getResources().getColor(R.color.colorBack));
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
-        questionImageView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID));
+        questionImageView.setOnLongClickListener(v -> {
+            createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID);
+            return false;
+        });
         return view;
     }
 
@@ -212,21 +216,25 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void deleteQuestion() {
         questionTextView.setText(STUB_PARAM_QUESTION);
-        Bitmap white = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
-        white.eraseColor(getResources().getColor(R.color.colorBack));
-        questionImageView.setImage(ImageSource.cachedBitmap(white));
+        questionImageView.setImage(ImageSource.cachedBitmap(whiteQuestionBitmap));
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
-        questionImageView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID));
+        questionImageView.setOnLongClickListener(v -> {
+            createTestFragmentPresenter.onQuestionLongPressed(STUB_PARAM_ID);
+            return false;
+        });
     }
+
+
 
     @Override
     public void setTextQuestion(String id, int type, String content) {
         questionTextView.setText(content);
-        Bitmap white = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
-        white.eraseColor(getResources().getColor(R.color.colorBack));
-        questionImageView.setImage(ImageSource.cachedBitmap(white));
+        questionImageView.setImage(ImageSource.cachedBitmap(whiteQuestionBitmap));
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
-        questionImageView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(id));
+        questionImageView.setOnLongClickListener(v -> {
+            createTestFragmentPresenter.onQuestionLongPressed(id);
+            return false;
+        });
     }
 
     @Override
@@ -234,7 +242,10 @@ public class CreateTestFragment extends Fragment implements
         questionImageView.setImage(ImageSource.cachedBitmap(content));
         questionTextView.setText("");
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onQuestionPressed(id));
-        questionImageView.setOnLongClickListener(v -> createTestFragmentPresenter.onQuestionLongPressed(id));
+        questionImageView.setOnLongClickListener(v -> {
+            createTestFragmentPresenter.onQuestionLongPressed(id);
+            return false;
+        });
     }
 
     @Override
@@ -305,22 +316,19 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void showCameraFragment(Intent intent, int type, boolean isQuestion, String path) {
-        options = new Bundle();
-        options.putInt(APP_ITEM_TYPE, type);
-        options.putBoolean(APP_ITEM_IS_QUESTION, isQuestion);
-        options.putString(FILE_PATH, path);
+        imagePickingIntentOptions = new Bundle();
+        imagePickingIntentOptions.putInt(APP_ITEM_TYPE, type);
+        imagePickingIntentOptions.putBoolean(APP_ITEM_IS_QUESTION, isQuestion);
+        imagePickingIntentOptions.putString(FILE_PATH, path);
         startActivityForResult(intent, REQUEST_TAKE_PHOTO);
     }
 
     @Override
-    public void showGallery(int type, boolean isQuestion) {
-        Intent intent = new Intent();
-        intent.setType(TYPE_IMAGE);
-        options = new Bundle();
-        options.putInt(APP_ITEM_TYPE, type);
-        options.putBoolean(APP_ITEM_IS_QUESTION, isQuestion);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, GALLERY_TITLE), PICK_IMAGE);
+    public void showGallery(int type, boolean isQuestion, Intent intent) {
+        imagePickingIntentOptions = new Bundle();
+        imagePickingIntentOptions.putInt(APP_ITEM_TYPE, type);
+        imagePickingIntentOptions.putBoolean(APP_ITEM_IS_QUESTION, isQuestion);
+        startActivityForResult(intent, PICK_IMAGE);
     }
 
 
@@ -420,16 +428,16 @@ public class CreateTestFragment extends Fragment implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUEST_TAKE_PHOTO) {
-            createTestFragmentPresenter.onPhotoTaken(options.getString(FILE_PATH),
-                    options.getInt(APP_ITEM_TYPE),
-                    options.getBoolean(APP_ITEM_IS_QUESTION));
+            createTestFragmentPresenter.onPhotoTaken(imagePickingIntentOptions.getString(FILE_PATH),
+                    imagePickingIntentOptions.getInt(APP_ITEM_TYPE),
+                    imagePickingIntentOptions.getBoolean(APP_ITEM_IS_QUESTION));
         }
 
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
             Uri contentURI = data.getData();
             createTestFragmentPresenter.onGalleryResult(contentURI,
-                    options.getInt(APP_ITEM_TYPE),
-                    options.getBoolean(APP_ITEM_IS_QUESTION));
+                    imagePickingIntentOptions.getInt(APP_ITEM_TYPE),
+                    imagePickingIntentOptions.getBoolean(APP_ITEM_IS_QUESTION));
         }
     }
 }

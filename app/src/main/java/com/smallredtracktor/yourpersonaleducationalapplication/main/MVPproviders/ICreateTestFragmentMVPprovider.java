@@ -3,8 +3,6 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.MVPprovider
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Path;
 import android.net.Uri;
 import android.view.MotionEvent;
 
@@ -33,7 +31,7 @@ public interface ICreateTestFragmentMVPprovider {
         void onViewDestroyed();
         void onViewResumed(String s, String ticketId);
         void onAnswerViewSwipe(String id);
-        boolean onQuestionLongPressed(String id);
+        void onQuestionLongPressed(String id);
         void onAnswerPageSelected(int page, int count);
         void onViewModeChanged(boolean isFullScreenMode);
         void onAnswerDoubleTap(String id);
@@ -45,7 +43,7 @@ public interface ICreateTestFragmentMVPprovider {
 
     interface IFragment extends IAbstractView
     {
-        void setCounterTextView(String s);
+        void setCounterTextView(String count);
         void showToast(String msg);
         void setTextQuestion(String id, int type, String value);
         void setPhotoQuestion(String id, int type, Bitmap content);
@@ -55,16 +53,16 @@ public interface ICreateTestFragmentMVPprovider {
         void showPhotoFragment(String id, Bitmap value, int type, boolean question);
         void showTextFragment(String id, String text, int type, boolean isQuestion);
         void showCameraFragment(Intent intent, int type, boolean isQuestion, String path);
-        void showGallery(int type, boolean isQuestion);
+        void showGallery(int type, boolean isQuestion, Intent intent);
         void deleteQuestion();
-        void showChooseSourceDialog(boolean b);
+        void showChooseSourceDialog(boolean isQuestion);
         void resolveCameraPermission();
         void setCurrentAnswerItem(int i);
         void switchPagerToFullScreen();
         void switchPagerToSmallView();
-        void animateAnswer(String id, float e2);
-        void calculateAnswerScroll(String id, float e);
-        void scrollAnswer(String id, float event);
+        void animateAnswer(String id, float rawY);
+        void calculateAnswerScroll(String id, float rawY);
+        void scrollAnswer(String id, float rawY);
         void notifyAdapterViewModeChanged(boolean isFullScreenMode);
         void resetAnswerTransition(String id);
         void showOcrDrawingDialog(String id, Bitmap fullBitmap, String path, boolean isQuestion);

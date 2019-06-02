@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="fab_undo" type="id" />
+    <item name="fab_redo" type="id" />
+    <item name="fab_edit" type="id" />
+    <item name="fab_table" type="id" />
+    <item name="fab_create" type="id" />
+    <item name="fab_touch" type="id" />
+    <item name="fab_done" type="id" />
+</resources>

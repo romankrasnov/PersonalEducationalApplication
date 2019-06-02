@@ -6,6 +6,12 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 public class LocalStorage implements ILocalStorage {
 
 
@@ -17,7 +23,7 @@ public class LocalStorage implements ILocalStorage {
 
     @Override
     public void deleteFile(String filename) {
-        new Thread(() -> {
+        Single.create(emitter -> {
             File file = new File(filename);
             boolean delete = file.delete();
             Log.d("thread", Thread.currentThread().getName() + " delete file 1st " + delete);
@@ -33,6 +39,8 @@ public class LocalStorage implements ILocalStorage {
                     Log.d("thread", Thread.currentThread().getName() + " delete 3nd ");
                 }
             }
-        }).start();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 }

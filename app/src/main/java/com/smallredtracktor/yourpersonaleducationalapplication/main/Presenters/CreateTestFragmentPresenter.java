@@ -1,5 +1,6 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.net.Uri;
@@ -14,7 +15,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.OcrD
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.GalleryPathUtil;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.OcrDrawerComputationUtil;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PolygonCropUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntentUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
@@ -52,7 +53,7 @@ public class CreateTestFragmentPresenter implements
     @Nullable
     private PhotoIntentUtil photoIntentUtil;
     @Nullable
-    private OcrDrawerComputationUtil ocrDrawerComputationUtil;
+    private PolygonCropUtil polygonCropUtil;
 
 
     private HashMap<String,DisposableObserver<List<TestItem>>> readStorageSubscriberMap = new HashMap<>();
@@ -64,12 +65,12 @@ public class CreateTestFragmentPresenter implements
                                        @Nullable CompressUtil compressUtil,
                                        @Nullable GalleryPathUtil galleryPathUtil,
                                        @Nullable PhotoIntentUtil photoIntentUtil,
-                                       @Nullable OcrDrawerComputationUtil ocrDrawerComputationUtil) {
+                                       @Nullable PolygonCropUtil polygonCropUtil) {
         this.model = model;
         this.compressUtil = compressUtil;
         this.galleryPathUtil = galleryPathUtil;
         this.photoIntentUtil = photoIntentUtil;
-        this.ocrDrawerComputationUtil = ocrDrawerComputationUtil;
+        this.polygonCropUtil = polygonCropUtil;
     }
 
 
@@ -162,7 +163,7 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onBackPressed() {
         if (view != null) {
-            if(!isFullScreenMode)
+            if(isFullScreenMode)
             {
                 view.switchPagerToSmallView();
             }
@@ -184,7 +185,6 @@ public class CreateTestFragmentPresenter implements
                                             view.setPhotoQuestion(id, 1, bitmap))
                                         .subscribe();
                             } else if (type == 3) {
-                                view.setTextQuestion(id, type, STATUS_LOADING);
                                 Objects.requireNonNull(compressUtil)
                                         .getFullSizeBitmap(path)
                                         .doOnSuccess(bitmap ->
@@ -195,7 +195,6 @@ public class CreateTestFragmentPresenter implements
                             if(type == 1) {
                                 view.setCurrentAnswer(id, type, path);
                             } else if (type == 3) {
-                                view.setCurrentAnswer(id, 3, null);
                                 Objects.requireNonNull(compressUtil)
                                         .getFullSizeBitmap(path)
                                         .doOnSuccess(bitmap ->
@@ -297,7 +296,7 @@ public class CreateTestFragmentPresenter implements
         if (view != null) {
             view.resolveCameraPermission();
         Objects.requireNonNull(photoIntentUtil)
-                .get()
+                .getPhotoTakingSet()
                 .doOnSuccess(result ->
                         view.showCameraFragment(
                                 result.getIntent(),
@@ -311,7 +310,10 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onDialogGallerySourceClick(boolean isQuestion) {
         if (view != null) {
-            view.showGallery(2, isQuestion);
+            if (galleryPathUtil != null) {
+                Intent intent = galleryPathUtil.getPreparedPhotoPickerIntent();
+                view.showGallery(2, isQuestion, intent);
+            }
         }
     }
 
@@ -371,15 +373,17 @@ public class CreateTestFragmentPresenter implements
         if (view != null) {
             view.closeOcrDrawingDialog();
         }
-        if (ocrDrawerComputationUtil != null) {
-            ocrDrawerComputationUtil.getCroppedBitmap(src, polygons, mutable)
+        if (polygonCropUtil != null) {
+            polygonCropUtil.getCroppedBitmap(src, polygons, mutable)
                     .doOnSuccess(bitmap ->
                     {
                         if(isQuestion)
                         {
+                            view.setTextQuestion(id, 3, STATUS_LOADING);
                             registerOcrDataQuestionConsumer(id,path, bitmap);
                         } else
                             {
+                                view.setCurrentAnswer(id, 3, null);
                                 registerOcrDataAnswerConsumer(id, path, bitmap);
                             }
 
@@ -423,7 +427,7 @@ public class CreateTestFragmentPresenter implements
 
 
     @Override
-    public boolean onQuestionLongPressed(String id) {
+    public void onQuestionLongPressed(String id) {
         if (view != null && model != null) {
             if(!id.equals(STUB_PARAM_ID))
             {
@@ -432,7 +436,6 @@ public class CreateTestFragmentPresenter implements
                 model.deleteTestItem(id);
             }
         }
-        return false;
     }
 
     @Override

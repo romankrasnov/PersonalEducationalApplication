@@ -21,7 +21,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interf
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.GalleryPathUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.OcrDrawerComputationUtil;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PolygonCropUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntentUtil;
 
 
@@ -46,9 +46,9 @@ public class CreateTestModule {
                                                                                  CompressUtil compressUtil,
                                                                                  GalleryPathUtil galleryPathUtil,
                                                                                  PhotoIntentUtil photoIntentUtil,
-                                                                                 OcrDrawerComputationUtil ocrDrawerComputationUtil)
+                                                                                 PolygonCropUtil polygonCropUtil)
     {
-        return new CreateTestFragmentPresenter(model, compressUtil, galleryPathUtil, photoIntentUtil, ocrDrawerComputationUtil);
+        return new CreateTestFragmentPresenter(model, compressUtil, galleryPathUtil, photoIntentUtil, polygonCropUtil);
     }
 
     @Provides
@@ -138,8 +138,8 @@ public class CreateTestModule {
 
     @Provides
     @CreatingScope
-    OcrDrawerComputationUtil providePhotoCutUtil()
+    PolygonCropUtil providePhotoCutUtil()
     {
-        return new OcrDrawerComputationUtil();
+        return new PolygonCropUtil();
     }
 }

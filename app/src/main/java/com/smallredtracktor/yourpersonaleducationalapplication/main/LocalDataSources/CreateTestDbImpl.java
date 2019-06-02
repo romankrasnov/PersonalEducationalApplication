@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Objects;
 
 import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -44,7 +47,7 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
 
     @Override
     public void updateTestItem(String id, boolean isQuestion, String currentTicket, int type, String value) {
-        new Thread(() -> {
+        Single.create(emitter -> {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(realm1 -> {
                     TestItem item = new TestItem();
@@ -56,20 +59,24 @@ public class CreateTestDbImpl implements ICreateTestDbApi{
                     realm1.insertOrUpdate(item);
                 });
             }
-        }).start();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 
     @Override
     public void deleteTestItem(String id) {
-        new Thread(() -> {
+        Single.create(emitter -> {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(realm1 -> {
                     RealmQuery<TestItem> query = realm
                             .where(TestItem.class)
                             .equalTo("id", id);
-                        Objects.requireNonNull(query.findAll()).deleteLastFromRealm();
+                    Objects.requireNonNull(query.findAll()).deleteLastFromRealm();
                 });
             }
-        }).start();
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 }

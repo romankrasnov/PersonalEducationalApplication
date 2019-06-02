@@ -9,6 +9,10 @@ import io.reactivex.schedulers.Schedulers;
 
 public class OcrHelper {
 
+    private static final String BASE64_IMAGE_PREFIX = "data:image/png;base64,";
+    private static final String OCR_API_KEY = "9180640a9788957";
+    private static final String OCR_DETECT_TEXT_ORIENTATION_FLAG = "true";
+
     private static OcrHelper mInstance;
 
     public static OcrHelper getInstance()
@@ -22,11 +26,10 @@ public class OcrHelper {
 
     public Maybe<OcrResponseModel> getParsedText(String base64, String lang)
     {
-        String apikey = "9180640a9788957";
         return OcrService
                 .getInstance()
                 .getApi()
-                .getData(apikey, "data:image/png;base64," + base64, lang, "true")
+                .getData(OCR_API_KEY, BASE64_IMAGE_PREFIX + base64, lang, OCR_DETECT_TEXT_ORIENTATION_FLAG)
                 .retry(20)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
