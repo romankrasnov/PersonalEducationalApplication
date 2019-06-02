@@ -1,5 +1,7 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Repositories;
 
+import android.graphics.Bitmap;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.LocalDataSources.ICreateTestDbApi;
@@ -36,10 +38,11 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
                 .toObservable()
                 .doOnNext(testItems -> {
                     try {
-                        if (testItems.get(0).getId() != null) {
-                            int type = testItems.get(0).getType();
+                        TestItem item = testItems.get(0);
+                        if (item.getId() != null) {
+                            int type = item.getType();
                             if (type == 1 || type == 2) {
-                                String filepath = testItems.get(0).getValue();
+                                String filepath = item.getValue();
                                 try {
                                     deleteFile(filepath);
                                 } catch (Exception e) {
@@ -62,13 +65,14 @@ public class CreateTestMemoryRepository implements ICreateTestRepository {
         localStorage.deleteFile(filepath);
     }
 
-    @Override
-    public Maybe<OcrResponseModel> getParsedTextFromFile(String mPath) {
-        return  util.getResult(mPath);
-    }
 
     @Override
     public void writeTestItem(String id, boolean isQuestion, String currentTicket, int type, String value) {
         testDbApi.updateTestItem(id,  isQuestion,  currentTicket, type,  value);
+    }
+
+    @Override
+    public Maybe<OcrResponseModel> getParsedTextFromBitmap(Bitmap bitmap) {
+        return util.getResultFromBitmap(bitmap);
     }
 }

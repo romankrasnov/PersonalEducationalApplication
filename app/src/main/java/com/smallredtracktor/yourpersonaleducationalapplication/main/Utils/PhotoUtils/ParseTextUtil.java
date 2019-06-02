@@ -2,7 +2,6 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.Photo
 
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
@@ -19,16 +18,6 @@ public class ParseTextUtil {
     private static final String OCR_LANGUAGE = "rus";
     private static final int OCR_PHOTO_QUALITY = 30;
 
-    public ParseTextUtil() {}
-
-    public  Maybe<OcrResponseModel> getResult(String mPath)
-    {
-        Maybe<Bitmap> s = getBitmap(mPath);
-        return s.flatMap((Function<Bitmap, Maybe<String>>)
-                this::calculateBase64)
-                .flatMap((Function<String, Maybe<OcrResponseModel>>)
-                        value -> OcrHelper.getInstance().getParsedText(value, OCR_LANGUAGE));
-    }
 
     private Maybe<String> calculateBase64(Bitmap bitmap)
     {
@@ -43,15 +32,10 @@ public class ParseTextUtil {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Maybe<Bitmap> getBitmap(String path)
-    {
-        Maybe<Bitmap> s = Maybe.create(emitter -> {
-            Bitmap bitmap = BitmapFactory.decodeFile(path);
-            emitter.onSuccess(bitmap);
-        });
-        return s.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+
+    public Maybe<OcrResponseModel> getResultFromBitmap(Bitmap bitmap) {
+        return calculateBase64(bitmap)
+                .flatMap((Function<String, Maybe<OcrResponseModel>>)
+                value -> OcrHelper.getInstance().getParsedText(value, OCR_LANGUAGE));
     }
-
-
 }

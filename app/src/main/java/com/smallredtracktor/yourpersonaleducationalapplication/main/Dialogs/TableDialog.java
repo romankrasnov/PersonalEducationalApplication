@@ -4,10 +4,14 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.IRootCreateTestFragmentMVPprovider;
@@ -47,14 +51,21 @@ public class TableDialog extends Dialog {
         return Objects.requireNonNull(pagerList.get(i).getArguments()).getString(OUTCOME_PARAM_COUNT);
     }
 
-    private Button getPreparedButton(int i, String text) {
-        Button item = new Button(getContext());
-        item.setBackgroundColor(0);
-        item.setWidth(width);
-        item.setHeight(height);
-        item.setText(text);
+    private FrameLayout getPreparedCard(int i, String text) {
+        FrameLayout root = new FrameLayout(getContext());
+        CardView item = new CardView(getContext());
+        TextView contentView = new TextView(getContext());
+        item.setBackgroundColor(getContext().getResources().getColor(R.color.color_card));
         item.setOnClickListener(view1 -> listener.onTableItemInteraction(i));
-        return item;
+        item.setCardElevation(4);
+        item.setUseCompatPadding(true);
+        item.addView(contentView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        contentView.setText(text);
+        contentView.setGravity(Gravity.CENTER);
+        root.setLayoutParams(new TableRow.LayoutParams(width,height));
+        root.addView(item);
+        root.setPadding(7,7,7,7);
+        return root;
     }
 
     private TableRow getPreparedTableRow() {
@@ -89,7 +100,7 @@ public class TableDialog extends Dialog {
                 } else {
                     text = getListIndex(i);
                 }
-                Button btn = getPreparedButton(i, text);
+                FrameLayout btn = getPreparedCard(i, text);
                 row.addView(btn, i);
             }
             tableLayout.addView(row, 0);
@@ -108,7 +119,7 @@ public class TableDialog extends Dialog {
                     } else {
                         text = getListIndex(itemCounter);
                     }
-                    Button btn = getPreparedButton(itemCounter, text);
+                    FrameLayout btn = getPreparedCard(itemCounter, text);
                     row.addView(btn, j);
                     itemCounter++;
                 }
@@ -125,7 +136,7 @@ public class TableDialog extends Dialog {
                     } else {
                         text = getListIndex(i + itemCounter);
                     }
-                    Button btn = getPreparedButton(i + itemCounter, text);
+                    FrameLayout btn = getPreparedCard(i + itemCounter, text);
                     row.addView(btn, i);
                 }
                 tableLayout.addView(row, rowCounter);

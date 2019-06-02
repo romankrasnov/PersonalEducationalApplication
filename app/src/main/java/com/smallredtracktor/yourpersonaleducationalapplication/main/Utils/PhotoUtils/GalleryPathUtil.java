@@ -20,12 +20,12 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil.LOCAL_PHOTO_QUALITY;
+
 
 public class GalleryPathUtil {
 
     private final Context context;
-
+    private static final int LOCAL_PHOTO_QUALITY = 100;
     public GalleryPathUtil(Context context) {
         this.context = context;
     }

@@ -28,8 +28,8 @@ public class PhotoIntentUtil {
         this.context = context;
     }
 
-    public Single<Object[]> get() {
-        Single<Object[]> s = Single.create(emitter -> {
+    public Single<PhotoTakingResult> get() {
+        Single<PhotoTakingResult> s = Single.create(emitter -> {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (intent.resolveActivity(context.getPackageManager()) != null) {
                 File photoFile = null;
@@ -54,13 +54,38 @@ public class PhotoIntentUtil {
                 }
             }
 
-            emitter.onSuccess(new Object[] {intent, path});
+            PhotoTakingResult result = new PhotoTakingResult();
+            result.setIntent(intent);
+            result.setPath(path);
+            emitter.onSuccess(result);
         });
 
         return s.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    public class PhotoTakingResult {
+
+        private Intent intent;
+        private String path;
+
+        public Intent getIntent() {
+            return intent;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+
+        void setIntent(Intent intent) {
+            this.intent = intent;
+        }
+
+        void setPath(String path) {
+            this.path = path;
+        }
+    }
 }
 
 

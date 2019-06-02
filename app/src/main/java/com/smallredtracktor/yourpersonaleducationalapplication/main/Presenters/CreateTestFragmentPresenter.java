@@ -1,7 +1,7 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Presenters;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.view.MotionEvent;
@@ -14,6 +14,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs.OcrD
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.GalleryPathUtil;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.OcrDrawerComputationUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntentUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
 
@@ -39,6 +40,7 @@ public class CreateTestFragmentPresenter implements
     public static final String STATUS_LOADING = "loading";
     private static final String MESSAGE_NETWORK_ERROR = "error while networking";
 
+
     @Nullable
     private GalleryPathUtil galleryPathUtil;
     @Nullable
@@ -49,20 +51,25 @@ public class CreateTestFragmentPresenter implements
     private CompressUtil compressUtil;
     @Nullable
     private PhotoIntentUtil photoIntentUtil;
+    @Nullable
+    private OcrDrawerComputationUtil ocrDrawerComputationUtil;
 
-    private HashMap<String,DisposableObserver<List<TestItem>>> readSubscriberMap = new HashMap<>();
-    private HashMap<String, DisposableMaybeObserver<OcrResponseModel>> readOcrSubscriberMap = new HashMap<>();
+
+    private HashMap<String,DisposableObserver<List<TestItem>>> readStorageSubscriberMap = new HashMap<>();
+    private HashMap<String, DisposableMaybeObserver<OcrResponseModel>> readOcrDataSubscriberMap = new HashMap<>();
     private String currentTicket;
     private boolean isFullScreenMode = false;
 
     public CreateTestFragmentPresenter(@Nullable ICreateTestFragmentMVPprovider.IModel model,
                                        @Nullable CompressUtil compressUtil,
                                        @Nullable GalleryPathUtil galleryPathUtil,
-                                       @Nullable PhotoIntentUtil photoIntentUtil) {
+                                       @Nullable PhotoIntentUtil photoIntentUtil,
+                                       @Nullable OcrDrawerComputationUtil ocrDrawerComputationUtil) {
         this.model = model;
         this.compressUtil = compressUtil;
         this.galleryPathUtil = galleryPathUtil;
         this.photoIntentUtil = photoIntentUtil;
+        this.ocrDrawerComputationUtil = ocrDrawerComputationUtil;
     }
 
 
@@ -84,23 +91,29 @@ public class CreateTestFragmentPresenter implements
             Observable<List<TestItem>> readTestItem = model
                     .getTestItem(id)
                     .toObservable();
-            readSubscriberMap.put(id ,new DisposableObserver<List<TestItem>>() {
+            readStorageSubscriberMap.put(id ,new DisposableObserver<List<TestItem>>() {
                 @Override
                 public void onNext(List<TestItem> testItems) {
                     if (testItems.size() != 0) {
                         try {
-                            if(testItems.get(0).getType() == 0 || testItems.get(0).getType() ==3)
+                            TestItem item = testItems.get(0);
+                            if(item.getType() == 0 || item.getType() ==3)
                             {
-                                view.showTextFragment(testItems.get(0).getId(),
-                                        testItems.get(0).getValue(),
-                                        testItems.get(0).getType() ,
-                                        testItems.get(0).isQuestion());
-                            } else if(testItems.get(0).getType() == 1 || testItems.get(0).getType() == 2)
+                                view.showTextFragment(item.getId(),
+                                        item.getValue(),
+                                        item.getType() ,
+                                        item.isQuestion());
+                            } else if(item.getType() == 1 || item.getType() == 2)
                             {
-                                view.showPhotoFragment(testItems.get(0).getId(),
-                                        testItems.get(0).getValue(),
-                                        testItems.get(0).getType() ,
-                                        testItems.get(0).isQuestion());
+                                String path = item.getValue();
+                                if (compressUtil != null) {
+                                    compressUtil
+                                            .getFullSizeBitmap(path)
+                                            .doOnSuccess(bitmap ->
+                                                    view.showPhotoFragment(item.getId(),
+                                                    bitmap, item.getType() , item.isQuestion()))
+                                            .subscribe();
+                                }
                             }
                         } catch (Exception e) {
                             view.showToast(testItems.get(0).getValue());
@@ -115,7 +128,7 @@ public class CreateTestFragmentPresenter implements
                 public void onComplete() {
                 }
             });
-            readTestItem.subscribe(Objects.requireNonNull(readSubscriberMap.get(id)));
+            readTestItem.subscribe(Objects.requireNonNull(readStorageSubscriberMap.get(id)));
         }
     }
 
@@ -131,7 +144,7 @@ public class CreateTestFragmentPresenter implements
             {
                 o.flatMap((Function<String, Single<Bitmap>>)
                         s -> Objects.requireNonNull(compressUtil)
-                                .getBitmap(s))
+                                .getBitmapSample(s))
                         .doOnSuccess(bitmap ->
                                 view.setPhotoQuestion(id, type, bitmap))
                         .subscribe();
@@ -149,7 +162,10 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onBackPressed() {
         if (view != null) {
-            view.switchPagerToSmallView();
+            if(!isFullScreenMode)
+            {
+                view.switchPagerToSmallView();
+            }
         }
     }
 
@@ -163,30 +179,37 @@ public class CreateTestFragmentPresenter implements
                         if (isQuestion) {
                             if(type == 1) {
                                 Objects.requireNonNull(compressUtil)
-                                    .getBitmap(path)
+                                    .getBitmapSample(path)
                                     .doOnSuccess(bitmap ->
                                             view.setPhotoQuestion(id, 1, bitmap))
                                         .subscribe();
                             } else if (type == 3) {
                                 view.setTextQuestion(id, type, STATUS_LOADING);
-                                registerOcrDataQuestionConsumer(id, path);
+                                Objects.requireNonNull(compressUtil)
+                                        .getFullSizeBitmap(path)
+                                        .doOnSuccess(bitmap ->
+                                                view.showOcrDrawingDialog(id, bitmap, path, true))
+                                        .subscribe();
                             }
                         } else {
                             if(type == 1) {
                                 view.setCurrentAnswer(id, type, path);
                             } else if (type == 3) {
                                 view.setCurrentAnswer(id, 3, null);
-                                view.showOcrDrawingDialog(id, path);
-                                //registerOcrDataAnswerConsumer(id, path);
+                                Objects.requireNonNull(compressUtil)
+                                        .getFullSizeBitmap(path)
+                                        .doOnSuccess(bitmap ->
+                                                view.showOcrDrawingDialog(id, bitmap, path, false))
+                                        .subscribe();
                             }
                             view.addNewAnswer();
                         }
         }
     }
 
-    private void registerOcrDataAnswerConsumer(String id, String path) {
+    private void registerOcrDataAnswerConsumer(String id, String path, Bitmap bitmap) {
         if(model != null && view != null) {
-            readOcrSubscriberMap.put(id, new DisposableMaybeObserver<OcrResponseModel>() {
+            readOcrDataSubscriberMap.put(id, new DisposableMaybeObserver<OcrResponseModel>() {
                         @Override
                         public void onSuccess(OcrResponseModel ocrResponseModel) {
                             try
@@ -207,15 +230,25 @@ public class CreateTestFragmentPresenter implements
                         }
                         @Override
                         public void onComplete() {}});
-            ocrData(path)
-                    .subscribe(Objects.requireNonNull(readOcrSubscriberMap.get(id)));
+            ocrData(bitmap)
+                    .subscribe(Objects.requireNonNull(readOcrDataSubscriberMap.get(id)));
         }
     }
 
-    private void registerOcrDataQuestionConsumer(String id, String path) {
+    private Maybe<OcrResponseModel> ocrData(Bitmap bitmap) {
+            Maybe<OcrResponseModel> ocrResponse = null;
+            if (model != null)
+            {
+                ocrResponse = model
+                        .getParsedTextResult(bitmap);
+            }
+            return ocrResponse;
+    }
+
+    private void registerOcrDataQuestionConsumer(String id, String path, Bitmap bitmap) {
         if(model != null && view != null)
         {
-            readOcrSubscriberMap.put(id, new DisposableMaybeObserver<OcrResponseModel>() {
+            readOcrDataSubscriberMap.put(id, new DisposableMaybeObserver<OcrResponseModel>() {
                 @Override
                 public void onSuccess(OcrResponseModel ocrResponseModel) {
                     String text = ocrResponseModel.getText();
@@ -228,25 +261,15 @@ public class CreateTestFragmentPresenter implements
                 public void onError(Throwable e) {
                     view.showToast(MESSAGE_NETWORK_ERROR);
                     Objects.requireNonNull(compressUtil)
-                            .getBitmap(path)
+                            .getBitmapSample(path)
                             .doOnSuccess(bitmap -> view.setPhotoQuestion(id, 1, bitmap))
                             .subscribe();
                 }
                 @Override
                 public void onComplete() {}});
-            ocrData(path)
-                    .subscribe(Objects.requireNonNull(readOcrSubscriberMap.get(id)));
+            ocrData(bitmap)
+                    .subscribe(Objects.requireNonNull(readOcrDataSubscriberMap.get(id)));
         }
-    }
-
-    private Maybe<OcrResponseModel> ocrData(String path) {
-        Maybe<OcrResponseModel> ocrResponse = null;
-        if (model != null)
-        {
-            ocrResponse = model
-                    .getParsedTextResult(path);
-        }
-        return ocrResponse;
     }
 
 
@@ -275,8 +298,12 @@ public class CreateTestFragmentPresenter implements
             view.resolveCameraPermission();
         Objects.requireNonNull(photoIntentUtil)
                 .get()
-                .doOnSuccess(objects -> view.showCameraFragment((Intent) objects[0],
-                        type, isQuestion, (String) objects[1]))
+                .doOnSuccess(result ->
+                        view.showCameraFragment(
+                                result.getIntent(),
+                                type,
+                                isQuestion,
+                                result.getPath()))
                 .subscribe();
         }
     }
@@ -312,29 +339,88 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onOcrDrawingDialogUndo(String id, Bitmap takenImage) {
+    public void onOcrDrawingDialogUndo() {
+        if (view != null) {
+            view.undoDrawingDialogViewPoint();
+        }
+    }
+
+    @Override
+    public void onOcrDrawingDialogRedo() {
+        if (view != null) {
+            view.redoDrawingDialogViewPoint();
+        }
+    }
+
+    @Override
+    public void onOcrDrawingDialogEdit() {
+        if (view != null) {
+            view.setOcrDrawingDialogMode(true);
+        }
+    }
+
+    @Override
+    public void onOcrDrawingDialogTouchModeFabOn() {
+        if (view != null) {
+            view.setOcrDrawingDialogMode(false);
+        }
+    }
+
+    @Override
+    public void onOcrDrawingDialogDone(Bitmap src, List<PointF> polygons, Bitmap mutable, String id, String path, boolean isQuestion) {
+        if (view != null) {
+            view.closeOcrDrawingDialog();
+        }
+        if (ocrDrawerComputationUtil != null) {
+            ocrDrawerComputationUtil.getCroppedBitmap(src, polygons, mutable)
+                    .doOnSuccess(bitmap ->
+                    {
+                        if(isQuestion)
+                        {
+                            registerOcrDataQuestionConsumer(id,path, bitmap);
+                        } else
+                            {
+                                registerOcrDataAnswerConsumer(id, path, bitmap);
+                            }
+
+                    })
+                    .subscribe();
+        }
+    }
+
+    @Override
+    public void onOcrDrawingDialogPolygonClosed() {
 
     }
 
     @Override
-    public void onOcrDrawingDialogRedo(String id, Bitmap selectedBitmapRegion) {
-
+    public void onDrawerViewActionDown(MotionEvent event) {
+        if (view != null) {
+            if (event.getActionIndex() == 0)
+            {
+                view.addPointToDrawerView(event.getX(), event.getY());
+            }
+        }
     }
 
     @Override
-    public void onOcrDrawingDialogEdit(String id, Object o) {
-
+    public void onDrawerViewActionMove(MotionEvent event) {
+        if (view != null) {
+            int touchCount = event.getPointerCount();
+            if(touchCount == 1)
+            {
+                view.recomputeLastDrawerViewPoint(event.getX(), event.getY());
+            }
+        }
     }
 
     @Override
-    public void onOcrDrawingDialogTouchModeFabOn(String id, Object o) {
-
+    public void onDrawerViewActionUp(MotionEvent event) {
+        if (view != null) {
+            view.addPointToDrawerView(event.getX(), event.getY());
+        }
     }
 
-    @Override
-    public void onOcrDrawingDialogDone(String id, Object o) {
-
-    }
 
     @Override
     public boolean onQuestionLongPressed(String id) {
@@ -418,47 +504,48 @@ public class CreateTestFragmentPresenter implements
     @Override
     public void onAnswerScroll(String id, MotionEvent e2) {
         if (view != null) {
-            view.animateAnswer(id, e2);
+            view.animateAnswer(id, e2.getRawY());
         }
     }
 
     @Override
     public void onAnswerDown(String id, MotionEvent e) {
         if (view != null) {
-            view.calculateAnswerScroll(id,e);
+            view.calculateAnswerScroll(id, e.getRawY());
         }
     }
 
     @Override
     public void onAnswerFragmentUp(String id, MotionEvent event) {
         if (view != null) {
-            view.scrollAnswer(id, event);
+            view.scrollAnswer(id, event.getRawY());
         }
     }
-
 
 
     private void unsubscribeById(String id) {
-        if(readSubscriberMap.containsKey(id))
+        if(readStorageSubscriberMap.containsKey(id))
         {
-            Objects.requireNonNull(readSubscriberMap.get(id)).dispose();
+            Objects.requireNonNull(readStorageSubscriberMap.get(id)).dispose();
         }
-        if(readOcrSubscriberMap.containsKey(id))
+        if(readOcrDataSubscriberMap.containsKey(id))
         {
-            Objects.requireNonNull(readOcrSubscriberMap.get(id)).dispose();
+            Objects.requireNonNull(readOcrDataSubscriberMap.get(id)).dispose();
         }
     }
 
-    @Override
-    public void rxUnsubscribe() {
-        for (DisposableObserver<List<TestItem>> listDisposableObserver : readSubscriberMap.values()) {
+    private void rxUnsubscribe() {
+        for (DisposableObserver<List<TestItem>> listDisposableObserver : readStorageSubscriberMap.values()) {
             listDisposableObserver.dispose();
         }
-        for (DisposableMaybeObserver<OcrResponseModel> listDisposableMaybeObserver : readOcrSubscriberMap.values()) {
+        for (DisposableMaybeObserver<OcrResponseModel> listDisposableMaybeObserver : readOcrDataSubscriberMap.values()) {
             listDisposableMaybeObserver.dispose();
         }
     }
 
-
+    @Override
+    public void onViewDestroyed() {
+        rxUnsubscribe();
+    }
 }
 

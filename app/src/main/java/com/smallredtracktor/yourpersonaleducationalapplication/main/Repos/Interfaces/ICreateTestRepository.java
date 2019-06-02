@@ -1,6 +1,8 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interfaces;
 
 
+import android.graphics.Bitmap;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 
@@ -15,6 +17,6 @@ public interface ICreateTestRepository  {
     Flowable<List<TestItem>> getTestItem(String id);
     void deleteTestItem(String id);
     void deleteFile(String filepath);
-    Maybe<OcrResponseModel> getParsedTextFromFile(String mPath);
     void writeTestItem(String id, boolean isQuestion, String currentTicket, int type, String value);
+    Maybe<OcrResponseModel> getParsedTextFromBitmap(Bitmap bitmap);
 }

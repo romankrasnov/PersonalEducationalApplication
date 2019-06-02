@@ -3,6 +3,7 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.ViewGroup;
 
 
@@ -14,30 +15,24 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoU
 
 public class PhotoDialog extends Dialog {
 
-    private final CompressUtil util;
-    private String content;
     private final SubsamplingScaleImageView imageView;
+    private Bitmap bitmap;
 
-
-    public PhotoDialog(Context context, CompressUtil util) {
+    public PhotoDialog(Context context) {
         super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        this.util = util;
         imageView = new SubsamplingScaleImageView(context);
+        this.setContentView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     @Override
     public void show() {
-                util.getBitmap(content)
-                    .doOnSuccess(bitmap -> imageView.setImage(ImageSource.cachedBitmap(bitmap)))
-                    .subscribe();
-
-        this.setContentView(imageView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        imageView.setImage(ImageSource.cachedBitmap(bitmap));
         super.show();
     }
 
 
-    public void setDialogParams(String id, String content, int type, boolean isQuestion) {
-        this.content = content;
+    public void setDialogParams(String id, Bitmap bitmap, int type, boolean isQuestion) {
+        this.bitmap = bitmap;
     }
 }

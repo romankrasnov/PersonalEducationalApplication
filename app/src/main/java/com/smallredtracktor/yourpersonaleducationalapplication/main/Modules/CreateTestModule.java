@@ -21,6 +21,7 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Repos.Interf
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.GalleryPathUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.ParseTextUtil;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.OcrDrawerComputationUtil;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.PhotoIntentUtil;
 
 
@@ -41,9 +42,13 @@ public class CreateTestModule {
 
     @Provides
     @CreatingScope
-    ICreateTestFragmentMVPprovider.IPresenter provideCreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model, CompressUtil compressUtil, GalleryPathUtil galleryPathUtil, PhotoIntentUtil photoIntentUtil)
+    ICreateTestFragmentMVPprovider.IPresenter provideCreateTestFragmentPresenter(ICreateTestFragmentMVPprovider.IModel model,
+                                                                                 CompressUtil compressUtil,
+                                                                                 GalleryPathUtil galleryPathUtil,
+                                                                                 PhotoIntentUtil photoIntentUtil,
+                                                                                 OcrDrawerComputationUtil ocrDrawerComputationUtil)
     {
-        return new CreateTestFragmentPresenter(model, compressUtil, galleryPathUtil, photoIntentUtil);
+        return new CreateTestFragmentPresenter(model, compressUtil, galleryPathUtil, photoIntentUtil, ocrDrawerComputationUtil);
     }
 
     @Provides
@@ -57,7 +62,7 @@ public class CreateTestModule {
     @CreatingScope
     ICreateTestRepository provideMemoryRepository(ICreateTestDbApi dbApi, ParseTextUtil util, ILocalStorage localStorage)
     {
-        return new CreateTestMemoryRepository(dbApi,util, localStorage);
+        return new CreateTestMemoryRepository(dbApi, util, localStorage);
     }
 
 
@@ -105,16 +110,16 @@ public class CreateTestModule {
 
     @Provides
     @CreatingScope
-    PhotoDialog providePhotoDialog(CompressUtil util)
+    PhotoDialog providePhotoDialog()
     {
-        return new PhotoDialog(context, util);
+        return new PhotoDialog(context);
     }
 
     @Provides
     @CreatingScope
-    OcrDrawingDialog provideOcrDrawingDialog(ICreateTestFragmentMVPprovider.IPresenter presenter, CompressUtil util)
+    OcrDrawingDialog provideOcrDrawingDialog(ICreateTestFragmentMVPprovider.IPresenter presenter)
     {
-        return new OcrDrawingDialog(context, util, presenter);
+        return new OcrDrawingDialog(context, presenter);
     }
 
     @Provides
@@ -131,5 +136,10 @@ public class CreateTestModule {
         return new LocalStorage(context);
     }
 
-
+    @Provides
+    @CreatingScope
+    OcrDrawerComputationUtil providePhotoCutUtil()
+    {
+        return new OcrDrawerComputationUtil();
+    }
 }

@@ -19,28 +19,29 @@
             android:id="@+id/cardChildContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/answerItemScrollView"
-                android:scrollbarStyle="outsideOverlay"
-                android:fillViewport="true">
-                <LinearLayout
+                <ScrollView
+                    android:id="@+id/answerItemScrollView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:id="@+id/scrollLayout">
-                    <TextView
-                        android:id="@+id/contentView"
-                        android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fillViewport="true"
+                    android:scrollbarStyle="outsideOverlay">
+                    <LinearLayout
+                        android:id="@+id/scrollLayout"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text=""
-                        android:textAlignment="textStart"
-                        android:gravity="start"
-                        tools:textSize="18sp" />
-                </LinearLayout>
-            </ScrollView>
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/contentView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="start"
+                            android:text=""
+                            android:textAlignment="textStart"
+                            tools:textSize="18sp" />
+                    </LinearLayout>
+                </ScrollView>
 
             <com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CustomSubsamplingScaleImageView
                 android:id="@+id/imageView"

@@ -132,17 +132,17 @@ public class AnswerContentFragment extends Fragment implements
         card.setTranslationY(0);
     }
 
-    public void animate(MotionEvent e2) {
-        card.setTranslationY(e2.getRawY() - mMotionDownY);
+    public void animate(float rawY) {
+        card.setTranslationY(rawY - mMotionDownY);
     }
 
-    public void calculateScroll(MotionEvent e) {
-        mMotionDownY = e.getRawY() - card.getTranslationY();
+    public void calculateScroll(float rawY) {
+        mMotionDownY = rawY - card.getTranslationY();
     }
 
 
-    public void slideView(MotionEvent event) {
-        float diff = mMotionDownY - event.getRawY();
+    public void slideView(float rawY) {
+        float diff = mMotionDownY - rawY;
         if (diff < 400) {
             ObjectAnimator animator = ObjectAnimator.ofFloat(card, "translationY", 0);
             animator.setDuration(150);
@@ -166,8 +166,7 @@ public class AnswerContentFragment extends Fragment implements
 
     @SuppressLint("ClickableViewAccessibility")
     public void setFullScreenViews() {
-        switch (type)
-        {
+        switch (type) {
             case -1: {
                 contentView.setText(content);
                 imageView.setOnClickListener(view -> presenter.onAnswerFragmentClick(id));
@@ -200,13 +199,11 @@ public class AnswerContentFragment extends Fragment implements
             }
 
             case 3: {
-                if(content == null)
-                {
+                if (content == null) {
                     contentView.setText(STATUS_LOADING);
-                } else
-                    {
-                        contentView.setText(content);
-                    }
+                } else {
+                    contentView.setText(content);
+                }
                 cardChildContainer.removeView(imageView);
                 setFullScreenTextListeners();
                 break;
@@ -216,11 +213,10 @@ public class AnswerContentFragment extends Fragment implements
 
     @SuppressLint("ClickableViewAccessibility")
     private void setFullScreenTextListeners() {
-        contentView.setOnTouchListener(new View.OnTouchListener() {
+        answerItemScrollView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                return new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener()
-                {
+                return new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
                     @Override
                     public boolean onDoubleTap(MotionEvent e) {
                         presenter.onAnswerDoubleTap(id);
@@ -233,20 +229,16 @@ public class AnswerContentFragment extends Fragment implements
 
     @SuppressLint("ClickableViewAccessibility")
     private void setFullScreenPhotoListeners() {
-
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                float currentScale = ((float) Math.round(imageView.getScale() * 100))/100;
-                float minScale = ((float) Math.round(imageView.getMinScale() * 100))/100;
-                if(currentScale == minScale)
-                {
-                    if(motionEvent.getAction() == MotionEvent.ACTION_UP)
-                    {
+                float currentScale = ((float) Math.round(imageView.getScale() * 100)) / 100;
+                float minScale = ((float) Math.round(imageView.getMinScale() * 100)) / 100;
+                if (currentScale == minScale) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                         presenter.onAnswerFragmentUp(id, motionEvent);
                     }
-                    return new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener()
-                    {
+                    return new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
                         @Override
                         public boolean onDown(MotionEvent e) {
                             presenter.onAnswerDown(id, e);
@@ -256,11 +248,10 @@ public class AnswerContentFragment extends Fragment implements
                         @Override
                         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                             presenter.onAnswerScroll(id, e2);
-                            return super.onScroll(e1,e2,distanceX,distanceY);
+                            return super.onScroll(e1, e2, distanceX, distanceY);
                         }
                     }).onTouchEvent(motionEvent);
-                } else
-                    {
+                } else {
                     return imageView.onTouchEvent(motionEvent);
                 }
             }
@@ -269,8 +260,7 @@ public class AnswerContentFragment extends Fragment implements
 
 
     public void setSmallScreenViews() {
-        switch (type)
-        {
+        switch (type) {
             case -1: {
                 contentView.setText(content);
                 imageView.setOnClickListener(view -> presenter.onAnswerFragmentClick(id));
@@ -298,13 +288,11 @@ public class AnswerContentFragment extends Fragment implements
             }
 
             case 3: {
-                if(content == null)
-                {
+                if (content == null) {
                     contentView.setText(STATUS_LOADING);
-                }else
-                    {
-                        contentView.setText(content);
-                    }
+                } else {
+                    contentView.setText(content);
+                }
                 setSmallScreenListeners();
                 break;
             }
@@ -313,11 +301,20 @@ public class AnswerContentFragment extends Fragment implements
 
     private void loadImage(boolean isZoomEnabled) {
         imageView.setZoomEnabled(isZoomEnabled);
-        imageView.setDrawingCacheEnabled(true);
-        new CompressUtil(getContext())
-                .getBitmap(content)
-                .doOnSuccess(bitmap -> imageView.setImage(ImageSource.cachedBitmap(bitmap)))
-                .subscribe();
+        if (isZoomEnabled) {
+            new CompressUtil(getContext())
+                    .getHalfSampleBitmap(content)
+                    .doOnSuccess(bitmap ->
+                            imageView.setImage(ImageSource.cachedBitmap(bitmap)))
+                    .subscribe();
+        } else {
+            new CompressUtil(getContext())
+                    .getBitmapSample(content)
+                    .doOnSuccess(bitmap ->
+                            imageView.setImage(ImageSource.cachedBitmap(bitmap)))
+                    .subscribe();
+        }
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -330,8 +327,7 @@ public class AnswerContentFragment extends Fragment implements
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP)
-                {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     presenter.onAnswerFragmentUp(id, motionEvent);
                 }
 
@@ -345,11 +341,10 @@ public class AnswerContentFragment extends Fragment implements
                     @Override
                     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                         presenter.onAnswerScroll(id, e2);
-                        return super.onScroll(e1,e2,distanceX,distanceY);
+                        return super.onScroll(e1, e2, distanceX, distanceY);
                     }
                 }).onTouchEvent(motionEvent);
             }
         });
     }
-
 }

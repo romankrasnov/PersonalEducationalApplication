@@ -2,7 +2,6 @@ package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,15 +12,15 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -35,8 +34,8 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Modules.Crea
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.Adapters.CustomFinalPageAdapter;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.CustomFinalViewPager;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.CustomViewPager;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.PageTransformers.CardStackPageTransformer;
 import com.smallredtracktor.yourpersonaleducationalapplication.root.App;
-
 
 import java.util.Objects;
 
@@ -49,18 +48,20 @@ import butterknife.Unbinder;
 import static android.app.Activity.RESULT_OK;
 
 
-
 @SuppressLint("ValidFragment")
 public class CreateTestFragment extends Fragment implements
         ICreateTestFragmentMVPprovider.IFragment,
-        MainActivity.BackPressedListener{
+        MainActivity.BackPressedListener {
 
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final int PICK_IMAGE = 2;
     public static final String STUB_PARAM_ID = "NEW";
     public static final String OUTCOME_PARAM_COUNT = "outcome_param_count";
     static final String OUTCOME_PARAM_TICKET_ID = "outcome_param_ticket_id";
-    public static final String STUB_PARAM = "CLICK TO ADD ANSWER";
+    public static final String STUB_PARAM_ANSWER = "CLICK TO ADD ANSWER";
+    private static final String STUB_PARAM_QUESTION = "CLICK TO ADD QUESTION";
+    private static final String TYPE_IMAGE = "image/*";
+    private static final CharSequence GALLERY_TITLE = "Select Picture";
     private static final String APP_ITEM_TYPE = "type";
     private static final String APP_ITEM_IS_QUESTION = "isQuestion";
     private static final String FILE_PATH = "file_path";
@@ -82,8 +83,8 @@ public class CreateTestFragment extends Fragment implements
     FrameLayout viewPagerLayout;
     @BindView(R.id.smallViewPager)
     CustomFinalViewPager smallViewPager;
-    @BindView(R.id.createTestRootConstraintLayout)
-    ConstraintLayout createTestRootConstraintLayout;
+    @BindView(R.id.mainCard)
+    CardView mainCard;
 
     @Inject
     ICreateTestFragmentMVPprovider.IPresenter createTestFragmentPresenter;
@@ -99,6 +100,8 @@ public class CreateTestFragment extends Fragment implements
     private CustomFinalPageAdapter smallAdapter;
     private Unbinder unbinder;
     private ViewGroup.LayoutParams layoutParams;
+    private ActionBar appBar;
+    private CardStackPageTransformer cardPageTransformer;
 
     public CreateTestFragment() {
     }
@@ -131,7 +134,11 @@ public class CreateTestFragment extends Fragment implements
                 .getComponent()
                 .plusCreateTestComponent(new CreateTestModule(getContext()))
                 .inject(this);
+        cardPageTransformer = new CardStackPageTransformer();
         layoutParams = viewPagerLayout.getLayoutParams();
+        appBar = Objects.requireNonNull(((AppCompatActivity)
+                Objects.requireNonNull(
+                        getActivity())).getSupportActionBar());
         ((MainActivity) Objects.requireNonNull(getActivity())).addBackPressedListener(this);
         questionImageView.setZoomEnabled(false);
         questionImageView.setOnClickListener(v -> createTestFragmentPresenter.onAddQuestionClick());
@@ -152,17 +159,20 @@ public class CreateTestFragment extends Fragment implements
         smallViewPager.setOffscreenPageLimit(50);
         smallViewPager.setCurrentItem(1);
         smallViewPager.setPageMargin(200);
+        cardPageTransformer.setMode(true);
+        smallViewPager.setPageTransformer(true, cardPageTransformer);
         smallViewPager.addOnPageChangeListener(new CustomViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int var1, float var2, int var3) {}
+            public void onPageScrolled(int var1, float var2, int var3) {
+            }
             @Override
-            public void onPageSelected(int page)
-            {
+            public void onPageSelected(int page) {
                 createTestFragmentPresenter.onAnswerPageSelected(page, smallAdapter.getCount());
             }
             @Override
             public void onPageScrollStateChanged(int var1) {
-            }});
+            }
+        });
     }
 
     @Override
@@ -172,10 +182,6 @@ public class CreateTestFragment extends Fragment implements
         createTestFragmentPresenter.onViewResumed(outcomeParam, ticketId);
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
 
     @Override
     public void onDetach() {
@@ -184,11 +190,10 @@ public class CreateTestFragment extends Fragment implements
     }
 
 
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        createTestFragmentPresenter.rxUnsubscribe();
+        createTestFragmentPresenter.onViewDestroyed();
         unbinder.unbind();
     }
 
@@ -206,7 +211,7 @@ public class CreateTestFragment extends Fragment implements
     @SuppressLint("SetTextI18n")
     @Override
     public void deleteQuestion() {
-        questionTextView.setText("CLICK TO ADD QUESTION");
+        questionTextView.setText(STUB_PARAM_QUESTION);
         Bitmap white = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         white.eraseColor(getResources().getColor(R.color.colorBack));
         questionImageView.setImage(ImageSource.cachedBitmap(white));
@@ -240,7 +245,7 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void addNewAnswer() {
-        smallAdapter.addItem(STUB_PARAM_ID, STUB_PARAM);
+        smallAdapter.addItem(STUB_PARAM_ID, STUB_PARAM_ANSWER);
 
     }
 
@@ -250,8 +255,8 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void showPhotoFragment(String id, String value, int type, boolean isQuestion) {
-        photoDialog.setDialogParams(id, value, type, isQuestion);
+    public void showPhotoFragment(String id, Bitmap bitmap, int type, boolean isQuestion) {
+        photoDialog.setDialogParams(id, bitmap, type, isQuestion);
         photoDialog.show();
     }
 
@@ -262,9 +267,39 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void showOcrDrawingDialog(String id, String path) {
-        ocrDrawingDialog.setDialogParams(id, path);
+    public void showOcrDrawingDialog(String id, Bitmap fullBitmap, String path, boolean isQuestion) {
+        ocrDrawingDialog.setDialogParams(id, fullBitmap, path, isQuestion);
         ocrDrawingDialog.show();
+    }
+
+    @Override
+    public void setOcrDrawingDialogMode(boolean mode) {
+        ocrDrawingDialog.setDrawingMode(mode);
+    }
+
+    @Override
+    public void addPointToDrawerView(float x, float y) {
+        ocrDrawingDialog.addPointToDrawerView(x,y);
+    }
+
+    @Override
+    public void recomputeLastDrawerViewPoint(float x, float y) {
+        ocrDrawingDialog.recomputeLastDrawerViewPoint(x,y);
+    }
+
+    @Override
+    public void undoDrawingDialogViewPoint() {
+        ocrDrawingDialog.undoDrawingDialogViewPoint();
+    }
+
+    @Override
+    public void redoDrawingDialogViewPoint() {
+        ocrDrawingDialog.redoDrawingDialogViewPoint();
+    }
+
+    @Override
+    public void closeOcrDrawingDialog() {
+        ocrDrawingDialog.dismiss();
     }
 
 
@@ -280,12 +315,12 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void showGallery(int type, boolean isQuestion) {
         Intent intent = new Intent();
-        intent.setType("image/*");
+        intent.setType(TYPE_IMAGE);
         options = new Bundle();
         options.putInt(APP_ITEM_TYPE, type);
         options.putBoolean(APP_ITEM_IS_QUESTION, isQuestion);
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+        startActivityForResult(Intent.createChooser(intent, GALLERY_TITLE), PICK_IMAGE);
     }
 
 
@@ -310,38 +345,49 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void switchPagerToFullScreen() {
-        Objects.requireNonNull(((AppCompatActivity)
-                Objects.requireNonNull(
-                        getActivity())).getSupportActionBar()).hide();
-        viewPagerLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
-        viewPagerLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        createTestFragmentPresenter.onViewModeChanged(true);
+        viewPagerLayout.post(() ->
+        {
+            appBar.hide();
+            mainCard.setCardBackgroundColor(getResources().getColor(R.color.colorBack));
+            mainCard.setCardElevation(0);
+            mainCard.setUseCompatPadding(false);
+            ticketCounterTextView.setVisibility(View.INVISIBLE);
+            cardPageTransformer.setMode(false);
+            createTestFragmentPresenter.onViewModeChanged(true);
+            viewPagerLayout.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+
+        });
     }
 
     @Override
     public void switchPagerToSmallView() {
-        Objects.requireNonNull(((AppCompatActivity)
-                Objects.requireNonNull
-                        (getActivity())).getSupportActionBar()).show();
-        viewPagerLayout.setBackgroundColor(getResources().getColor(R.color.colorBack));
-        viewPagerLayout.setLayoutParams(layoutParams);
-        createTestFragmentPresenter.onViewModeChanged(false);
+        viewPagerLayout.post(() -> {
+            appBar.show();
+            mainCard.setCardBackgroundColor(getResources().getColor(R.color.color_card_light));
+            mainCard.setCardElevation(2);
+            mainCard.setUseCompatPadding(true);
+            ticketCounterTextView.setVisibility(View.VISIBLE);
+            cardPageTransformer.setMode(true);
+            createTestFragmentPresenter.onViewModeChanged(false);
+            viewPagerLayout.setLayoutParams(layoutParams);
+        });
     }
 
 
     @Override
-    public void animateAnswer(String id, MotionEvent e2) {
-        ((AnswerContentFragment)smallAdapter.getItemById(id)).animate(e2);
+    public void animateAnswer(String id, float rawY) {
+        ((AnswerContentFragment) smallAdapter.getItemById(id)).animate(rawY);
     }
 
     @Override
-    public void calculateAnswerScroll(String id, MotionEvent e) {
-        ((AnswerContentFragment)smallAdapter.getItemById(id)).calculateScroll(e);
+    public void calculateAnswerScroll(String id, float rawY) {
+        ((AnswerContentFragment) smallAdapter.getItemById(id)).calculateScroll(rawY);
     }
 
     @Override
-    public void scrollAnswer(String id, MotionEvent event) {
-        ((AnswerContentFragment)smallAdapter.getItemById(id)).slideView(event);
+    public void scrollAnswer(String id, float rawY) {
+        ((AnswerContentFragment) smallAdapter.getItemById(id)).slideView(rawY);
     }
 
     @Override
@@ -351,7 +397,7 @@ public class CreateTestFragment extends Fragment implements
 
     @Override
     public void resetAnswerTransition(String id) {
-        ((AnswerContentFragment)smallAdapter.getItemById(id)).resetTransition();
+        ((AnswerContentFragment) smallAdapter.getItemById(id)).resetTransition();
     }
 
     @Override

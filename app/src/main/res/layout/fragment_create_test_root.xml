@@ -12,7 +12,8 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark">
+        android:layerType="hardware"
+        android:background="@drawable/background_wood">
     </android.support.v4.view.ViewPager>
 
 

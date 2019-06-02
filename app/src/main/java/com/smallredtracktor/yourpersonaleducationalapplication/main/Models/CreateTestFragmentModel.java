@@ -1,6 +1,8 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Models;
 
 
+import android.graphics.Bitmap;
+
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.POJOs.OcrResponseModel;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.TestItem;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
@@ -37,9 +39,10 @@ public class CreateTestFragmentModel implements ICreateTestFragmentMVPprovider.I
         repository.deleteFile(filepath);
     }
 
+
     @Override
-    public Maybe<OcrResponseModel> getParsedTextResult(String path) {
-        return repository.getParsedTextFromFile(path);
+    public Maybe<OcrResponseModel> getParsedTextResult(Bitmap bitmap) {
+        return repository.getParsedTextFromBitmap(bitmap);
     }
 
     @Override
