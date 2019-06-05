@@ -1,2 +1,2 @@
-# secret
+# PersonalEducationalApplication
 Remote repository
