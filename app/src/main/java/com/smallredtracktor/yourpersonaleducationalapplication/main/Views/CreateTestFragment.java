@@ -298,6 +298,12 @@ public class CreateTestFragment extends Fragment implements
         ocrDrawingDialog.recomputeLastDrawerViewPoint(x,y);
     }
 
+
+    @Override
+    public void switchTextItemSwipeMode(String id) {
+        ((AnswerContentFragment) smallAdapter.getItemById(id)).switchTextItemCardColor();
+    }
+
     @Override
     public void undoDrawingDialogViewPoint() {
         ocrDrawingDialog.undoDrawingDialogViewPoint();

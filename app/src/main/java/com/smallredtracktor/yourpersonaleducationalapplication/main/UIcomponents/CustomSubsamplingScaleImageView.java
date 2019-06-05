@@ -1,4 +1,4 @@
-package com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils;
+package com.smallredtracktor.yourpersonaleducationalapplication.main.UIcomponents;
 
 import android.content.Context;
 import android.util.AttributeSet;

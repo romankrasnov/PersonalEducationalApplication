@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -29,7 +28,7 @@ public class TableDialog extends Dialog {
     private final int columnCount = 4;
     private TableDialogListener listener;
     private List<CreateTestFragment> pagerList;
-    private final int height = (Resources.getSystem().getDisplayMetrics().heightPixels) / 8;
+    private final int height = Resources.getSystem().getDisplayMetrics().heightPixels / 8;
     private final int width = Resources.getSystem().getDisplayMetrics().widthPixels / columnCount;
     private TableLayout tableLayout;
 

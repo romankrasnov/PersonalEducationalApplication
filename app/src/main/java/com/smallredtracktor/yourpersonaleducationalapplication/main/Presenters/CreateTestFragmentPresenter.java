@@ -61,6 +61,7 @@ public class CreateTestFragmentPresenter implements
     private String currentTicket;
     private boolean isFullScreenMode = false;
 
+
     public CreateTestFragmentPresenter(@Nullable ICreateTestFragmentMVPprovider.IModel model,
                                        @Nullable CompressUtil compressUtil,
                                        @Nullable GalleryPathUtil galleryPathUtil,
@@ -194,6 +195,7 @@ public class CreateTestFragmentPresenter implements
                         } else {
                             if(type == 1) {
                                 view.setCurrentAnswer(id, type, path);
+                                view.addNewAnswer();
                             } else if (type == 3) {
                                 Objects.requireNonNull(compressUtil)
                                         .getFullSizeBitmap(path)
@@ -201,9 +203,8 @@ public class CreateTestFragmentPresenter implements
                                                 view.showOcrDrawingDialog(id, bitmap, path, false))
                                         .subscribe();
                             }
-                            view.addNewAnswer();
                         }
-        }
+            }
     }
 
     private void registerOcrDataAnswerConsumer(String id, String path, Bitmap bitmap) {
@@ -226,6 +227,8 @@ public class CreateTestFragmentPresenter implements
                         @Override
                         public void onError(Throwable e) {
                             view.setCurrentAnswer(id, 1, path);
+                            view.addNewAnswer();
+                            view.showToast(MESSAGE_NETWORK_ERROR);
                         }
                         @Override
                         public void onComplete() {}});
@@ -385,6 +388,7 @@ public class CreateTestFragmentPresenter implements
                             {
                                 view.setCurrentAnswer(id, 3, null);
                                 registerOcrDataAnswerConsumer(id, path, bitmap);
+                                view.addNewAnswer();
                             }
 
                     })
@@ -489,14 +493,6 @@ public class CreateTestFragmentPresenter implements
 
 
     @Override
-    public void onAnswerDoubleTap(String id) {
-        if (view != null) {
-            if(isFullScreenMode)
-            view.showToast("WOW");
-        }
-    }
-
-    @Override
     public void onViewModeChanged(boolean isFullScreenMode) {
         this.isFullScreenMode = isFullScreenMode;
         if (view != null) {
@@ -522,6 +518,50 @@ public class CreateTestFragmentPresenter implements
     public void onAnswerFragmentUp(String id, MotionEvent event) {
         if (view != null) {
             view.scrollAnswer(id, event.getRawY());
+        }
+    }
+
+    @Override
+    public void onTextAnswerLongClick(String id) {
+        if (view != null && model!= null) {
+            Observable<List<TestItem>> readTestItem;
+            readTestItem = model
+                    .getTestItem(id)
+                    .toObservable();
+            readStorageSubscriberMap.put(id ,new DisposableObserver<List<TestItem>>() {
+                @Override
+                public void onNext(List<TestItem> testItems) {
+                    if (testItems.size() != 0) {
+                        try {
+                            TestItem item = testItems.get(0);
+                            if(item.getType() == 0 || item.getType() ==3)
+                            {
+                                view.showTextFragment(item.getId(),
+                                        item.getValue(),
+                                        item.getType() ,
+                                        item.isQuestion());
+                            }
+                        } catch (Exception e) {
+                            view.showToast(testItems.get(0).getValue());
+                        }
+                    }
+                }
+                @Override
+                public void onError(Throwable e) {
+                    view.showToast(e.getMessage());
+                }
+                @Override
+                public void onComplete() {
+                }
+            });
+            readTestItem.subscribe(Objects.requireNonNull(readStorageSubscriberMap.get(id)));
+        }
+    }
+
+    @Override
+    public void onTextAnswerDoubleTap(String id) {
+        if (view != null) {
+            view.switchTextItemSwipeMode(id);
         }
     }
 

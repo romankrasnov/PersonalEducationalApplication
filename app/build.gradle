@@ -61,6 +61,8 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
     //CustomFab
     implementation "com.leinardi.android:speed-dial:2.0.1"
+    //Custom ProgressBar
+    implementation 'com.mikhaellopez:circularprogressbar:2.0.0'
 }
 repositories {
     mavenCentral()

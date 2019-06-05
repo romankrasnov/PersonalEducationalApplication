@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,8 +25,9 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CompressUtil;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CustomSubsamplingScaleImageView;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.UIcomponents.CustomSubsamplingScaleImageView;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.CustomViewPager.Adapters.CustomFinalPageAdapter;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,6 +68,7 @@ public class AnswerContentFragment extends Fragment implements
     private int type;
     private float mMotionDownY;
     private boolean isFullScreenMode;
+    private boolean swipeEnabled = true;
 
 
     @SuppressLint("ValidFragment")
@@ -143,7 +146,7 @@ public class AnswerContentFragment extends Fragment implements
 
     public void slideView(float rawY) {
         float diff = mMotionDownY - rawY;
-        if (diff < 400) {
+        if (Math.abs(diff) < 400) {
             ObjectAnimator animator = ObjectAnimator.ofFloat(card, "translationY", 0);
             animator.setDuration(150);
             animator.setInterpolator(new FastOutLinearInInterpolator());
@@ -175,15 +178,12 @@ public class AnswerContentFragment extends Fragment implements
 
             case 0: {
                 contentView.setText(content);
-                cardChildContainer.removeView(imageView);
                 setFullScreenTextListeners();
                 break;
             }
 
             case 1: {
                 contentView.setText("");
-                cardChildContainer.removeView(imageView);
-                cardChildContainer.addView(imageView);
                 loadImage(true);
                 setFullScreenPhotoListeners();
                 break;
@@ -191,8 +191,6 @@ public class AnswerContentFragment extends Fragment implements
 
             case 2: {
                 contentView.setText("");
-                cardChildContainer.removeView(imageView);
-                cardChildContainer.addView(imageView);
                 loadImage(true);
                 setFullScreenPhotoListeners();
                 break;
@@ -204,28 +202,84 @@ public class AnswerContentFragment extends Fragment implements
                 } else {
                     contentView.setText(content);
                 }
-                cardChildContainer.removeView(imageView);
                 setFullScreenTextListeners();
                 break;
             }
         }
     }
 
+
+
     @SuppressLint("ClickableViewAccessibility")
     private void setFullScreenTextListeners() {
-        answerItemScrollView.setOnTouchListener(new View.OnTouchListener() {
+        Bitmap whiteBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+        whiteBitmap.eraseColor(getResources().getColor(R.color.colorBack));
+        imageView.setImage(ImageSource.cachedBitmap(whiteBitmap));
+        imageView.setOnLongClickListener(v -> {
+            presenter.onTextAnswerLongClick(id);
+            swipeEnabled = false;
+            return true;
+        });
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            float startCoordX;
+            float startCoordY;
+            long startTime;
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                return new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onDoubleTap(MotionEvent e) {
-                        presenter.onAnswerDoubleTap(id);
-                        return super.onDoubleTap(e);
+            public boolean onTouch(View v, MotionEvent event) {
+
+                if(event.getAction() == MotionEvent.ACTION_DOWN)
+                {
+                    float finishCoordX = event.getRawX();
+                    float finishCoordY = event.getRawY();
+                    long finishTime = System.currentTimeMillis();
+                    float dx = Math.abs(startCoordX - finishCoordX);
+                    float dy = Math.abs(startCoordY - finishCoordY);
+                    float dl = (float) Math.sqrt(dx * dx + dy * dy);
+                    long dt = finishTime - startTime;
+                    if(dl < 25)
+                    {
+                        if(dt < 200)
+                        {
+                            presenter.onTextAnswerDoubleTap(id);
+                        }
                     }
-                }).onTouchEvent(motionEvent);
+                    startCoordX = finishCoordX;
+                    startCoordY = finishCoordY;
+                    startTime = finishTime;
+                }
+
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if(swipeEnabled)
+                    {
+                        presenter.onAnswerFragmentUp(id, event);
+                    }
+                }
+
+                if(swipeEnabled)
+                {
+                    return new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onDown(MotionEvent e) {
+                            presenter.onAnswerDown(id, e);
+                            return super.onDown(e);
+                        }
+
+                        @Override
+                        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                            presenter.onAnswerScroll(id, e2);
+                            return super.onScroll(e1, e2, distanceX, distanceY);
+                        }
+                    }).onTouchEvent(event);
+                } else
+                    {
+                        imageView.onTouchEvent(event);
+                        return answerItemScrollView.onTouchEvent(event);
+                    }
+
             }
         });
     }
+
 
     @SuppressLint("ClickableViewAccessibility")
     private void setFullScreenPhotoListeners() {
@@ -270,6 +324,7 @@ public class AnswerContentFragment extends Fragment implements
             case 0: {
                 contentView.setText(content);
                 setSmallScreenListeners();
+                card.setCardBackgroundColor(getResources().getColor(R.color.color_card));
                 break;
             }
 
@@ -293,6 +348,7 @@ public class AnswerContentFragment extends Fragment implements
                 } else {
                     contentView.setText(content);
                 }
+                card.setCardBackgroundColor(getResources().getColor(R.color.color_card));
                 setSmallScreenListeners();
                 break;
             }
@@ -346,5 +402,17 @@ public class AnswerContentFragment extends Fragment implements
                 }).onTouchEvent(motionEvent);
             }
         });
+    }
+
+
+    public void switchTextItemCardColor() {
+        swipeEnabled = !swipeEnabled;
+        if (swipeEnabled)
+        {
+            card.setCardBackgroundColor(getResources().getColor(R.color.color_card));
+        } else
+        {
+            card.setCardBackgroundColor(getResources().getColor(R.color.color_card_ultra));
+        }
     }
 }

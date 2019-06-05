@@ -34,11 +34,12 @@ public interface ICreateTestFragmentMVPprovider {
         void onQuestionLongPressed(String id);
         void onAnswerPageSelected(int page, int count);
         void onViewModeChanged(boolean isFullScreenMode);
-        void onAnswerDoubleTap(String id);
         void onAnswerFragmentClick(String id);
         void onAnswerScroll(String id, MotionEvent e2);
         void onAnswerDown(String id, MotionEvent e);
         void onAnswerFragmentUp(String id, MotionEvent event);
+        void onTextAnswerLongClick(String id);
+        void onTextAnswerDoubleTap(String id);
     }
 
     interface IFragment extends IAbstractView
@@ -72,6 +73,7 @@ public interface ICreateTestFragmentMVPprovider {
         void closeOcrDrawingDialog();
         void addPointToDrawerView(float x, float y);
         void recomputeLastDrawerViewPoint(float x, float y);
+        void switchTextItemSwipeMode(String id);
     }
 
     interface IModel extends IAbstractModel

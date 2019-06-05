@@ -7,11 +7,8 @@ import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.Create
 import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.TrainingFragment;
 
 
-import javax.annotation.Nullable;
-
 public class MainActivityPresenter implements IMainActivityMVPprovider.IPresenter {
 
-    @Nullable
     private IMainActivityMVPprovider.IView view;
     private IMainActivityMVPprovider.IModel model;
 

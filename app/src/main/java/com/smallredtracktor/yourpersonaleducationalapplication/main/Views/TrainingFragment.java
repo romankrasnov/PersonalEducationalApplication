@@ -1,48 +1,46 @@
 package com.smallredtracktor.yourpersonaleducationalapplication.main.Views;
 
-import android.content.Context;
-import android.net.Uri;
+
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.DataObjects.Test;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.UniqueUtils.UniqueDigit;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.Views.RVAdapters.TrainingListRVAdapter;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link TrainingFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link TrainingFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
+
 public class TrainingFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+    @BindView(R.id.trainingListView)
+    RecyclerView trainingListView;
+    Unbinder unbinder;
+
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
 
     public TrainingFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TrainingFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static TrainingFragment newInstance(String param1, String param2) {
         TrainingFragment fragment = new TrainingFragment();
         Bundle args = new Bundle();
@@ -62,48 +60,33 @@ public class TrainingFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_training, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onTrainingFragmentInteraction(uri);
-        }
+        View view = inflater.inflate(R.layout.fragment_training, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        trainingListView.setLayoutManager(llm);
+        List<Test> tests = new ArrayList<>();
+        for(int i = 0; i<25; i++)
+        {
+            Test test = new Test();
+            test.setName(UniqueDigit.getUnique());
+            test.setProgress(i);
+            tests.add(test);
         }
+        trainingListView.setAdapter(new TrainingListRVAdapter(tests));
     }
+
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onTrainingFragmentInteraction(Uri uri);
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

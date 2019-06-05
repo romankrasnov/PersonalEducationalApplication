@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.nav_statistics)
         {
+            //for db test
             Realm.init(this);
             Realm realm = Realm.getDefaultInstance();
             RealmConfiguration configuration = realm.getConfiguration();

@@ -23,7 +23,7 @@ import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 import com.smallredtracktor.yourpersonaleducationalapplication.R;
 import com.smallredtracktor.yourpersonaleducationalapplication.main.MVPproviders.ICreateTestFragmentMVPprovider;
-import com.smallredtracktor.yourpersonaleducationalapplication.main.Utils.PhotoUtils.CustomSubsamplingScaleImageView;
+import com.smallredtracktor.yourpersonaleducationalapplication.main.UIcomponents.CustomSubsamplingScaleImageView;
 
 import java.util.ArrayList;
 import java.util.List;
