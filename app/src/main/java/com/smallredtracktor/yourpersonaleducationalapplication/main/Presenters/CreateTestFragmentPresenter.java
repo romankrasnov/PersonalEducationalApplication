@@ -43,8 +43,6 @@ public class CreateTestFragmentPresenter implements
 
 
     @Nullable
-    private GalleryPathUtil galleryPathUtil;
-    @Nullable
     private ICreateTestFragmentMVPprovider.IFragment view;
     @Nullable
     private ICreateTestFragmentMVPprovider.IModel model;
@@ -54,6 +52,8 @@ public class CreateTestFragmentPresenter implements
     private PhotoIntentUtil photoIntentUtil;
     @Nullable
     private PolygonCropUtil polygonCropUtil;
+    @Nullable
+    private GalleryPathUtil galleryPathUtil;
 
 
     private HashMap<String,DisposableObserver<List<TestItem>>> readStorageSubscriberMap = new HashMap<>();
@@ -227,7 +227,6 @@ public class CreateTestFragmentPresenter implements
                         @Override
                         public void onError(Throwable e) {
                             view.setCurrentAnswer(id, 1, path);
-                            view.addNewAnswer();
                             view.showToast(MESSAGE_NETWORK_ERROR);
                         }
                         @Override
@@ -372,27 +371,26 @@ public class CreateTestFragmentPresenter implements
     }
 
     @Override
-    public void onOcrDrawingDialogDone(Bitmap src, List<PointF> polygons, Bitmap mutable, String id, String path, boolean isQuestion) {
+    public void onOcrDrawingDialogDone(Bitmap src, List<PointF> polygon, Bitmap mutable, String id, String path, boolean isQuestion) {
         if (view != null) {
             view.closeOcrDrawingDialog();
-        }
-        if (polygonCropUtil != null) {
-            polygonCropUtil.getCroppedBitmap(src, polygons, mutable)
-                    .doOnSuccess(bitmap ->
-                    {
-                        if(isQuestion)
-                        {
-                            view.setTextQuestion(id, 3, STATUS_LOADING);
-                            registerOcrDataQuestionConsumer(id,path, bitmap);
-                        } else
-                            {
-                                view.setCurrentAnswer(id, 3, null);
-                                registerOcrDataAnswerConsumer(id, path, bitmap);
-                                view.addNewAnswer();
-                            }
+            if (polygonCropUtil != null) {
+                if (isQuestion) {
+                    view.setTextQuestion(id, 3, STATUS_LOADING);
+                    polygonCropUtil.getCroppedBitmap(src, polygon, mutable)
+                            .doOnSuccess(bitmap ->
+                                    registerOcrDataQuestionConsumer(id, path, bitmap))
+                            .subscribe();
 
-                    })
-                    .subscribe();
+            } else {
+                view.setCurrentAnswer(id, 3, null);
+                view.addNewAnswer();
+                    polygonCropUtil.getCroppedBitmap(src, polygon, mutable)
+                            .doOnSuccess(bitmap ->
+                                    registerOcrDataAnswerConsumer(id, path, bitmap))
+                            .subscribe();
+                }
+            }
         }
     }
 
