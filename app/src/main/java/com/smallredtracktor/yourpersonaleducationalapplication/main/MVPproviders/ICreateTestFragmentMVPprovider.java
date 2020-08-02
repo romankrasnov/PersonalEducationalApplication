@@ -40,6 +40,7 @@ public interface ICreateTestFragmentMVPprovider {
         void onAnswerFragmentUp(String id, MotionEvent event);
         void onTextAnswerLongClick(String id);
         void onTextAnswerDoubleTap(String id);
+        void onRequestPermissionsResult(int requestCode, boolean isQuestion);
     }
 
     interface IFragment extends IAbstractView
@@ -57,7 +58,7 @@ public interface ICreateTestFragmentMVPprovider {
         void showGallery(int type, boolean isQuestion, Intent intent);
         void deleteQuestion();
         void showChooseSourceDialog(boolean isQuestion);
-        void resolveCameraPermission();
+        void resolveCameraPermission(int type, boolean isQuestion);
         void setCurrentAnswerItem(int i);
         void switchPagerToFullScreen();
         void switchPagerToSmallView();

@@ -64,9 +64,12 @@ public class CreateTestFragment extends Fragment implements
     private static final String APP_ITEM_IS_QUESTION = "isQuestion";
     private static final String FILE_PATH = "file_path";
     private static final int CODE_REQUEST_CAMERA = 200;
+    private static final String PERMISSION_OPTION_TYPE = "type";
+    private static final String PERMISSION_OPTION_IS_QUESTION = "isQuestion";
 
 
     private Bundle imagePickingIntentOptions;
+    private Bundle cameraPermissionOptions;
     private String outcomeParam;
     private String ticketId;
 
@@ -345,11 +348,17 @@ public class CreateTestFragment extends Fragment implements
     }
 
     @Override
-    public void resolveCameraPermission() {
+    public void resolveCameraPermission(int type, boolean isQuestion) {
+        cameraPermissionOptions = new Bundle();
+        cameraPermissionOptions.putInt(PERMISSION_OPTION_TYPE ,type);
+        cameraPermissionOptions.putBoolean(PERMISSION_OPTION_IS_QUESTION,isQuestion);
         if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, CODE_REQUEST_CAMERA);
-        }
+        } else
+            {
+                createTestFragmentPresenter.onRequestPermissionsResult(type, isQuestion);
+            }
     }
 
     @Override
@@ -428,6 +437,9 @@ public class CreateTestFragment extends Fragment implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        createTestFragmentPresenter.onRequestPermissionsResult(
+                cameraPermissionOptions.getInt(PERMISSION_OPTION_TYPE),
+                cameraPermissionOptions.getBoolean(PERMISSION_OPTION_IS_QUESTION));
     }
 
     @Override

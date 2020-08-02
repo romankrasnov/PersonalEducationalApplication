@@ -41,7 +41,7 @@ public class CreateTestRootFragmentPresenter implements
     @Override
     public void onPageSelected(int i, int count) {
         if (i == count - 1) {
-            Observable timer = Observable
+            Observable<Object> timer = Observable
                     .just(new Object())
                     .delay(300, TimeUnit.MILLISECONDS)
                     .subscribeOn(Schedulers.computation())

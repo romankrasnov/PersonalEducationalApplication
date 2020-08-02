@@ -296,16 +296,7 @@ public class CreateTestFragmentPresenter implements
 
     private void fireCamera(int type, boolean isQuestion) {
         if (view != null) {
-            view.resolveCameraPermission();
-        Objects.requireNonNull(photoIntentUtil)
-                .getPhotoTakingSet()
-                .doOnSuccess(result ->
-                        view.showCameraFragment(
-                                result.getIntent(),
-                                type,
-                                isQuestion,
-                                result.getPath()))
-                .subscribe();
+            view.resolveCameraPermission(type, isQuestion);
         }
     }
 
@@ -561,6 +552,22 @@ public class CreateTestFragmentPresenter implements
         if (view != null) {
             view.switchTextItemSwipeMode(id);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int type, boolean isQuestion) {
+        Objects.requireNonNull(photoIntentUtil)
+                .getPhotoTakingSet()
+                .doOnSuccess(result -> {
+                    if (view != null) {
+                        view.showCameraFragment(
+                                result.getIntent(),
+                                type,
+                                isQuestion,
+                                result.getPath());
+                    }
+                })
+                .subscribe();
     }
 
 
